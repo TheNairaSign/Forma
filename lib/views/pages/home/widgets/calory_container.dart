@@ -1,50 +1,82 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lottie/lottie.dart';
+import 'package:step_progress_indicator/step_progress_indicator.dart';
+import 'package:workout_tracker/providers/steps_notifier.dart';
+import 'package:workout_tracker/utils/custom_route.dart';
+import 'package:workout_tracker/views/pages/home/sub_pages/stats_page.dart';
+import 'package:workout_tracker/views/pages/home/widgets/steps_progress_indicator.dart';
 
-class CaloryContainer extends StatelessWidget {
+class CaloryContainer extends ConsumerStatefulWidget  {
   const CaloryContainer({super.key});
-  // final double height ;
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
-      // height: height,
-      padding: EdgeInsets.all(10), 
-      width: 70,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(15),
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            // Color(0xffc85469),
-            // Color(0xfff2849e),
+  ConsumerState<CaloryContainer> createState() => _CaloriesContainerState();
+}
 
-            // Colors.white,
-            // Colors.grey,
-            Color(0xff5469c8),
-            Color(0xff849ef2),
+class _CaloriesContainerState extends ConsumerState<CaloryContainer> {
+
+  @override
+  void initState() {
+    super.initState();
+    // ref.read(stepsProvider.notifier).initPlatformState();
+  }
+  @override
+  Widget build(BuildContext context) {
+    final steps = ref.watch(stepsProvider).steps;
+    debugPrint('Calory $steps');
+    return GestureDetector(
+      onTap: () => Navigator.of(context).push(SlidePageRoute(page: StatisticsScreen())),
+      child: Container(
+        padding: EdgeInsets.all(15),
+        height: 130,
+        // width: size * 0.4,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(15),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            SizedBox(
+              width: 100,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Burning calories', style: Theme.of(context).textTheme.headlineSmall!.copyWith(color: Colors.green)),
+                  Text('Keep it up', style: Theme.of(context).textTheme.headlineSmall!.copyWith(color: Colors.grey, fontSize: 18)),
+                ]
+              ),
+            ),
+            Lottie.asset('assets/lottie/calory-animation.json', height: 100, width: 100),
+            Center(
+              child: Container(
+                height: 150,
+                // width: size * 0.4,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                  StepsProgressIndicator(
+                    currentStep: 40, 
+                    strokeColor: Colors.green,
+                    measurementUnit: 'Kcal',
+                    textColor: Colors.grey,
+                    circularDirection: CircularDirection.counterclockwise,
+                  ),
+                  // SizedBox(width: 15),
+                  ],
+                ),
+              ),
+            ),
           ],
-        )
-      ),
-      child: Column(
-        children: [
-          Container(
-            height: 50,
-            decoration: BoxDecoration(
-              color: Color(0xff3a55a0), 
-              // color: Color(0xffa03a55),
-              // color: Colors.grey,
-              borderRadius: BorderRadius.circular(10), 
-            ),
-            child: Center(
-              child: SvgPicture.asset('assets/man-lifting-weights.svg',),
-            ),
-          ),
-          const SizedBox(height: 20),
-          Text('2200', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),),
-          Text('Calories', style: TextStyle(color: Colors.white, fontSize: 12),),
-        ],
+        ),
       ),
     );
   }

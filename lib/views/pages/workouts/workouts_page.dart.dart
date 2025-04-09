@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:workout_tracker/providers/workout_item_notifier.dart';
 import 'package:workout_tracker/utils/constants.dart';
 import 'package:workout_tracker/utils/custom_route.dart';
@@ -34,12 +35,7 @@ class _WorkoutsPageState extends ConsumerState<WorkoutsPage> {
         automaticallyImplyLeading: false,
         title: Text('Workouts Page', style: Theme.of(context).textTheme.headlineSmall),
         actionsPadding: EdgeInsets.only(right: 5),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.add),
-            onPressed: () => workoutProvider.showAddWorkoutModal(context),
-          ),
-      ],),
+        actions: [ IconButton(icon: Icon(Icons.add), onPressed: () => workoutProvider.showAddWorkoutModal(context)) ]),
       body: Padding(
         padding: Constants.bodyPadding,
         child: Column(
@@ -59,7 +55,14 @@ class _WorkoutsPageState extends ConsumerState<WorkoutsPage> {
                       final workout = workouts[index];
                       return GestureDetector(
                         onTap: () => Navigator.of(context).push(SlidePageRoute(page: WorkoutSessionScreen(workout: workout, index))),
-                        child: WorkoutItem(workout: workout));
+                        child: AnimationConfiguration.staggeredList(
+                          position: index,
+                          duration: const Duration(milliseconds: 450),
+                          child: SlideAnimation(
+                            horizontalOffset: 50.0,
+                            child: FadeInAnimation(child: WorkoutItem(workout: workout)))
+                        )
+                      );
                     },
                   ),
             ),

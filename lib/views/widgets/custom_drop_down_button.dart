@@ -16,7 +16,7 @@ class CustomDropdownButton extends StatefulWidget {
     this.initialValue,
     required this.hint,
     this.onChanged,
-    this.width =double.infinity,
+    this.width = double.infinity,
     this.textColor = Colors.black87,
   });
 

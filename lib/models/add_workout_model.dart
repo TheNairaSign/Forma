@@ -17,12 +17,6 @@ class AddWorkoutTextFieldModel {
   static List<AddWorkoutTextFieldModel> getWorkoutModels(WidgetRef ref) {
     List<AddWorkoutTextFieldModel> models = [];
     final workoutControllers = ref.read(workoutItemProvider.notifier);
-      models.add(AddWorkoutTextFieldModel(
-        label: 'Workout Name',
-        hintText: 'Enter Workout Name',
-        controller: workoutControllers.nameController 
-        ),
-      );
       models.add(
         AddWorkoutTextFieldModel(
           label: 'Sets',

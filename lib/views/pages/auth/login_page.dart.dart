@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:workout_tracker/style/global_colors.dart';
 import 'package:workout_tracker/utils/constants.dart';
 import 'package:workout_tracker/utils/custom_route.dart';
 import 'package:workout_tracker/views/pages/auth/sign_up_page.dart.dart';
 import 'package:workout_tracker/views/pages/auth/widgets/auth_logo_container.dart';
 import 'package:workout_tracker/views/pages/navigation/navigation_page.dart';
+import 'package:workout_tracker/views/widgets/animated_page_entry.dart';
 import 'package:workout_tracker/views/widgets/blue_button.dart';
 import 'package:workout_tracker/views/widgets/custom_text_field.dart';
 
@@ -28,17 +28,8 @@ class _LoginPageState extends State<LoginPage> {
         bottom: true,
         child: Padding(
           padding: Constants.bodyPadding,
-          child: AnimationLimiter(
-            child: ListView(
-              physics: AlwaysScrollableScrollPhysics(),
-              children: AnimationConfiguration.toStaggeredList(
-                duration: const Duration(milliseconds: 800),
-                childAnimationBuilder: (widget) => SlideAnimation(
-                  verticalOffset: 50.0,
-                  child: FadeInAnimation(
-                    child: widget,
-                  ),
-                ), 
+          child:AnimatedPageEntry(
+            verticalOffset: 50,
               children: [
                 const SizedBox(height: 40),
                 Center(child: Text('FORMA', style: Theme.of(context).textTheme.displaySmall?.copyWith(color: GlobalColors.primaryBlue))),
@@ -81,8 +72,6 @@ class _LoginPageState extends State<LoginPage> {
             ),
           ),
         ),
-      ),
-      )
     );
   }
 }

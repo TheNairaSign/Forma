@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:workout_tracker/providers/workout_item_notifier.dart';
 import 'package:workout_tracker/views/pages/home/widgets/activity_item.dart';
-import 'package:workout_tracker/views/pages/home/widgets/calory_container.dart';
 
 class ActivityContainer extends ConsumerWidget {
   ActivityContainer({super.key});
@@ -24,7 +23,6 @@ class ActivityContainer extends ConsumerWidget {
     : Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        CaloryContainer(),
         const SizedBox(width: 10),
         Expanded(
           child: Container(
