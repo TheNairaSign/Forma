@@ -1,169 +1,196 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:workout_tracker/hive/daily_steps_adapter.dart';
+import 'package:workout_tracker/providers/steps_notifier.dart';
 import 'package:workout_tracker/views/pages/home/widgets/steps_counter_widget.dart';
 import 'package:workout_tracker/views/widgets/animated_page_entry.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:workout_tracker/views/widgets/custom_drop_down_button.dart';
 
-class StepsDetailsPage extends StatefulWidget {
+class StepsDetailsPage extends ConsumerStatefulWidget {
   const StepsDetailsPage({super.key, required this.currentSteps});
   final int currentSteps;
 
   @override
-  State<StepsDetailsPage> createState() => _StepsDetailsPageState();
+  ConsumerState<StepsDetailsPage> createState() => _StepsDetailsPageState();
 }
 
-class _StepsDetailsPageState extends State<StepsDetailsPage> {
+class _StepsDetailsPageState extends ConsumerState<StepsDetailsPage> {
   String selectedRange = 'Daily';
+  late StepsNotifier stepsState;
+
+  @override
+  void initState() {
+    super.initState();
+    stepsState = ref.read(stepsProvider.notifier);
+  }
 
   List<DailySteps> get currentData {
     switch (selectedRange) {
-      case 'Weekly': return weeklySteps;
-      case 'Monthly': return monthlySteps;
-      default: return dailySteps;
+      case 'Weekly': return stepsState.getWeeklySteps();
+      case 'Monthly': return stepsState.getMonthlySteps();
+      default: return stepsState.getDailySteps();
     }
   }
 
   @override
   Widget build(BuildContext context) {
+  final dailyTargetSteps = ref.watch(stepsProvider.notifier).dailyTargetSteps.toDouble();
+
     return Scaffold(
       appBar: AppBar(title: Text('Step Counter', style: Theme.of(context).textTheme.headlineSmall,),centerTitle: true),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
-        child: AnimatedPageEntry(children: [
-          StepCounterWidget(
-          caloriesBurned: 870,
-          progressColor: Color(0xFF4CD964),
-        ),
-        const SizedBox(height: 10),
+        child: AnimatedPageEntry(
+          children: [
+            StepCounterWidget(caloriesBurned: 870, progressColor: Color(0xFF4CD964)),
+            const SizedBox(height: 10),
 
-        Container(
-          height: 100,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            // borderRadius: BorderRadius.circular(10),
-          ),
-          child:AspectRatio(
-          aspectRatio: 1.6,
-          child: BarChart(
-            BarChartData(
-              alignment: BarChartAlignment.spaceAround,
-              titlesData: FlTitlesData(
-                leftTitles: AxisTitles(
-                  sideTitles: SideTitles(showTitles: true),
+            // Range Selector
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                SizedBox(
+                  height: 40,
+                  width: 100,
+                  child: CustomDropdownButton(
+                    items: ['Daily', 'Weekly', 'Monthly'], 
+                    hint: selectedRange, onChanged: (value) {
+                      setState(() {
+                        selectedRange = value!;
+                      });
+                  }),
                 ),
-                bottomTitles: AxisTitles(
-                  sideTitles: SideTitles(
-                    showTitles: true,
-                    getTitlesWidget: (value, meta) {
-                      int index = value.toInt();
-                      if (index < currentData.length) {
-                        final date = currentData[index].date;
-                        return Text(
-                          selectedRange == 'Monthly'
-                            ? '${date.month}/${date.year.toString().substring(2)}'
-                            : selectedRange == 'Weekly'
-                              ? 'W${date.weekday}'
-                              : '${date.day}/${date.month}',
-                          style: TextStyle(fontSize: 10),
-                        );
-                      }
-                      return Text('');
+              ],
+            ),
+            const SizedBox(height: 20),
+
+            Container(
+              height: 250,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.1),
+                    spreadRadius: 1,
+                    blurRadius: 10,
+                  ),
+                ],
+              ),
+              padding: const EdgeInsets.all(16),
+              child: BarChart(
+                BarChartData(
+                  borderData: FlBorderData(show: false),
+                  alignment: BarChartAlignment.spaceAround,
+                  maxY: dailyTargetSteps,
+                  minY: 0,
+                  gridData: FlGridData(
+                    show: true,
+                    drawVerticalLine: false,
+                    drawHorizontalLine: false,
+                    horizontalInterval: 1000,
+                    getDrawingHorizontalLine: (value) {
+                      return FlLine(
+                        color: Colors.grey.withOpacity(0.15),
+                        strokeWidth: 1,
+                        dashArray: [5, 5],
+                      );
                     },
                   ),
+                  titlesData: FlTitlesData(
+                    show: true,
+                    topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                    rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                    leftTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        interval: 2000,
+                        reservedSize: 20,
+                        getTitlesWidget: (value, meta) {
+                          return Text(
+                            '${(value / 1000).toInt()}k',
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 12,
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                    bottomTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        getTitlesWidget: (value, meta) {
+                          int index = value.toInt();
+                          if (selectedRange == 'Daily') {
+                            if ([3, 6, 9, 12, 15, 18, 21].contains(index)) {
+                              return Text(
+                                '${index > 12 ? index - 12 : index}${index >= 12 ? "PM" : "AM"}',
+                                style: TextStyle(
+                                  color: Colors.grey[600],
+                                  fontSize: 12,
+                                ),
+                              );
+                            }
+                            return const Text('');
+                          }
+                          if (index < currentData.length) {
+                            final date = currentData[index].date;
+                            return Text(
+                              selectedRange == 'Monthly'
+                                ? DateFormat('MMM').format(date)
+                                : ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][date.weekday % 7],
+                              style: TextStyle(
+                                color: Colors.grey[600],
+                                fontSize: 12,
+                              ),
+                            );
+                          }
+                          return const Text('');
+                        },
+                      ),
+                    ),
+                  ),
+                  barGroups: selectedRange == 'Daily'
+                    ? stepsState.getHourlySteps()
+                        .entries
+                        .map((entry) => BarChartGroupData(
+                          x: entry.key,
+                          barRods: [
+                            BarChartRodData(
+                              toY: entry.value.toDouble(),
+                              color: Colors.green.shade300,
+                              width: 12,
+                              borderRadius: BorderRadius.circular(6),
+                            )
+                          ],
+                        ))
+                        .toList()
+                    : currentData
+                        .asMap()
+                        .entries
+                        .map((entry) => BarChartGroupData(
+                          x: entry.key,
+                          barRods: [
+                            BarChartRodData(
+                              toY: entry.value.steps.toDouble() > dailyTargetSteps ? dailyTargetSteps : entry.value.steps.toDouble(),
+                              color: entry.value.date.weekday % 2 == 0 
+                                ? Colors.blue.shade300 
+                                : Colors.green.shade300,
+                              width: 20,
+                              borderRadius: BorderRadius.circular(10),
+                            )
+                          ],
+                        ))
+                        .toList(),
                 ),
               ),
-              barGroups: currentData
-                .asMap()
-                .entries
-                .map((entry) => BarChartGroupData(
-                  x: entry.key,
-                  barRods: [
-                    BarChartRodData(
-                      toY: entry.value.steps.toDouble(),
-                      color: Colors.blue,
-                      width: 16,
-                      borderRadius: BorderRadius.circular(6),
-                    )
-                  ],
-                ))
-                .toList(),
             ),
-          ),
+          ]
         ),
-        )
-        ]),
       )
     );
   }
 }
-
-List<DailySteps> dailySteps = List.generate(
-  7,
-  (index) => DailySteps(
-    lastUpdated: DateTime.now(),
-    date: DateTime.now().subtract(Duration(days: 6 - index)),
-    steps: 2000 + index * 1000,
-  ),
-);
-
-List<DailySteps> weeklySteps = List.generate(
-  4,
-  (index) => DailySteps(
-    lastUpdated: DateTime.now(),
-    date: DateTime.now().subtract(Duration(days: 7 * (3 - index))),
-    steps: 15000 + index * 3000,
-  ),
-);
-
-List<DailySteps> monthlySteps = List.generate(
-  6,
-  (index) => DailySteps(
-    lastUpdated: DateTime.now(),
-    date: DateTime(DateTime.now().year, DateTime.now().month - (5 - index), 1),
-    steps: 60000 + index * 8000,
-  ),
-);
-
-
-// class StepsChart extends StatefulWidget {
-//   @override
-//   _StepsChartState createState() => _StepsChartState();
-// }
-
-// class _StepsChartState extends State<StepsChart> {
-//   String selectedRange = 'Daily';
-
-//   List<StepData> get currentData {
-//     switch (selectedRange) {
-//       case 'Weekly': return weeklySteps;
-//       case 'Monthly': return monthlySteps;
-//       default: return dailySteps;
-//     }
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Column(
-//       children: [
-//         // Range Selector
-//         DropdownButton<String>(
-//           value: selectedRange,
-//           onChanged: (value) {
-//             setState(() {
-//               selectedRange = value!;
-//             });
-//           },
-//           items: ['Daily', 'Weekly', 'Monthly']
-//               .map((e) => DropdownMenuItem(value: e, child: Text(e)))
-//               .toList(),
-//         ),
-
-//         SizedBox(height: 20),
-
-//         // Chart Display
-        
-//       ],
-//     );
-//   }
-// }
-

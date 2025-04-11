@@ -18,4 +18,16 @@ class DailySteps {
     required this.steps,
     required this.lastUpdated,
   });
+
+  DailySteps copyWith({
+    DateTime? date,
+    int? steps,
+    DateTime? lastUpdated,
+  }) {
+    return DailySteps(
+      date: date ?? this.date,
+      steps: steps ?? this.steps,
+      lastUpdated: lastUpdated ?? this.lastUpdated,
+    );
+  }
 }

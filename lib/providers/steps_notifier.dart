@@ -16,6 +16,7 @@ class StepsNotifier extends StateNotifier<StepsState> {
     pedestrianStatusStream: const Stream.empty(),
     status: '0',
     steps: 0,
+    date: DateTime.now(),
   ));
 
   final Box<DailySteps> _dailyStepsBox = Hive.box<DailySteps>('dailyStepsBox');
@@ -51,10 +52,11 @@ class StepsNotifier extends StateNotifier<StepsState> {
 
 
     if (dailySteps != null) {
-      debugPrint('Daily Steps: ${dailySteps.steps}');
+      debugPrint('Step Count: ${dailySteps.steps}');
       await _dailyStepsBox.put(dateKey, DailySteps(
         date: _currentDate,
-        steps: dailySteps.steps + stepCount,
+        // steps: dailySteps.steps + stepCount,
+        steps: stepCount,
         lastUpdated: DateTime.now(),
       ));  
     } else {
@@ -74,20 +76,121 @@ class StepsNotifier extends StateNotifier<StepsState> {
     return _dailyStepsBox.get(today)?.steps ?? 0;
   }
 
-  // Update getStepsForDate to use the new key format
-  int? getStepsForDate(DateTime date) {
-    return _dailyStepsBox.get(_getDateKey(date))?.steps;
+  
+
+  List<DailySteps> getDailySteps() {
+    final today = _getDateKey(DateTime.now());
+    final dailySteps = _dailyStepsBox.get(today);
+
+    if (dailySteps != null) {
+      debugPrint('Daily Steps: ${dailySteps.steps}');
+      return [dailySteps];
+    } else {
+      return [];
+    }
   }
+
+  Map<int, int> getHourlySteps() {
+    final today = DateTime.now();
+    final dateKey = _getDateKey(today);
+    final dailySteps = _dailyStepsBox.get(dateKey);
+    
+    // Initialize map with 24 hours (0-23) set to 0 steps
+    final Map<int, int> hourlyBreakdown = { 
+      for (var hour in List.generate(24, (index) => index)) hour : 0 
+    };
+
+    if (dailySteps != null) {
+      final lastUpdate = dailySteps.lastUpdated;
+      final currentHour = lastUpdate.hour;
+      
+      // Distribute steps across hours up to the last update
+      // Simple distribution - divides steps evenly across active hours
+      final activeHours = currentHour + 1;
+      final stepsPerHour = (dailySteps.steps / activeHours).floor();
+      
+      for (int i = 0; i <= currentHour; i++) {
+        hourlyBreakdown[i] = stepsPerHour;
+      }
+      
+      // Add remaining steps to the current hour
+      final remainingSteps = dailySteps.steps - (stepsPerHour * activeHours);
+      hourlyBreakdown[currentHour] = (hourlyBreakdown[currentHour] ?? 0) + remainingSteps;
+    }
+
+    return hourlyBreakdown;
+  }
+
+  List<DailySteps> getWeeklySteps() {
+    final weeklySteps = <DailySteps>[];
+    final now = DateTime.now();
+    // Get the start of the week (Sunday)
+    final startOfWeek = now.subtract(Duration(days: now.weekday % 7));
+
+    for (int i = 0; i < 7; i++) {
+      final date = startOfWeek.add(Duration(days: i));
+      final dateKey = _getDateKey(date);
+      final dailySteps = _dailyStepsBox.get(dateKey);
+
+      if (dailySteps != null) {
+        weeklySteps.add(dailySteps);
+        debugPrint('Weekly Steps for ${DateFormat('EEEE').format(date)}: ${dailySteps.steps}');
+      } else {
+        weeklySteps.add(DailySteps(
+          date: date,
+          steps: 0,
+          lastUpdated: date,
+        ));
+      }
+    }
+
+    // Sort by date to ensure correct order
+    weeklySteps.sort((a, b) => a.date.compareTo(b.date));
+    return weeklySteps;
+  }
+
+  List<DailySteps> getMonthlySteps() {
+    final monthlySteps = <DailySteps>[];
+    final now = DateTime.now();
+
+    // Get data for all 12 months starting from January
+    for (int i = 0; i < 12; i++) {
+      final date = DateTime(now.year, i + 1, 1);
+      final monthTotal = _getMonthTotal(date);
+      
+      monthlySteps.add(DailySteps(
+        date: date,
+        steps: monthTotal,
+        lastUpdated: now,
+      ));
+    }
+    return monthlySteps;
+  }
+
+  int _getMonthTotal(DateTime date) {
+    int total = 0;
+    final daysInMonth = DateTime(date.year, date.month + 1, 0).day;
+    
+    for (int day = 1; day <= daysInMonth; day++) {
+      final currentDate = DateTime(date.year, date.month, day);
+      final dateKey = _getDateKey(currentDate);
+      final dailySteps = _dailyStepsBox.get(dateKey);
+      if (dailySteps != null) {
+        total += dailySteps.steps;
+      }
+    }
+    return total;
+  }
+
+  // Update getStepsForDate to use the new key format
+  int? getStepsForDate(DateTime date) => _dailyStepsBox.get(_getDateKey(date))?.steps;
 
   // Get all stored step data
-  List<DailySteps> getAllSteps() {
-    return _dailyStepsBox.values.toList();
-  }
+  List<DailySteps> getAllSteps()  => _dailyStepsBox.values.toList();
 
   /// Handle status changed
-  void onPedestrianStatusChanged(PedestrianStatus event) {
-    state =  state.copyWith(status: event.status);
-  }
+  void onPedestrianStatusChanged(PedestrianStatus event) => state =  state.copyWith(status: event.status);
+  
 
     /// Handle the error
   void onPedestrianStatusError(error) {

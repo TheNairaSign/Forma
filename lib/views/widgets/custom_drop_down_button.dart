@@ -31,7 +31,7 @@ class _CustomDropdownButtonState extends State<CustomDropdownButton> {
       width: widget.width,
       height: 50,
       decoration: BoxDecoration(
-        color: Theme.of(context).scaffoldBackgroundColor,
+        color: Colors.white,
         borderRadius: BorderRadius.circular(10),
         border: Border.all(color: GlobalColors.borderColor, width: .5),
       ),
@@ -41,12 +41,12 @@ class _CustomDropdownButtonState extends State<CustomDropdownButton> {
           child: DropdownButton<String>(
             hint: Text(widget.hint, style: Theme.of(context).textTheme.bodyMedium?.copyWith()),
             value: widget.initialValue,
-            // dropdownColor: ,
+            dropdownColor: Colors.white,
             isExpanded: true,
-            // icon: const Icon(
-            //   Icons.arrow_drop_down,
-            //   color: Colors.black,
-            // ),
+            icon: const Icon(
+              Icons.arrow_drop_down,
+              color: Colors.black,
+            ),
             style: Theme.of(context).textTheme.bodySmall?.copyWith(color: GlobalColors.textThemeColor(context)),
             onChanged: (String? newValue) {
               setState(() {
