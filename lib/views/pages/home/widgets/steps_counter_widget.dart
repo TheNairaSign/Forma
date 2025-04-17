@@ -35,7 +35,7 @@ class _StepCounterWidgetState extends ConsumerState<StepCounterWidget> with Sing
     
     return Container(
       height: 400,
-      decoration: BoxDecoration(color: Colors.white),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20)),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -133,7 +133,7 @@ class _StepCounterWidgetState extends ConsumerState<StepCounterWidget> with Sing
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      '${widget.caloriesBurned}Cal',
+                      ref.watch(stepsProvider.notifier).getStepsCalory().toString(),
                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -159,7 +159,7 @@ class _StepCounterWidgetState extends ConsumerState<StepCounterWidget> with Sing
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Steps',
+                      ref.watch(stepsProvider.notifier).dailyTargetSteps.toString(),
                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,

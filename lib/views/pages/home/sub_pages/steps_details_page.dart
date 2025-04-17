@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:workout_tracker/hive/daily_steps_adapter.dart';
 import 'package:workout_tracker/providers/steps_notifier.dart';
+import 'package:workout_tracker/utils/constants.dart';
 import 'package:workout_tracker/views/pages/home/widgets/steps_counter_widget.dart';
 import 'package:workout_tracker/views/widgets/animated_page_entry.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -39,9 +40,9 @@ class _StepsDetailsPageState extends ConsumerState<StepsDetailsPage> {
   final dailyTargetSteps = ref.watch(stepsProvider.notifier).dailyTargetSteps.toDouble();
 
     return Scaffold(
-      appBar: AppBar(title: Text('Step Counter', style: Theme.of(context).textTheme.headlineSmall,),centerTitle: true),
+      appBar: AppBar(title: Text('Step Counter', style: Theme.of(context).textTheme.headlineSmall,),centerTitle: true, forceMaterialTransparency: true, backgroundColor: Theme.of(context).scaffoldBackgroundColor,),
       body: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: Constants.bodyPadding,
         child: AnimatedPageEntry(
           children: [
             StepCounterWidget(caloriesBurned: 870, progressColor: Color(0xFF4CD964)),

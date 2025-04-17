@@ -7,7 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:pedometer/pedometer.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:workout_tracker/hive/daily_steps_adapter.dart';
-import 'package:workout_tracker/models/steps_state.dart';
+import 'package:workout_tracker/models/state/steps_state.dart';
 import 'package:workout_tracker/utils/alerts.dart';
 
 class StepsNotifier extends StateNotifier<StepsState> {
@@ -25,9 +25,24 @@ class StepsNotifier extends StateNotifier<StepsState> {
   late Stream<StepCount> _stepCountStream;
   late Stream<PedestrianStatus> _pedestrianStatusStream;
 
+  String _selectedRange = 'Daily';
+  String get selectedRange => _selectedRange;
+
+  void setSelectedRange(String range) {
+    debugPrint('Selected Range: $range');
+    _selectedRange = range;
+  }
+
 
   final int _dailyTargetSteps = 10000;
   int get dailyTargetSteps => _dailyTargetSteps;
+
+  double stepsCalory = 0.0;
+
+  double getStepsCalory() {
+    stepsCalory = (state.steps * 0.04);
+    return stepsCalory;
+  }
 
   double stepsProgress(int? animationValue) {
     if (animationValue != null || animationValue != 0) {
@@ -76,7 +91,6 @@ class StepsNotifier extends StateNotifier<StepsState> {
     return _dailyStepsBox.get(today)?.steps ?? 0;
   }
 
-  
 
   List<DailySteps> getDailySteps() {
     final today = _getDateKey(DateTime.now());
@@ -240,6 +254,7 @@ class StepsNotifier extends StateNotifier<StepsState> {
 
     if (!mounted) return;
   }
+
 
   @override
   void dispose() {

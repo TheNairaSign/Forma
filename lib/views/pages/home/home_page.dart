@@ -64,6 +64,7 @@ class _HomePageState extends ConsumerState<HomePage> {
             WalkContainer(),
             const SizedBox(height: 20),
             CaloryContainer(),
+            const SizedBox(height: 20),
 
             // Overall Status
             Text("Overall Status", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
