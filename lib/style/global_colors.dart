@@ -29,4 +29,17 @@ class GlobalColors {
     bool isDark = Theme.of(context).brightness == Brightness.dark;
     return isDark? Colors.transparent : Colors.grey;
   }
+
+  static List<BoxShadow> boxShadow(BuildContext context) {
+    bool isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return [
+      BoxShadow(
+        color: isDark? Colors.transparent : Colors.grey.withOpacity(0.1),
+        spreadRadius: 1,
+        blurRadius: 5,
+        offset: const Offset(0, 5),
+      ),
+    ];
+  }
 }

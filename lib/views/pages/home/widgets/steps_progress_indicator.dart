@@ -27,6 +27,12 @@ class _StepsProgressIndicatorState extends ConsumerState<StepsProgressIndicator>
     _animation = Tween<double>(begin: 0, end: widget.currentSteps?.toDouble() ??  widget.currentCalory).animate(_controller);
     _controller.forward();
   }
+  
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {

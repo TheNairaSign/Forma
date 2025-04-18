@@ -34,11 +34,29 @@ class _StepCounterWidgetState extends ConsumerState<StepCounterWidget> with Sing
   Widget build(BuildContext context) {
     
     return Container(
-      height: 400,
       decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20)),
+      padding: EdgeInsets.all(15),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
         children: [
+          RichText(text: TextSpan(
+            children: [
+              TextSpan(
+                text: 'You have walked',
+                style: Theme.of(context).textTheme.headlineSmall
+              ),
+              TextSpan(
+                text: ' ${ref.watch(stepsProvider).steps}\nsteps',
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: Color(0xff6f64df))
+              ),
+              TextSpan(
+                text: ' today',
+                style: Theme.of(context).textTheme.headlineSmall
+              ),
+            ]
+          )),
+          const SizedBox(height: 20),
           SizedBox(
             width: 240,
             height: 240,

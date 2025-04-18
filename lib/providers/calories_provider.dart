@@ -10,9 +10,9 @@ class CaloryNotifier extends StateNotifier<CaloryState> {
 
   late final Box<CaloryState> _calorieBox = Hive.box<CaloryState>('calories');
 
-  int get totalCalories => _calorieBox.values.fold(0, (sum, entry) => sum + entry.calories);
-
   List<CaloryState> get allEntries => _calorieBox.values.toList();
+
+  double _overallCalories = 0;
 
   void init(Ref ref) {
   }
@@ -28,6 +28,45 @@ class CaloryNotifier extends StateNotifier<CaloryState> {
     final total = today.fold(0, (sum, entry) => sum + entry.calories) + stepsCalory;
     debugPrint('Today total calories: $total');
     return total;
+  }
+
+  List<CaloryState> getWeeklyCalories() {
+    final now = DateTime.now();
+    final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
+    final weeklyCalories = <CaloryState>[];
+
+    // Create a list of CaloryState objects for each day of the week
+    for (int i = 0; i < 7; i++) {
+      final date = startOfWeek.add(Duration(days: i));
+      
+      // Get all entries for this specific day
+      final dayEntries = _calorieBox.values.where((entry) {
+        final entryDate = entry.timestamp;
+        return entryDate.year == date.year && 
+               entryDate.month == date.month && 
+               entryDate.day == date.day;
+      }).toList();
+      
+      // Calculate total calories for this day
+      double dayTotal = dayEntries.fold(0.0, (sum, entry) => sum + entry.calories);
+      
+      // Add steps calories for today only
+      if (date.year == now.year && date.month == now.month && date.day == now.day) {
+        dayTotal += ref.read(stepsProvider.notifier).getStepsCalory();
+      }
+      
+      // Create a CaloryState for this day with the total calories
+      weeklyCalories.add(CaloryState(
+        calories: dayTotal.toInt(), 
+        timestamp: date
+      ));
+    }
+    
+    // Calculate overall weekly total
+    _overallCalories = weeklyCalories.fold(0.0, (sum, day) => sum + day.calories);
+    
+    debugPrint('Weekly total calories: $_overallCalories');
+    return weeklyCalories;
   }
 
   Future<void> addCalories(int amount) async {
@@ -58,6 +97,8 @@ class CaloryNotifier extends StateNotifier<CaloryState> {
       debugPrint('Error resetting today\'s calories: $e');
     }
   }
+
+  List<int> weeklyCaloryChartData() => getWeeklyCalories().map((entry) => entry.calories.toInt()).toList();
 
   /// If you want to estimate calories from steps
   /// 

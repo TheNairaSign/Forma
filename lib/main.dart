@@ -42,6 +42,7 @@ class WorkoutTracker extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       home: NavigationPage(),
       theme: lightTheme,
+      // darkTheme: darkTheme,
     );
   }
 }

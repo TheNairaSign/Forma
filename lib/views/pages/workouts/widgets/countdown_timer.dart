@@ -1,7 +1,7 @@
 import 'package:circular_countdown_timer/circular_countdown_timer.dart';
 import 'package:flutter/material.dart';
 import 'package:workout_tracker/style/global_colors.dart';
-import 'package:workout_tracker/utils/format_time.dart';
+import 'package:workout_tracker/utils/formatters/format_time.dart';
 
 class CountdownTimer extends StatelessWidget {
   final int duration;

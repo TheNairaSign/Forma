@@ -28,6 +28,14 @@ class StepsNotifier extends StateNotifier<StepsState> {
   String _selectedRange = 'Daily';
   String get selectedRange => _selectedRange;
 
+  int _highestWeeklyStep = 0;
+  int get highestWeeklyStep => _highestWeeklyStep;
+
+  int _lowestWeeklyStep = 0;
+  int get lowestWeeklyStep => _lowestWeeklyStep;
+
+  // int _highestMonthlyStep = 0;
+
   void setSelectedRange(String range) {
     debugPrint('Selected Range: $range');
     _selectedRange = range;
@@ -138,8 +146,10 @@ class StepsNotifier extends StateNotifier<StepsState> {
   List<DailySteps> getWeeklySteps() {
     final weeklySteps = <DailySteps>[];
     final now = DateTime.now();
-    // Get the start of the week (Sunday)
     final startOfWeek = now.subtract(Duration(days: now.weekday % 7));
+
+    _highestWeeklyStep = 0;  // Reset before checking
+    _lowestWeeklyStep = _dailyTargetSteps;  // Start with target steps as max
 
     for (int i = 0; i < 7; i++) {
       final date = startOfWeek.add(Duration(days: i));
@@ -147,6 +157,14 @@ class StepsNotifier extends StateNotifier<StepsState> {
       final dailySteps = _dailyStepsBox.get(dateKey);
 
       if (dailySteps != null) {
+        // Update highest and lowest steps
+        if (dailySteps.steps > _highestWeeklyStep) {
+          _highestWeeklyStep = dailySteps.steps;
+        }
+        if (dailySteps.steps < _lowestWeeklyStep) {
+          _lowestWeeklyStep = dailySteps.steps;
+        }
+        
         weeklySteps.add(dailySteps);
         debugPrint('Weekly Steps for ${DateFormat('EEEE').format(date)}: ${dailySteps.steps}');
       } else {
@@ -155,10 +173,11 @@ class StepsNotifier extends StateNotifier<StepsState> {
           steps: 0,
           lastUpdated: date,
         ));
+        // Update lowest if we have a day with 0 steps
+        _lowestWeeklyStep = 0;
       }
     }
 
-    // Sort by date to ensure correct order
     weeklySteps.sort((a, b) => a.date.compareTo(b.date));
     return weeklySteps;
   }

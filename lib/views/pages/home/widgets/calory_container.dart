@@ -5,7 +5,7 @@ import 'package:step_progress_indicator/step_progress_indicator.dart';
 import 'package:workout_tracker/providers/calories_provider.dart';
 import 'package:workout_tracker/providers/steps_notifier.dart';
 import 'package:workout_tracker/utils/custom_route.dart';
-import 'package:workout_tracker/views/pages/home/sub_pages/stats_page.dart';
+import 'package:workout_tracker/views/pages/activity/activity_page.dart';
 import 'package:workout_tracker/views/pages/home/widgets/steps_progress_indicator.dart';
 
 class CaloryContainer extends ConsumerStatefulWidget  {
@@ -27,7 +27,7 @@ class _CaloriesContainerState extends ConsumerState<CaloryContainer> {
     final steps = ref.watch(stepsProvider.notifier);
     debugPrint('Calory $steps');
     return GestureDetector(
-      onTap: () => Navigator.of(context).push(SlidePageRoute(page: StatisticsScreen())),
+      onTap: () => Navigator.of(context).push(SlidePageRoute(page: CalorieDetailsPage())),
       child: Container(
         padding: EdgeInsets.all(15),
         height: 130,
