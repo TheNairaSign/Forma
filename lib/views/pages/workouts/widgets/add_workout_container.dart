@@ -4,7 +4,6 @@ import 'package:workout_tracker/models/add_workout_model.dart';
 import 'package:workout_tracker/models/enums/workout_type.dart';
 import 'package:workout_tracker/providers/workout_item_notifier.dart';
 import 'package:workout_tracker/services/workout_service.dart';
-import 'package:workout_tracker/style/global_colors.dart';
 import 'package:workout_tracker/views/widgets/custom_drop_down_button.dart';
 import 'package:workout_tracker/views/widgets/custom_text_field.dart';
 
@@ -29,10 +28,11 @@ class _AddWorkoutContainerState extends ConsumerState<AddWorkoutContainer> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return SingleChildScrollView(
       child: Container(
         height: 500,
-        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10)),
+        decoration: BoxDecoration(color: colorScheme.primary, borderRadius: BorderRadius.circular(10)),
         padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
         child: Column(
           // mainAxisSize: MainAxisSize.min,
@@ -52,12 +52,11 @@ class _AddWorkoutContainerState extends ConsumerState<AddWorkoutContainer> {
               height: 50,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: GlobalColors.teal,
-                  foregroundColor: Colors.black,
+                  backgroundColor: colorScheme.primaryContainer,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))
                 ),
                 onPressed: () => ref.read(workoutItemProvider.notifier).addWorkout(context),
-                child: Text('Add Workout', style: Theme.of(context).textTheme.bodyMedium)
+                child: Text('Add Workout', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: colorScheme.primary))
               ),
             )
           ],

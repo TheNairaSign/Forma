@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:workout_tracker/providers/workout_item_notifier.dart';
+import 'package:workout_tracker/views/pages/activity/activity_page.dart';
 import 'package:workout_tracker/views/pages/home/home_page.dart';
 import 'package:workout_tracker/views/pages/workouts/workouts_page.dart.dart';
 import 'package:workout_tracker/views/pages/navigation/widgets/nav_destination.dart';
 import 'package:workout_tracker/views/pages/profile/profile_page.dart';
-import 'package:workout_tracker/views/pages/progress/progress_page.dart';
 
 class NavigationPage extends ConsumerStatefulWidget {
   const NavigationPage({super.key});
@@ -22,7 +22,7 @@ class _NavigationPageState extends ConsumerState<NavigationPage> with SingleTick
   final List<Widget> _pages = [
     const HomePage(),
     const WorkoutsPage(),
-    const ProgressPage(),
+    const CalorieDetailsPage(),
     const ProfilePage(),
   ];
 
@@ -71,21 +71,10 @@ class _NavigationPageState extends ConsumerState<NavigationPage> with SingleTick
           });
         },
       ),
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 10,
-              offset: const Offset(0, -1),
-            ),
-          ],
-        ),
-        child: SafeArea(
-          child: NavDestination(
-            onDestinationSelected: _onItemTapped,
-            selectedIndex: _selectedIndex,
-          ),
+      bottomNavigationBar: SafeArea(
+        child: NavDestination(
+          onDestinationSelected: _onItemTapped,
+          selectedIndex: _selectedIndex,
         ),
       ),
     );

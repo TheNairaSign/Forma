@@ -37,8 +37,8 @@ class _StepsProgressIndicatorState extends ConsumerState<StepsProgressIndicator>
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 100,
-      width: 100,
+      height: 80,
+      width: 80,
       child: AnimatedBuilder(
         animation: _animation,
         builder: (context, child) {
@@ -65,17 +65,20 @@ class _StepsProgressIndicatorState extends ConsumerState<StepsProgressIndicator>
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(
-                      (widget.currentCalory ?? widget.currentSteps).toString(),
-                      style: Theme.of(context).textTheme.headlineMedium!.copyWith(
-                        color: widget.strokeColor,
-                        fontWeight: FontWeight.bold,
+                    FittedBox(
+                      child: Text(
+                        (widget.currentCalory?.toStringAsFixed(2) ?? widget.currentSteps.toString()),
+                        style: Theme.of(context).textTheme.headlineMedium!.copyWith(
+                          fontSize: 22,
+                          color: widget.strokeColor,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                     Text(
                       widget.measurementUnit,
                       style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        fontSize: 20,
+                        fontSize: 17,
                         color: widget.textColor,
                         fontWeight: FontWeight.bold, 
                       )

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:workout_tracker/style/colour_scheme/light_color_scheme.dart';
 
-final darkTheme = ThemeData.dark().copyWith(
-  scaffoldBackgroundColor: Colors.black,
+final darkTheme = ThemeData.dark(useMaterial3: true).copyWith(
+  colorScheme: darkColorScheme,
   textTheme: TextTheme(
     displayMedium: GoogleFonts.lilitaOne(),
     displayLarge: GoogleFonts.lilitaOne(),

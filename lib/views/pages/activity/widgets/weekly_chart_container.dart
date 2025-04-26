@@ -5,8 +5,9 @@ import 'package:workout_tracker/utils/formatters/format_day.dart';
 import 'package:workout_tracker/utils/get_week_days.dart';
 
 class WeeklyChartContainer extends StatefulWidget {
-  const WeeklyChartContainer({super.key, required this.calorieData});
+  const WeeklyChartContainer({super.key, required this.calorieData, required this.backgroundColor});
   final List<int> calorieData;
+  final Color backgroundColor;
 
   @override
   State<WeeklyChartContainer> createState() => _WeeklyChartContainerState();
@@ -19,105 +20,96 @@ class _WeeklyChartContainerState extends State<WeeklyChartContainer> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: GlobalColors.boxShadow(context),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Calories Burned',
-              style: theme.textTheme.bodyLarge?.copyWith(
-                fontWeight: FontWeight.bold,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Calories Burned',
+          style: theme.textTheme.bodyLarge?.copyWith(
+            fontWeight: FontWeight.bold,
+            color: Colors.white
+          ),
+        ),
+        const SizedBox(height: 20),
+        SizedBox(
+          height: 200,
+          child: BarChart(
+            BarChartData(
+              barTouchData: BarTouchData(
+                touchTooltipData: BarTouchTooltipData(
+                  getTooltipColor: (group) => Colors.white,
+                  tooltipRoundedRadius: 15,
+                  tooltipBorder: BorderSide(color: GlobalColors.borderColor, width: .2),
+                  getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                    final day = weekDays[groupIndex];
+                    return BarTooltipItem(
+                      '${formatDay(day)}\n${rod.toY.toInt()} kcal',
+                      Theme.of(context).textTheme.bodyMedium!.copyWith(
+                        color: theme.colorScheme.onSurface,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    );
+                  },
+                ),
+                touchCallback: (event, response) {
+                  if (response?.spot != null && event is FlTapUpEvent) {
+                    setState(() {
+                      _selectedBarIndex = response!.spot!.touchedBarGroupIndex;
+                    });
+                  }
+                },
               ),
-            ),
-            const SizedBox(height: 20),
-            SizedBox(
-              height: 200,
-              child: BarChart(
-                BarChartData(
-                  barTouchData: BarTouchData(
-                    touchTooltipData: BarTouchTooltipData(
-                      getTooltipColor: (group) => Colors.white,
-                      tooltipRoundedRadius: 15,
-                      tooltipBorder: BorderSide(color: GlobalColors.borderColor, width: .2),
-                      getTooltipItem: (group, groupIndex, rod, rodIndex) {
-                        final day = weekDays[groupIndex];
-                        return BarTooltipItem(
-                          '${formatDay(day)}\n${rod.toY.toInt()} kcal',
-                          Theme.of(context).textTheme.bodyMedium!.copyWith(
-                            color: theme.colorScheme.onSurface,
-                            fontWeight: FontWeight.bold,
+              titlesData: FlTitlesData(
+                show: true,
+                bottomTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                    showTitles: true,
+                    getTitlesWidget: (value, meta) {
+                      final index = value.toInt();
+                      if (index >= 0 && index < weekDays.length) {
+                        return Padding(
+                          padding: const EdgeInsets.only(top: 8.0),
+                          child: Text(
+                            formatDay(weekDays[index], short: true),
+                            style: theme.textTheme.bodySmall?.copyWith(color: Colors.white),
                           ),
                         );
-                      },
-                    ),
-                    touchCallback: (event, response) {
-                      if (response?.spot != null && event is FlTapUpEvent) {
-                        setState(() {
-                          _selectedBarIndex = response!.spot!.touchedBarGroupIndex;
-                        });
                       }
+                      return const Text('');
+                    },
+                    reservedSize: 36,
+                  ),
+                ),
+                leftTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                    showTitles: true,
+                    reservedSize: 30,
+                    interval: 2,
+                    getTitlesWidget: (value, meta) {
+                      return Text(
+                        value.toInt().toString(),
+                        style: theme.textTheme.bodySmall?.copyWith(color: Colors.grey),
+                      );
                     },
                   ),
-                  titlesData: FlTitlesData(
-                    show: true,
-                    bottomTitles: AxisTitles(
-                      sideTitles: SideTitles(
-                        showTitles: true,
-                        getTitlesWidget: (value, meta) {
-                          final index = value.toInt();
-                          if (index >= 0 && index < weekDays.length) {
-                            return Padding(
-                              padding: const EdgeInsets.only(top: 8.0),
-                              child: Text(
-                                formatDay(weekDays[index], short: true),
-                                style: theme.textTheme.bodySmall,
-                              ),
-                            );
-                          }
-                          return const Text('');
-                        },
-                        reservedSize: 36,
-                      ),
-                    ),
-                    leftTitles: AxisTitles(
-                      sideTitles: SideTitles(
-                        showTitles: true,
-                        reservedSize: 40,
-                        interval: 2,
-                        getTitlesWidget: (value, meta) {
-                          return Text(
-                            value.toInt().toString(),
-                            style: theme.textTheme.bodySmall,
-                          );
-                        },
-                      ),
-                    ),
-                    rightTitles: const AxisTitles(),
-                    topTitles: const AxisTitles(),
-                  ),
-                  borderData: FlBorderData(show: false),
-                  barGroups: _buildBarGroups(widget.calorieData, theme),
-                  gridData: FlGridData(
-                    show: false,
-                    drawVerticalLine: false,
-                  ),
-                  alignment: BarChartAlignment.spaceAround,
-                  maxY: widget.calorieData.isNotEmpty 
-                      ? (widget.calorieData.reduce((a, b) => a > b ? a : b).toDouble() * 1.2)
-                      : 100,
                 ),
+                topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
               ),
+              borderData: FlBorderData(show: false),
+              barGroups: _buildBarGroups(widget.calorieData, theme),
+              gridData: FlGridData(
+                show: false,
+                drawVerticalLine: false,
+              ),
+              alignment: BarChartAlignment.spaceAround,
+              maxY: widget.calorieData.isNotEmpty 
+                  ? (widget.calorieData.reduce((a, b) => a > b ? a : b).toDouble() * 1.2)
+                  : 100,
             ),
-          ],
+          ),
         ),
-      ),
+      ],
     );
   }
 
@@ -143,8 +135,8 @@ class _WeeklyChartContainerState extends State<WeeklyChartContainer> {
               show: true,
               toY: calorieData.isNotEmpty 
                   ? (calorieData.reduce((a, b) => a > b ? a : b).toDouble() * 1.2)
-                  : 100,
-              color: theme.colorScheme.surfaceVariant.withOpacity(0.3),
+                  : null,
+              color: Colors.transparent,
             ),
           ),
         ],

@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:workout_tracker/style/global_colors.dart';
 
 class CustomTextField extends StatelessWidget {
-  const CustomTextField({super.key, required this.controller, required this.labelText, required this.hintText, this.keyboardType = TextInputType.text, this.validator});
+  const CustomTextField({super.key, required this.controller, this.labelText, required this.hintText, this.keyboardType = TextInputType.text, this.validator});
   final TextEditingController controller;
-  final String labelText;
+  final String? labelText;
   final String hintText;
   final TextInputType keyboardType;
   final String? Function(String?)? validator;
@@ -25,13 +24,13 @@ class CustomTextField extends StatelessWidget {
           labelText: labelText,
           labelStyle: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey),
           alignLabelWithHint: true,
-          // hintText: hintText,
-          // hintStyle: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.black),
+          hintText: hintText,
+          hintStyle: Theme.of(context).textTheme.bodySmall?.copyWith(),
           filled: true,
           fillColor: Colors.white,
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide(color: GlobalColors.borderColor, width:.5)
+            borderSide: BorderSide.none
           ),
           focusColor: Colors.white,
           focusedBorder: OutlineInputBorder(

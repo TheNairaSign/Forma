@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:workout_tracker/models/overall_status_model.dart';
+import 'package:workout_tracker/style/global_colors.dart';
 import 'package:workout_tracker/views/widgets/custom_progress_indicator.dart';
 
 class OverallStatusContainer extends StatefulWidget {
@@ -15,8 +16,9 @@ class _OverallStatusContainerState extends State<OverallStatusContainer> with Ti
     final overallStatus = OverallStatusModel.overallStatus;
     return Container(
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(15),
         color: Colors.white,
+        boxShadow: GlobalColors.boxShadow(context)
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -37,7 +39,7 @@ class _OverallStatusContainerState extends State<OverallStatusContainer> with Ti
             title: Text(status.title, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.grey),),
             subtitle: Row(
               children: [
-                Text(status.subtitle, style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold, fontSize: 18),),
+                Text(status.subtitle, style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold, fontSize: 18, color: Theme.of(context).colorScheme.primaryContainer,),),
                 const SizedBox(width: 10),
                 Text(status.gain, style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.green),)
               ],

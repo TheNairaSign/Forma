@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:workout_tracker/style/global_colors.dart';
 
 class DismissibleItem extends StatefulWidget {
   final String title, id;
@@ -21,6 +22,8 @@ class _DismissibleItemState extends State<DismissibleItem> {
 
   @override
   Widget build(BuildContext context) {
+  final theme = Theme.of(context);
+
     return Dismissible(
       key: Key(widget.id),
       direction: DismissDirection.endToStart,
@@ -77,13 +80,15 @@ class _DismissibleItemState extends State<DismissibleItem> {
           }
         });
       },
-      child: Card(
-        elevation: 1,
-        color: Colors.white,
-        // margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          color: Theme.of(context).colorScheme.primary,
+          boxShadow: GlobalColors.boxShadow(context)
+        ),        // margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         child: ListTile(
-          title: Text(widget.title),
-          subtitle: Text(widget.subtitle),
+          title: Text(widget.title, style: theme.textTheme.bodyLarge?.copyWith(color: theme.colorScheme.onPrimary, fontWeight: FontWeight.bold),),
+          subtitle: Text(widget.subtitle, style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.primaryContainer),),
           trailing: const Icon(Icons.arrow_forward_ios, size: 16),
         ),
       ),

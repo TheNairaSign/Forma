@@ -47,7 +47,8 @@ class _WorkoutsPageState extends ConsumerState<WorkoutsPage> {
               child:
                 workouts.isEmpty
                   ? Center(child: Text('No workouts yet!', style: Theme.of(context).textTheme.bodyMedium,))
-                  : ListView.builder(
+                  : ListView.separated(
+                    separatorBuilder: (context, index) => const SizedBox(height: 10),
                     physics: const AlwaysScrollableScrollPhysics(),
                     shrinkWrap: true,
                     itemCount: workouts.length,

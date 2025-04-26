@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:workout_tracker/providers/steps_notifier.dart';
+import 'package:workout_tracker/style/global_colors.dart';
 import 'package:workout_tracker/views/pages/home/widgets/weekly_performance_container.dart';
 
 class WeeklyActivityContainer extends ConsumerStatefulWidget {
@@ -24,18 +25,12 @@ class _WeeklyActivityContainerState extends ConsumerState<WeeklyActivityContaine
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 1,
-            blurRadius: 10,
-          ),
-        ],
+        boxShadow: GlobalColors.boxShadow(context),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // DateSelectionWidget(),
+          // DateSelectionWidget(),\
           const SizedBox(height: 20),
           const Text('Weekly Activity', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           const SizedBox(height: 20),

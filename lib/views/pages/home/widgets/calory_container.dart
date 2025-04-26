@@ -4,6 +4,7 @@ import 'package:lottie/lottie.dart';
 import 'package:step_progress_indicator/step_progress_indicator.dart';
 import 'package:workout_tracker/providers/calories_provider.dart';
 import 'package:workout_tracker/providers/steps_notifier.dart';
+import 'package:workout_tracker/style/global_colors.dart';
 import 'package:workout_tracker/utils/custom_route.dart';
 import 'package:workout_tracker/views/pages/activity/activity_page.dart';
 import 'package:workout_tracker/views/pages/home/widgets/steps_progress_indicator.dart';
@@ -30,10 +31,13 @@ class _CaloriesContainerState extends ConsumerState<CaloryContainer> {
       onTap: () => Navigator.of(context).push(SlidePageRoute(page: CalorieDetailsPage())),
       child: Container(
         padding: EdgeInsets.all(15),
-        height: 130,
+        height: 110,
         // width: size * 0.4,
         decoration: BoxDecoration(
-          color: Color(0xff6fffe9),
+          gradient: LinearGradient(colors: [
+            GlobalColors.primaryColor,
+            GlobalColors.primaryColorLight,
+          ]),
           borderRadius: BorderRadius.circular(15),
         ),
         child: Row(
@@ -47,7 +51,7 @@ class _CaloriesContainerState extends ConsumerState<CaloryContainer> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text('Burning calories', style: Theme.of(context).textTheme.headlineSmall!.copyWith(color: Colors.black)),
-                  Text('Keep it up', style: Theme.of(context).textTheme.headlineSmall!.copyWith(color: Colors.grey, fontSize: 18)),
+                  Text('Keep it up!', style: Theme.of(context).textTheme.headlineSmall!.copyWith(color: Colors.white, fontSize: 18)),
                 ]
               ),
             ),
@@ -62,7 +66,7 @@ class _CaloriesContainerState extends ConsumerState<CaloryContainer> {
                   targetValue: 10,
                   strokeColor:  Color(0xff1b3a4b),
                   measurementUnit: 'Kcal',
-                  textColor: Colors.grey,
+                  textColor: Colors.white,
                   circularDirection: CircularDirection.counterclockwise,
                 ),
                 // SizedBox(width: 15),

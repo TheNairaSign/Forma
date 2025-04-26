@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:workout_tracker/style/colour_scheme/light_color_scheme.dart';
 
-final lightTheme = ThemeData.light().copyWith(
-  scaffoldBackgroundColor: Color(0xfff7f7f7),
+final lightTheme = ThemeData.light(useMaterial3: true).copyWith(
+  colorScheme: lightColorScheme,
+  scaffoldBackgroundColor: Colors.white,
   appBarTheme: AppBarTheme(backgroundColor: Colors.white),
   textTheme: TextTheme(
     displayMedium: GoogleFonts.lilitaOne(),

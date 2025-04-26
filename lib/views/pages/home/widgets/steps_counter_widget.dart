@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:workout_tracker/providers/steps_notifier.dart';
+import 'package:workout_tracker/style/global_colors.dart';
+import 'package:workout_tracker/views/pages/activity/widgets/stat_card.dart';
 
 class StepCounterWidget extends ConsumerStatefulWidget {
   final int caloriesBurned;
@@ -33,163 +35,122 @@ class _StepCounterWidgetState extends ConsumerState<StepCounterWidget> with Sing
   @override
   Widget build(BuildContext context) {
     
-    return Container(
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20)),
-      padding: EdgeInsets.all(15),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          RichText(text: TextSpan(
-            children: [
-              TextSpan(
-                text: 'You have walked',
-                style: Theme.of(context).textTheme.headlineSmall
-              ),
-              TextSpan(
-                text: ' ${ref.watch(stepsProvider).steps}\nsteps',
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: Color(0xff6f64df))
-              ),
-              TextSpan(
-                text: ' today',
-                style: Theme.of(context).textTheme.headlineSmall
-              ),
-            ]
-          )),
-          const SizedBox(height: 20),
-          SizedBox(
-            width: 240,
-            height: 240,
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                // Background circle
-                Container(
-                  width: 220,
-                  height: 220,
-                  decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.white),
-                ),
-                
-                // Progress indicator
-                SizedBox(
-                  width: 220,
-                  height: 220,
-                  child: AnimatedBuilder(
-                    animation: _animation,
-                    builder: (context, child) {
-                      return CircularProgressIndicator(
-                        value: ref.watch(stepsProvider.notifier).stepsProgress(_animation.value),
-                        strokeWidth: 10,
-                        strokeCap: StrokeCap.round,
-                        backgroundColor: Colors.grey.shade100,
-                        valueColor: AlwaysStoppedAnimation<Color>(widget.progressColor),
-                      );
-                    }
-                  ),
-                ),
-                
-                // Steps counter display
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // Footsteps icon
-                    Icon(Icons.directions_walk, color: widget.progressColor, size: 32),
-                    
-                    const SizedBox(height: 8),
-                    
-                    // Steps count
-                    Text(
-                      ref.watch(stepsProvider).steps.toString(),
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        fontSize: 34,
-                        fontWeight: FontWeight.bold,
-                        color: widget.progressColor,
-                      ),
-                    ),
-                    
-                    // Steps label
-                    Text(
-                      'Steps',
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        fontSize: 16,
-                        color: Colors.grey.shade600,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+    return Column(
+      children: [
+        Row(
+          children: [
+            StatsCard(
+              title: 'Target Steps',
+              value: ref.watch(stepsProvider.notifier).dailyTargetSteps.toString(),
+              icon: Icons.local_fire_department,
             ),
+            const SizedBox(width: 12),
+            StatsCard(
+              title: 'Calories burned',
+              value: ref.watch(stepsProvider.notifier).getStepsCalory().toString(),
+              icon: Icons.timeline,
+            ),
+          ],
+        ),
+        const SizedBox(height: 20),
+        Container(
+          width: double.infinity,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: GlobalColors.boxShadow(context)
           ),
-          
-          const SizedBox(height: 30),
-          
-          // Stats row
-          Row(
+          padding: EdgeInsets.all(15),
+          child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
             children: [
-              // Calories burned
-              Container(
-                width: 140,
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                decoration: BoxDecoration(
-                  border: Border(
-                    right: BorderSide(
-                      color: Colors.grey.shade300,
-                      width: 1,
-                    ),
+              RichText(text: TextSpan(
+                children: [
+                  TextSpan(
+                    text: 'You have walked',
+                    style: Theme.of(context).textTheme.headlineSmall
                   ),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  TextSpan(
+                    text: ' ${ref.watch(stepsProvider).steps}\nsteps',
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: Color(0xff6f64df))
+                  ),
+                  TextSpan(
+                    text: ' today',
+                    style: Theme.of(context).textTheme.headlineSmall
+                  ),
+                ]
+              )),
+              const SizedBox(height: 20),
+              SizedBox(
+                width: 180,
+                height: 180,
+                child: Stack(
+                  alignment: Alignment.center,
                   children: [
-                    Text(
-                      'Cal Burned',
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        fontSize: 14,
-                        color: Colors.grey.shade600,
+                    // Background circle
+                    Container(
+                      width: 180,
+                      height: 180,
+                      decoration: BoxDecoration(shape: BoxShape.circle),
+                    ),
+                    
+                    // Progress indicator
+                    SizedBox(
+                      width: 220,
+                      height: 220,
+                      child: AnimatedBuilder(
+                        animation: _animation,
+                        builder: (context, child) {
+                          return CircularProgressIndicator(
+                            value: ref.watch(stepsProvider.notifier).stepsProgress(_animation.value),
+                            strokeWidth: 10,
+                            strokeCap: StrokeCap.round,
+                            backgroundColor: Colors.grey.shade100,
+                            valueColor: AlwaysStoppedAnimation<Color>(widget.progressColor),
+                          );
+                        }
                       ),
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      ref.watch(stepsProvider.notifier).getStepsCalory().toString(),
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    
+                    // Steps counter display
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Footsteps icon
+                        Icon(Icons.directions_walk, color: widget.progressColor, size: 32),
+                        
+                        const SizedBox(height: 8),
+                        
+                        // Steps count
+                        Text(
+                          ref.watch(stepsProvider).steps.toString(),
+                          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                            fontSize: 34,
+                            fontWeight: FontWeight.bold,
+                            color: widget.progressColor,
+                          ),
+                        ),
+                        
+                        // Steps label
+                        Text(
+                          'Steps',
+                          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                            fontSize: 16,
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
               ),
               
-              // Daily goal
-              Container(
-                width: 140,
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text(
-                      'Daily Goal',
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        fontSize: 14,
-                        color: Colors.grey.shade600,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      ref.watch(stepsProvider.notifier).dailyTargetSteps.toString(),
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              const SizedBox(height: 30),
             ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
