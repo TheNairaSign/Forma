@@ -25,9 +25,32 @@ class CaloryNotifier extends StateNotifier<CaloryState> {
         entry.timestamp.year == now.year &&
         entry.timestamp.month == now.month &&
         entry.timestamp.day == now.day);
-    final total = today.fold(0, (sum, entry) => sum + entry.calories) + stepsCalory;
+    final total = today.fold<double>(0, (sum, entry) => sum + entry.calories) + stepsCalory;
     debugPrint('Today total calories: $total');
     return total;
+  }
+
+  List<CaloryState> getDailyCalories(DateTime date) {
+    final dailyCalories = _calorieBox.values.where((entry) {
+      final entryDate = entry.timestamp;
+      return entryDate.year == date.year && 
+             entryDate.month == date.month && 
+             entryDate.day == date.day;
+    }).toList();
+
+    // Add steps calories if getting today's calories
+    final now = DateTime.now();
+    if (date.year == now.year && 
+        date.month == now.month && 
+        date.day == now.day) {
+      final stepsCalory = ref.read(stepsProvider.notifier).getStepsCalory();
+      dailyCalories.add(CaloryState(
+        calories: stepsCalory.toDouble(),
+        timestamp: now
+      ));
+    }
+
+    return dailyCalories;
   }
 
   List<CaloryState> getWeeklyCalories() {
@@ -57,7 +80,7 @@ class CaloryNotifier extends StateNotifier<CaloryState> {
       
       // Create a CaloryState for this day with the total calories
       weeklyCalories.add(CaloryState(
-        calories: dayTotal.toInt(), 
+        calories: dayTotal.toDouble(), 
         timestamp: date
       ));
     }
@@ -69,7 +92,7 @@ class CaloryNotifier extends StateNotifier<CaloryState> {
     return weeklyCalories;
   }
 
-  Future<void> addCalories(int amount) async {
+  Future<void> addCalories(double amount) async {
     final newState = CaloryState(
       calories: amount,
       timestamp: DateTime.now(),
@@ -98,7 +121,7 @@ class CaloryNotifier extends StateNotifier<CaloryState> {
     }
   }
 
-  List<int> weeklyCaloryChartData() => getWeeklyCalories().map((entry) => entry.calories.toInt()).toList();
+  List<double> weeklyCaloryChartData() => getWeeklyCalories().map((entry) => entry.calories.toDouble()).toList();
 
   /// If you want to estimate calories from steps
   /// 

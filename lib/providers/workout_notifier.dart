@@ -90,6 +90,4 @@ class WorkoutNotifier extends StateNotifier<Workout> {
 }
 
 // Updated provider declaration
-final workoutProvider = StateNotifierProvider.family<WorkoutNotifier, Workout, Workout>(
-  (ref, workout) => WorkoutNotifier(ref, workout),
-);
+final workoutProvider = StateNotifierProvider.family<WorkoutNotifier, Workout, Workout>((ref, workout) => WorkoutNotifier(ref, workout));

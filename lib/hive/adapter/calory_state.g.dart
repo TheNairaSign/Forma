@@ -17,7 +17,7 @@ class CaloryStateAdapter extends TypeAdapter<CaloryState> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return CaloryState(
-      calories: fields[0] as int,
+      calories: fields[0] as double,
       timestamp: fields[1] as DateTime,
     );
   }

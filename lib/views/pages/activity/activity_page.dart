@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:workout_tracker/constants.dart';
 import 'package:workout_tracker/providers/calories_provider.dart';
+import 'package:workout_tracker/providers/workout_item_notifier.dart';
+import 'package:workout_tracker/utils/get_week_days.dart';
 import 'package:workout_tracker/views/pages/activity/widgets/daily_breakdown.dart';
 import 'package:workout_tracker/views/pages/activity/widgets/nutrition_tip_container.dart';
 import 'package:workout_tracker/views/pages/activity/widgets/stat_card.dart';
@@ -16,6 +17,16 @@ class CalorieDetailsPage extends ConsumerStatefulWidget {
 }
 
 class _CalorieDetailsPageState extends ConsumerState<CalorieDetailsPage> {
+  final weekDays = getWeekDays();
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize workouts for all days of the week
+    for (var day in weekDays) {
+      ref.read(workoutItemProvider.notifier).getWorkoutsForDay(day);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -77,7 +88,7 @@ class _CalorieDetailsPageState extends ConsumerState<CalorieDetailsPage> {
           ),        
           SliverToBoxAdapter(
             child: Padding(
-              padding: bodyPadding,
+              padding: EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 16),
               child: Column(
                 children: [
                   DailyBreakdown(calorieData: calorieData),

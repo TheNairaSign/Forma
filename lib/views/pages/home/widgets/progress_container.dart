@@ -1,17 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:workout_tracker/providers/workout_item_notifier.dart';
 import 'package:workout_tracker/views/widgets/custom_progress_indicator.dart';
 
-class ProgressContainer extends StatefulWidget {
+class ProgressContainer extends ConsumerStatefulWidget {
   const ProgressContainer({super.key});
 
   @override
-  State<ProgressContainer> createState() => _ProgressContainerState();
+  ConsumerState<ProgressContainer> createState() => _ProgressContainerState();
 }
 
-class _ProgressContainerState extends State<ProgressContainer> {
+class _ProgressContainerState extends ConsumerState<ProgressContainer> {
   
   @override
   Widget build(BuildContext context) {
+    final workouts = ref.watch(workoutItemProvider);
+    final totalWorkouts = workouts.length;
+    // final completedWorkouts = workouts.where((workout) => workout.isCompleted).length;
   final textTheme = Theme.of(context).textTheme;
     return Container(
       padding: EdgeInsets.all(16),
@@ -25,7 +30,7 @@ class _ProgressContainerState extends State<ProgressContainer> {
             children: [
               Text('Workout Progress',style: textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 20)),
               const SizedBox(height: 8),
-              Text('12 Exercises left', style: textTheme.bodyMedium?.copyWith(color: Colors.grey)),
+              Text('$totalWorkouts workouts done today', style: textTheme.bodyMedium?.copyWith(color: Colors.grey)),
             ],
           ),
           CustomProgressIndicator(end: 0.65, textColor: Colors.white)

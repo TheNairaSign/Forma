@@ -6,7 +6,7 @@ import 'package:workout_tracker/utils/get_week_days.dart';
 
 class WeeklyChartContainer extends StatefulWidget {
   const WeeklyChartContainer({super.key, required this.calorieData, required this.backgroundColor});
-  final List<int> calorieData;
+  final List<double> calorieData;
   final Color backgroundColor;
 
   @override
@@ -113,7 +113,7 @@ class _WeeklyChartContainerState extends State<WeeklyChartContainer> {
     );
   }
 
-  List<BarChartGroupData> _buildBarGroups(List<int> calorieData, ThemeData theme) {
+  List<BarChartGroupData> _buildBarGroups(List<double> calorieData, ThemeData theme) {
     return List.generate(calorieData.length, (index) {
       final isSelected = index == _selectedBarIndex;
       final color = isSelected 

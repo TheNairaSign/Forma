@@ -53,4 +53,14 @@ class WorkoutService {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_workoutKey); 
   }
+
+  Future<List<Workout>> getWorkoutsForDay(DateTime date) async {
+    final workouts = await getWorkouts();
+    return workouts.where((workout) => workout.sessions.any(
+      (session) => 
+        session.timestamp.year == date.year &&
+        session.timestamp.month == date.month &&
+        session.timestamp.day == date.day
+    )).toList();
+  }
 }

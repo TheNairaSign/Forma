@@ -1,31 +1,35 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:workout_tracker/providers/workout_item_notifier.dart';
 import 'package:workout_tracker/style/global_colors.dart';
 import 'package:workout_tracker/utils/formatters/format_date.dart';
 import 'package:workout_tracker/utils/formatters/format_day.dart';
 import 'package:workout_tracker/utils/get_week_days.dart';
 
-class DailyBreakdown extends StatelessWidget {
-  DailyBreakdown({super.key, required this.calorieData});
-  final List<int> calorieData;
+class DailyBreakdown extends ConsumerStatefulWidget {
+  const DailyBreakdown({super.key, required this.calorieData});
+  final List<double> calorieData;
+
+  @override
+  ConsumerState<DailyBreakdown> createState() => _DailyBreakdownState();
+}
+
+class _DailyBreakdownState extends ConsumerState<DailyBreakdown> {
 
   final weekDays = getWeekDays();
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Daily Breakdown',
-          style: theme.textTheme.headlineSmall?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+        Text('Daily Breakdown', style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
         const SizedBox(height: 12),
         ...List.generate(weekDays.length, (index) {
           final day = weekDays[index];
-          final calories = calorieData[index];
+          final calories = widget.calorieData[index];
           final isToday = day.day == DateTime.now().day && 
                         day.month == DateTime.now().month && 
                         day.year == DateTime.now().year;
@@ -57,10 +61,7 @@ class DailyBreakdown extends StatelessWidget {
                       alignment: Alignment.center,
                       child: Text(
                         formatDay(day, short: true),
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style: theme.textTheme.bodyMedium?.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
                       ),
                     ),
                     const SizedBox(width: 16),
@@ -76,21 +77,13 @@ class DailyBreakdown extends StatelessWidget {
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            'Workout Session',
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
+                            ref.watch(workoutItemProvider.notifier).workoutForDay[index].name,
+                            style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
                           ),
                         ],
                       ),
                     ),
-                    Text(
-                      '$calories kcal',
-                      style: theme.textTheme.bodyLarge?.copyWith(
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                    Text('$calories kcal', style: theme.textTheme.bodyLarge?.copyWith(color: Colors.black, fontWeight: FontWeight.bold)),
                   ],
                 ),
               ),

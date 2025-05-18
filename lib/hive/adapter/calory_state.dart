@@ -5,7 +5,7 @@ part 'calory_state.g.dart';
 @HiveType(typeId: 2)
 class CaloryState extends HiveObject {
   @HiveField(0)
-  int calories;
+  double calories;
 
   @HiveField(1)
   DateTime timestamp;
@@ -13,7 +13,7 @@ class CaloryState extends HiveObject {
   CaloryState({required this.calories, required this.timestamp});
 
   CaloryState copyWith({
-    int? calories,
+    double? calories,
     DateTime? timestamp,
   }) {
     return CaloryState(

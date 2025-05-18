@@ -3,14 +3,65 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:workout_tracker/models/workout/workout.dart';
+import 'package:workout_tracker/providers/steps_notifier.dart';
 import 'package:workout_tracker/services/workout_service.dart';
 import 'package:workout_tracker/utils/alerts.dart';
-import 'package:workout_tracker/views/pages/workouts/widgets/add_workout_container.dart';
 
 class WorkoutItemNotifier extends StateNotifier<List<Workout>> {
-  WorkoutItemNotifier() : super([]);
+  final Ref ref;
+  WorkoutItemNotifier(this.ref) : super([]);
 
   final ws = WorkoutService();
+
+  final List<DayActivity> _workoutForDay = List.filled(7, DayActivity(
+    name: 'Rest Day',
+    steps: 0,
+    isRestDay: true
+  ));
+  List<DayActivity> get workoutForDay => _workoutForDay;
+
+  Future<void> getWorkoutsForDay(DateTime date) async {
+    final _stepsNotifier = ref.read(stepsProvider.notifier);
+    debugPrint('Getting workouts for ${date.toString()}...');
+    final newWorkouts = await ws.getWorkoutsForDay(date);
+    final weekDayIndex = date.weekday - 1;
+    final stepsForDate = _stepsNotifier.getStepsForDate(date) ?? 0;
+    
+    if (stepsForDate == 0 && newWorkouts.isEmpty) {
+      _workoutForDay[weekDayIndex] = DayActivity(
+        name: 'Rest Day',
+        steps: 0,
+        isRestDay: true
+      );
+    } else if (newWorkouts.isNotEmpty && stepsForDate == 0) {
+      final workout = newWorkouts.first;
+      _workoutForDay[weekDayIndex] = DayActivity(
+        name: workout.name,
+        steps: 0,
+        sets: workout.sets,
+        reps: workout.reps,
+        goalDuration: workout.goalDuration,
+        isRestDay: false
+      );
+    } else if (stepsForDate > 0 && newWorkouts.isEmpty) {
+      _workoutForDay[weekDayIndex] = DayActivity(
+        name: 'Steps only',
+        steps: stepsForDate,
+        isRestDay: false
+      );
+    } else {
+      final workout = newWorkouts.first;
+      _workoutForDay[weekDayIndex] = DayActivity(
+        name: '${workout.name}, $stepsForDate steps',
+        steps: stepsForDate,
+        sets: workout.sets,
+        reps: workout.reps,
+        goalDuration: workout.goalDuration,
+        isRestDay: false
+      );
+    }
+    debugPrint('Workouts for day: ${newWorkouts.length}');
+  }
 
   final _setsController = TextEditingController();
   final _repsController = TextEditingController();
@@ -23,6 +74,7 @@ class WorkoutItemNotifier extends StateNotifier<List<Workout>> {
   TextEditingController get descController => _descController;
   TextEditingController get goalRepsController => _goalRepsController;
   TextEditingController get goalDurationController => _goalDurationController;
+
 
   String _workoutName = '';
   set workoutNameValue(String value) => _workoutName = value;  
@@ -76,6 +128,7 @@ class WorkoutItemNotifier extends StateNotifier<List<Workout>> {
     }
   }
 
+  /*
   void showAddWorkoutModal(BuildContext context) {
     showModalBottomSheet(
       sheetAnimationStyle: AnimationStyle(curve: Curves.easeIn, duration: Duration(milliseconds: 500)),
@@ -94,6 +147,7 @@ class WorkoutItemNotifier extends StateNotifier<List<Workout>> {
       ),
     );
   }
+  */
 
   // Optional: Clear controllers method
   void clearControllers() {
@@ -106,4 +160,22 @@ class WorkoutItemNotifier extends StateNotifier<List<Workout>> {
 }
 
 // Updated provider declaration
-final workoutItemProvider = StateNotifierProvider<WorkoutItemNotifier, List<Workout>>((ref) => WorkoutItemNotifier());
+final workoutItemProvider = StateNotifierProvider<WorkoutItemNotifier, List<Workout>>((ref) => WorkoutItemNotifier(ref));
+
+class DayActivity {
+  final String name;
+  final int steps;
+  final int sets;
+  final int reps;
+  final int? goalDuration;
+  final bool isRestDay;
+
+  DayActivity({
+    required this.name,
+    this.steps = 0,
+    this.sets = 0,
+    this.reps = 0,
+    this.goalDuration,
+    this.isRestDay = true,
+  });
+}

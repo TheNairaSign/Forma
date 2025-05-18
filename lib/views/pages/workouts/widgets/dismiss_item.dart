@@ -30,15 +30,8 @@ class _DismissibleItemState extends State<DismissibleItem> {
       background: Container(
         alignment: Alignment.centerRight,
         padding: const EdgeInsets.only(right: 20.0),
-        decoration: BoxDecoration(
-          color: Colors.red,
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: const Icon(
-          Icons.delete,
-          color: Colors.white,
-          size: 25,
-        ),
+        decoration: BoxDecoration(color: Colors.red, borderRadius: BorderRadius.circular(10)),
+        child: const Icon(Icons.delete, color: Colors.white, size: 25),
       ),
       confirmDismiss: (direction) async {
         return await showDialog<bool>(
@@ -83,12 +76,12 @@ class _DismissibleItemState extends State<DismissibleItem> {
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
-          color: Theme.of(context).colorScheme.primary,
-          boxShadow: GlobalColors.boxShadow(context)
+          color: Colors.white,
+          boxShadow: GlobalColors.boxShadow(context),
         ),        // margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         child: ListTile(
-          title: Text(widget.title, style: theme.textTheme.bodyLarge?.copyWith(color: theme.colorScheme.onPrimary, fontWeight: FontWeight.bold),),
-          subtitle: Text(widget.subtitle, style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.primaryContainer),),
+          title: Text(widget.title, style: theme.textTheme.bodyLarge?.copyWith(color: Colors.black, fontWeight: FontWeight.bold),),
+          subtitle: Text(widget.subtitle, style: theme.textTheme.bodyMedium?.copyWith(color: Colors.black)),
           trailing: const Icon(Icons.arrow_forward_ios, size: 16),
         ),
       ),

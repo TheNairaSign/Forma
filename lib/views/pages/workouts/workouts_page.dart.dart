@@ -4,6 +4,7 @@ import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:workout_tracker/providers/workout_item_notifier.dart';
 import 'package:workout_tracker/utils/constants.dart';
 import 'package:workout_tracker/utils/custom_route.dart';
+import 'package:workout_tracker/views/pages/workouts/sub_pages/add_workout_page.dart';
 import 'package:workout_tracker/views/pages/workouts/sub_pages/workout_screen.dart';
 import 'package:workout_tracker/views/pages/workouts/widgets/workout_item.dart';
 
@@ -27,7 +28,6 @@ class _WorkoutsPageState extends ConsumerState<WorkoutsPage> {
   Widget build(BuildContext context) {
 
     final workouts = ref.watch(workoutItemProvider);
-    final workoutProvider = ref.watch(workoutItemProvider.notifier);
     debugPrint('Build level Workouts: ${workouts.length} : $workouts');
 
     return Scaffold(
@@ -35,7 +35,7 @@ class _WorkoutsPageState extends ConsumerState<WorkoutsPage> {
         automaticallyImplyLeading: false,
         title: Text('Workouts Page', style: Theme.of(context).textTheme.headlineSmall),
         actionsPadding: EdgeInsets.only(right: 5),
-        actions: [ IconButton(icon: Icon(Icons.add), onPressed: () => workoutProvider.showAddWorkoutModal(context)) ]),
+        actions: [ IconButton(icon: Icon(Icons.add), onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const AddWorkoutPage()))) ]),
       body: Padding(
         padding: Constants.bodyPadding,
         child: Column(

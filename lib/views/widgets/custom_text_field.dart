@@ -25,17 +25,16 @@ class CustomTextField extends StatelessWidget {
           labelStyle: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey),
           alignLabelWithHint: true,
           hintText: hintText,
-          hintStyle: Theme.of(context).textTheme.bodySmall?.copyWith(),
+          hintStyle: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey),
           filled: true,
-          fillColor: Colors.white,
+          fillColor: Color(0xffeeeef0),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
             borderSide: BorderSide.none
           ),
           focusColor: Colors.white,
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide(color: Colors.black, width: .5)
+          focusedBorder: UnderlineInputBorder(
+            borderSide: BorderSide(color: Colors.black, width: 1)
           ),
         ),
         keyboardType: keyboardType,
