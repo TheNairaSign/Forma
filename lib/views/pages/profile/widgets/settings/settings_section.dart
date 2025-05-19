@@ -35,18 +35,21 @@ class _SettingsSectionState extends State<SettingsSection> {
           children: List.generate(settingsModel.length, (index) {
             final settingModel = settingsModel[index];
             return Container(
-              margin: EdgeInsets.only(bottom: 10),
+              height: 60,
+              margin: EdgeInsets.only(bottom: 15),
               decoration: BoxDecoration(
                 color: settingModel.isLogout ? Color(0xfffef2f2) : Colors.white,
                 boxShadow: GlobalColors.boxShadow(context),
                 borderRadius: BorderRadius.circular(15)
               ),
-              child: SettingsItem(
-                onTap: settingModel.onTap,
-                leadingIcon: settingModel.leadingIcon,
-                title: settingModel.title,
-                trailingIcon: settingModel.trailingIcon,
-                isLogout: settingModel.isLogout,
+              child: Center(
+                child: SettingsItem(
+                  onTap: settingModel.onTap,
+                  leadingIcon: settingModel.leadingIcon,
+                  title: settingModel.title,
+                  trailingIcon: settingModel.trailingIcon,
+                  isLogout: settingModel.isLogout,
+                ),
               ),
             );
           })

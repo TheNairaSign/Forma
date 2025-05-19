@@ -3,9 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:workout_tracker/providers/workout_item_notifier.dart';
 import 'package:workout_tracker/utils/constants.dart';
-import 'package:workout_tracker/utils/custom_route.dart';
 import 'package:workout_tracker/views/pages/workouts/sub_pages/add_workout_page.dart';
-import 'package:workout_tracker/views/pages/workouts/sub_pages/workout_screen.dart';
 import 'package:workout_tracker/views/pages/workouts/widgets/workout_item.dart';
 
 class WorkoutsPage extends ConsumerStatefulWidget {
@@ -55,7 +53,7 @@ class _WorkoutsPageState extends ConsumerState<WorkoutsPage> {
                     itemBuilder: (context, index) {
                       final workout = workouts[index];
                       return GestureDetector(
-                        onTap: () => Navigator.of(context).push(SlidePageRoute(page: WorkoutSessionScreen(workout: workout, index))),
+                        // onTap: () => Navigator.of(context).push(SlidePageRoute(page: WorkoutSessionScreen(workout: workout, index))),
                         child: AnimationConfiguration.staggeredList(
                           position: index,
                           duration: const Duration(milliseconds: 450),

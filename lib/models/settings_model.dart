@@ -46,13 +46,6 @@ class SettingsModel {
         trailingIcon: Icons.chevron_right,
         onTap: () {},
       ));
-      settingsList.add(SettingsModel(
-        leadingIcon: Icons.logout,
-        title: 'Logout',
-        trailingIcon: null,
-        isLogout: true,
-        onTap: () {},
-      ));
     return settingsList;
   } 
 }

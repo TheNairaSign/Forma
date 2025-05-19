@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:workout_tracker/constants.dart';
+import 'package:workout_tracker/style/global_colors.dart';
 import 'package:workout_tracker/views/pages/profile/widgets/edit_profile/fitness_info_card.dart';
 import 'package:workout_tracker/views/pages/profile/widgets/edit_profile/personal_info_card.dart';
 
@@ -28,7 +29,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
               'Save',
               style: Theme.of(context).textTheme.bodyLarge!.copyWith(
                 fontWeight: FontWeight.bold,
-                color: Theme.of(context).colorScheme.secondary,
+                color: GlobalColors.primaryBlue,
               ),
             ),
           ),
@@ -41,7 +42,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
             ProfilePictureSection(),
             const SizedBox(height: 24),
             PersonalInfoCard(),
-            const SizedBox(height: 24),
+            const SizedBox(height: 8),
             FitnessInfoCard(),
           ],
         ),

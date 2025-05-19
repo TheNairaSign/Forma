@@ -25,7 +25,7 @@ class _StepsDetailsPageState extends ConsumerState<StepsDetailsPage> {
               padding: Constants.bodyPadding,
               child: Column(
                 children: [
-                  const SizedBox(height: 30),
+                  const SizedBox(height: 10),
                   WeeklyActivityContainer(),
                 ]
               ),

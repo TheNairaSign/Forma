@@ -40,7 +40,6 @@ class _CalorieDetailsPageState extends ConsumerState<CalorieDetailsPage> {
         : 0;
     final backgroundColor =  Color(0xff080b10);
     return Scaffold(
-      backgroundColor: Colors.white,
       body: CustomScrollView(
         slivers: [
           SliverAppBar(

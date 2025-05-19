@@ -6,7 +6,6 @@ import 'package:workout_tracker/background_task_handler.dart';
 import 'package:workout_tracker/hive/daily_steps_adapter.dart';
 import 'package:workout_tracker/hive/adapter/calory_state.dart';
 import 'package:workout_tracker/models/state/profile_data.dart';
-// import 'package:workout_tracker/views/pages/auth/login_page.dart.dart';
 import 'package:workout_tracker/style/theme/light_theme.dart';
 import 'package:workout_tracker/views/pages/navigation/navigation_page.dart';
 
@@ -14,7 +13,7 @@ void main(List<String> args) async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await initHive();
-  
+
   await AndroidAlarmManager.initialize();
   await AndroidAlarmManager.periodic(
     const Duration(minutes: 15), // adjust interval as needed

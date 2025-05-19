@@ -14,13 +14,13 @@ class UserStatsItem extends StatelessWidget {
       children: [
         Row(
           children: [
-            Icon(icon, size: 16, color: Color(0xff14213d)),
+            Icon(icon, size: 16, color: Colors.white),
             const SizedBox(width: 4),
-            Text(value, style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold, color: Colors.black)),
+            Text(value, style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold, color: Colors.white)),
           ],
         ),
         const SizedBox(height: 4),
-        Text(label, style: theme.textTheme.bodySmall?.copyWith(color: Color(0xff555b6e))),
+        Text(label, style: theme.textTheme.bodySmall?.copyWith(color: Colors.grey)),
       ],
     );
   }

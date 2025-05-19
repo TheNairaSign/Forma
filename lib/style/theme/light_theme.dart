@@ -4,8 +4,8 @@ import 'package:workout_tracker/style/colour_scheme/light_color_scheme.dart';
 
 final lightTheme = ThemeData.light(useMaterial3: true).copyWith(
   colorScheme: lightColorScheme,
-  scaffoldBackgroundColor: Colors.white,
-  appBarTheme: AppBarTheme(backgroundColor: Colors.white),
+  scaffoldBackgroundColor: Color(0xffeeeef0),
+  appBarTheme: AppBarTheme(backgroundColor: Color(0xffeeeef0)),
   textTheme: TextTheme(
     displayMedium: GoogleFonts.lilitaOne(),
     displayLarge: GoogleFonts.lilitaOne(),

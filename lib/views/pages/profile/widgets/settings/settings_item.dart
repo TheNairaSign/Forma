@@ -27,8 +27,8 @@ class SettingsItem extends StatelessWidget {
         ),
       ),
       trailing: trailingIcon != null
-          ? Icon(trailingIcon, color: Colors.black)
-          : null,
+        ? Icon(trailingIcon, color: Colors.black)
+        : null,
       onTap: onTap,
     );
   }

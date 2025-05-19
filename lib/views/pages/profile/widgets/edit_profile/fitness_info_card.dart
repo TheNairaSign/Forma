@@ -11,7 +11,7 @@ class FitnessInfoCard extends StatelessWidget {
     final theme = Theme.of(context);
     return Container(
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.secondary,
+        color: GlobalColors.primaryColorLight,
         // color: Color(0xffb2f7ef),
         borderRadius: BorderRadius.circular(16),
         boxShadow: GlobalColors.boxShadow(context)
@@ -25,31 +25,16 @@ class FitnessInfoCard extends StatelessWidget {
               'Fitness Information',
               style: theme.textTheme.bodyLarge?.copyWith(
                 fontWeight: FontWeight.bold,
-                color: Theme.of(context).colorScheme.primaryContainer
+                color: GlobalColors.primaryColor,
               ),
             ),
             const SizedBox(height: 16),
             CustomDropdownButton(
               items: FitnessLevel.values.map((value) => value.name).toList(), 
               hint: 'Fitness level',
-              // backgroundColor: Theme.of(context).colorScheme.primary,
-              // backgroundColor: Color(0xfff7fff7),
-              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-              textColor: Color(0xff1a535c),
+              backgroundColor: Colors.white,
+              textColor: Colors.black,
             ),
-            const SizedBox(height: 16),
-            // _buildDropdownField(
-            //   value: _selectedFitnessLevel,
-            //   items: _fitnessLevels,
-            //   label: 'Fitness Level',
-            //   icon: Icons.stacked_line_chart_outlined,
-            //   theme: theme,
-            //   onChanged: (value) {
-            //     setState(() {
-            //       _selectedFitnessLevel = value!;
-            //     });
-            //   },
-            // ),
           ],
         ),
       ),

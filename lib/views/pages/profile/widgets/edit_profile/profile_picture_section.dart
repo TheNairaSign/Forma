@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:workout_tracker/constants.dart';
 import 'package:workout_tracker/providers/profile_data_notifier.dart';
+import 'package:workout_tracker/style/global_colors.dart';
 
 class ProfilePictureSection extends ConsumerStatefulWidget {
   const ProfilePictureSection({super.key});
@@ -15,7 +16,6 @@ class _ProfilePictureSectionState extends ConsumerState<ProfilePictureSection> {
   Widget build(BuildContext context) {
     final profileData =  ref.watch(profileDataProvider.notifier);
     final profileImage = profileData.profileImage;
-    final theme = Theme.of(context);
     return Column(
       children: [
         Stack(
@@ -25,10 +25,6 @@ class _ProfilePictureSectionState extends ConsumerState<ProfilePictureSection> {
               height: 120,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                border: Border.all(
-                  color: Theme.of(context).colorScheme.primaryContainer,
-                  width: 3,
-                ),
               ),
               child: ClipOval(
                 child: profileImage != null
@@ -39,33 +35,13 @@ class _ProfilePictureSectionState extends ConsumerState<ProfilePictureSection> {
                     : Image.network(placeholderProfilePic)
               ),
             ),
-            Positioned(
-              bottom: 0,
-              right: 0,
-              child: Container(
-                width: 36,
-                height: 36,
-                decoration: BoxDecoration(
-                  color: Color(0xff1a535c),
-                  shape: BoxShape.circle,
-                  border: Border.all(color: theme.scaffoldBackgroundColor, width: 2),
-                ),
-                child: Icon(
-                  Icons.camera_alt,
-                  size: 18,
-                  color: theme.scaffoldBackgroundColor,
-                ),
-              ),
-            ),
           ],
         ),
         const SizedBox(height: 8),
         TextButton(
           style: TextButton.styleFrom(
-            backgroundColor: theme.colorScheme.primaryContainer,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10)
-            )
+            backgroundColor: GlobalColors.primaryBlue,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))
           ),
           onPressed: () {
             showModalBottomSheet(
@@ -99,9 +75,7 @@ class _ProfilePictureSectionState extends ConsumerState<ProfilePictureSection> {
           },
           child: Text(
             'Change Profile Photo',
-            style: TextStyle(
-              color: theme.colorScheme.primary,
-            ),
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.white)
           ),
         ),
       ],

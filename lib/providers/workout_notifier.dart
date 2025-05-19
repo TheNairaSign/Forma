@@ -3,14 +3,11 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:workout_tracker/models/workout/workout.dart';
-import 'package:workout_tracker/models/workout/workout_session.dart';
-import 'package:workout_tracker/services/workout_service.dart';
 import 'package:workout_tracker/providers/workout_item_notifier.dart';
 
 class WorkoutNotifier extends StateNotifier<Workout> {
   WorkoutNotifier(this.ref, Workout workout) : super(workout);
   final Ref ref;
-  final WorkoutService _workoutService = WorkoutService();
 
   // For pause/resume and stopwatch
   int? _elapsedSeconds;
@@ -60,27 +57,27 @@ class WorkoutNotifier extends StateNotifier<Workout> {
     if (_isPaused) startWorkout(goalDuration);
   }
 
-  void stopWorkout(BuildContext context) {
-    if (_timer != null) {
-      _timer!.cancel();
-    }
-    _isPaused = true;
-    state = state.copyWith(
-      isActive: false,
-      durationInSeconds: state.durationInSeconds + (_elapsedSeconds ?? 0),
-      sessions: [...state.sessions, WorkoutSession(
-        timestamp: DateTime.now(),
-        durationInSeconds: _elapsedSeconds!,
-        setsCompleted: _setsCompleted.where((reps) => reps > 0).length,
-        repsCompleted: _setsCompleted.reduce((a, b) => a + b),
-      )],
-    );
-    _workoutService.updateWorkout(state).then((_) {
-      // Refresh the workout list after updating
-      ref.read(workoutItemProvider.notifier).getWorkouts();
-      Navigator.pop(context, state);
-    });
-  }
+  // void stopWorkout(BuildContext context) {
+  //   if (_timer != null) {
+  //     _timer!.cancel();
+  //   }
+  //   _isPaused = true;
+  //   state = state.copyWith(
+  //     isActive: false,
+  //     durationInSeconds: state.durationInSeconds + (_elapsedSeconds ?? 0),
+  //     sessions: [...state.sessions, WorkoutSession(
+  //       timestamp: DateTime.now(),
+  //       durationInSeconds: _elapsedSeconds!,
+  //       setsCompleted: _setsCompleted.where((reps) => reps > 0).length,
+  //       repsCompleted: _setsCompleted.reduce((a, b) => a + b),
+  //     )],
+  //   );
+  //   _workoutService.updateWorkout(state).then((_) {
+  //     // Refresh the workout list after updating
+  //     ref.read(workoutItemProvider.notifier).getWorkouts();
+  //     Navigator.pop(context, state);
+  //   });
+  // }
 
   @override
   void dispose() {

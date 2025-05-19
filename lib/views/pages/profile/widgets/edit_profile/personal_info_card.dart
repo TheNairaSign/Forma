@@ -24,7 +24,7 @@ class _PersonalInfoCardState extends ConsumerState<PersonalInfoCard> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.primary,
+        color: Color(0xffeeeef0),
         borderRadius: BorderRadius.circular(20),
         boxShadow: GlobalColors.boxShadow(context),
       ),
@@ -38,9 +38,9 @@ class _PersonalInfoCardState extends ConsumerState<PersonalInfoCard> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(editProfileField.labelText, style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onPrimary)),
+                Text(editProfileField.labelText, style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold, color: GlobalColors.primaryBlue)),
                 const SizedBox(height: 8),
-                CustomTextField(controller: editProfileField.controller, hintText: editProfileField.hintText),
+                CustomTextField( fillColor: Colors.white, controller: editProfileField.controller, hintText: editProfileField.hintText),
               ],
             ),
           );

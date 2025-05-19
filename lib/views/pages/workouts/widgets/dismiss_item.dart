@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:workout_tracker/services/workout_service.dart';
 import 'package:workout_tracker/style/global_colors.dart';
 
 class DismissibleItem extends StatefulWidget {
@@ -19,6 +20,22 @@ class DismissibleItem extends StatefulWidget {
 }
 
 class _DismissibleItemState extends State<DismissibleItem> {
+
+  void undoDelete() async {
+    final workoutService = WorkoutService();
+    final success = await workoutService.undoDelete(widget.id);
+    if (mounted) {
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Workout restored successfully')),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Could not restore workout')),
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -56,22 +73,19 @@ class _DismissibleItemState extends State<DismissibleItem> {
       },
       onDismissed: (direction) {
         widget.onDismissed(direction);
-        Future.delayed(Duration.zero, () {
-          if (mounted) {  // Check if the widget is still mounted
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: const Text('Workout deleted'),
-                duration: const Duration(seconds: 2),
-                action: SnackBarAction(
-                  label: 'UNDO',
-                  onPressed: () {
-                    // Handle undo functionality here
-                  },
-                ),
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text('Workout deleted'),
+              duration: const Duration(seconds: 2),
+              action: SnackBarAction(
+                label: 'UNDO',
+                textColor: GlobalColors.primaryBlue,
+                onPressed: undoDelete,
               ),
-            );
-          }
-        });
+            ),
+          );
+        }
       },
       child: Container(
         decoration: BoxDecoration(
