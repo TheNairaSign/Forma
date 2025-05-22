@@ -31,6 +31,7 @@ dependencies:
   android_alarm_manager_plus: ^4.0.7
   animate_do: ^4.2.0
   another_flushbar: ^1.12.30
+  auto_size_text: ^3.0.0
   circular_countdown_timer: ^0.2.4
   cupertino_icons: ^1.0.8
   fl_chart: ^0.70.2
@@ -85,6 +86,7 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/
+    - assets/avatars/
     - assets/svgs/
     - assets/lottie/
     - assets/images/

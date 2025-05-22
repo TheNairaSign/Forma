@@ -2,7 +2,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:workout_tracker/models/enums/workout_type.dart';
 import 'package:workout_tracker/models/workout/workout.dart';
+import 'package:workout_tracker/providers/calories_provider.dart';
 import 'package:workout_tracker/providers/steps_notifier.dart';
 import 'package:workout_tracker/services/workout_service.dart';
 import 'package:workout_tracker/utils/alerts.dart';
@@ -86,6 +88,12 @@ class WorkoutItemNotifier extends StateNotifier<List<Workout>> {
     debugPrint('Workouts: ${state.length}');
   }
 
+  void clearWorkouts(BuildContext context) {
+    debugPrint('Clearing workouts...');
+    state = [];
+    Alerts.showFlushBar(context, 'Workouts cleared', false);
+  }
+
   void addWorkout(BuildContext context) {
     debugPrint('Adding workout...');
     if (_workoutName.isEmpty || _setsController.text.isEmpty || _repsController.text.isEmpty || _goalDurationController.text.isEmpty) {
@@ -111,6 +119,18 @@ class WorkoutItemNotifier extends StateNotifier<List<Workout>> {
       ws.addWorkout(newWorkout).then((value) {
         try {
         debugPrint('Workout added: ${newWorkout.name}');
+        try {
+          ref.watch(caloryProvider.notifier).addWorkoutCalories(
+            workoutName: _workoutName,
+            durationMinutes: newWorkout.goalDuration!,
+            metValue: WorkoutType.values.firstWhere(
+              (element) => element.name.toLowerCase() == _workoutName.toLowerCase(),
+              orElse: () => WorkoutType.strength, // Provide a default type
+            ).MET,
+          );
+        } catch (e) {
+          debugPrint('Error adding workout calories: ${e.toString()}');
+        }
         getWorkouts();
         } catch (e) {
           debugPrint('Error adding workout: ${e.toString()}'); 

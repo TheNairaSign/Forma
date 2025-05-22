@@ -32,9 +32,7 @@ class _AddWorkoutPageState extends ConsumerState<AddWorkoutPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Add Workout'),
-      ),
+      appBar: AppBar(title: const Text('Add Workout')),
       body: Padding(
         padding: bodyPadding,
         child: ListView(
@@ -42,7 +40,7 @@ class _AddWorkoutPageState extends ConsumerState<AddWorkoutPage> {
             Text('Workout Name', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.black)),
             const SizedBox(height: 10),
             CustomDropdownButton(
-              backgroundColor: Color(0xffeeeef0),
+              backgroundColor: Colors.white,
               items: WorkoutType.values.map((type) => type.name).toList(), hint: 'Pick a workout', onChanged: (p0) => ref.watch(workoutItemProvider.notifier).workoutNameValue = p0!,),
               const SizedBox(height: 10),
             ...List.generate(workouts.length, (index) {

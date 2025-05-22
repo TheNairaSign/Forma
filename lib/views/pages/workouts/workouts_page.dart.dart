@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:workout_tracker/providers/workout_item_notifier.dart';
+import 'package:workout_tracker/utils/alerts.dart';
 import 'package:workout_tracker/utils/constants.dart';
 import 'package:workout_tracker/views/pages/workouts/sub_pages/add_workout_page.dart';
 import 'package:workout_tracker/views/pages/workouts/widgets/workout_item.dart';
@@ -39,7 +40,23 @@ class _WorkoutsPageState extends ConsumerState<WorkoutsPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Your Workouts', style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontSize: 20)),
+            Row(
+              children: [
+                Text('Your Workouts', style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontSize: 20)),
+                const Spacer(),
+                TextButton.icon(
+                  iconAlignment: IconAlignment.end,
+                  icon: Icon(Icons.clear, color: Colors.red),
+                  onPressed: () {
+                    Alerts.areYouSureDialog(context, () {
+                      ref.watch(workoutItemProvider.notifier).clearWorkouts(context);
+                    }, 
+                      'Are you sure you want to clear all workouts?',
+                    );
+                  }, 
+                  label: Text('Clear', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.red, fontWeight: FontWeight.bold)))
+              ],
+            ),
             const SizedBox(height: 10),
             Expanded(
               child:

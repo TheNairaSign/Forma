@@ -45,10 +45,11 @@ class StepsNotifier extends StateNotifier<StepsState> {
   final int _dailyTargetSteps = 10000;
   int get dailyTargetSteps => _dailyTargetSteps;
 
-  double stepsCalory = 0.0;
+  int stepsCalory = 0;
 
-  double getStepsCalory() {
-    stepsCalory = (state.steps * 0.04);
+  int getStepsCalory() {
+    stepsCalory = (state.steps * 0.04).truncate();
+    debugPrint('Steps Calory: $stepsCalory');
     return stepsCalory;
   }
 

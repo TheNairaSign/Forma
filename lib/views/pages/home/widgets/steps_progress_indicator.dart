@@ -4,8 +4,7 @@ import 'package:step_progress_indicator/step_progress_indicator.dart';
 
 class StepsProgressIndicator extends ConsumerStatefulWidget {
   const StepsProgressIndicator({super.key, this.currentSteps, this.currentCalory, required this.strokeColor, required this.measurementUnit, this.textColor, this.circularDirection = CircularDirection.clockwise, required this.targetValue});
-  final int? targetValue, currentSteps;
-  final double? currentCalory;
+  final int? targetValue, currentSteps, currentCalory;
   final Color strokeColor;
   final Color? textColor;
   final String measurementUnit;
@@ -17,14 +16,14 @@ class StepsProgressIndicator extends ConsumerStatefulWidget {
 
 class _StepsProgressIndicatorState extends ConsumerState<StepsProgressIndicator> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
-  late Animation<double> _animation;
+  late Animation<int> _animation;
 
 
   @override
   void initState() {
     super.initState();
     _controller = AnimationController(vsync: this, duration: const Duration(seconds: 2));
-    _animation = Tween<double>(begin: 0, end: widget.currentSteps?.toDouble() ??  widget.currentCalory).animate(_controller);
+    _animation = IntTween(begin: 0, end: (widget.currentSteps ??  widget.currentCalory)).animate(_controller);
     _controller.forward();
   }
   
@@ -67,7 +66,7 @@ class _StepsProgressIndicatorState extends ConsumerState<StepsProgressIndicator>
                   children: [
                     FittedBox(
                       child: Text(
-                        (widget.currentCalory?.toStringAsFixed(2) ?? widget.currentSteps.toString()),
+                        (widget.currentCalory?.toString()?? widget.currentSteps.toString()),
                         style: Theme.of(context).textTheme.headlineMedium!.copyWith(
                           fontSize: 22,
                           color: widget.strokeColor,

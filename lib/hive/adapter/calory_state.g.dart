@@ -17,19 +17,22 @@ class CaloryStateAdapter extends TypeAdapter<CaloryState> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return CaloryState(
-      calories: fields[0] as double,
+      calories: fields[0] as int,
       timestamp: fields[1] as DateTime,
+      source: fields[2] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, CaloryState obj) {
     writer
-      ..writeByte(2)
+      ..writeByte(3)
       ..writeByte(0)
       ..write(obj.calories)
       ..writeByte(1)
-      ..write(obj.timestamp);
+      ..write(obj.timestamp)
+      ..writeByte(2)
+      ..write(obj.source);
   }
 
   @override

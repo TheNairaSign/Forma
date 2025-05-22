@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:workout_tracker/providers/calories_provider.dart';
-import 'package:workout_tracker/providers/workout_item_notifier.dart';
+import 'package:workout_tracker/services/calorie_service.dart';
 import 'package:workout_tracker/utils/get_week_days.dart';
 import 'package:workout_tracker/views/pages/activity/widgets/daily_breakdown.dart';
 import 'package:workout_tracker/views/pages/activity/widgets/nutrition_tip_container.dart';
@@ -17,22 +17,22 @@ class CalorieDetailsPage extends ConsumerStatefulWidget {
 }
 
 class _CalorieDetailsPageState extends ConsumerState<CalorieDetailsPage> {
-  final weekDays = getWeekDays();
-
+  final _caloryService = CalorieService();
   @override
   void initState() {
     super.initState();
-    // Initialize workouts for all days of the week
-    for (var day in weekDays) {
-      ref.read(workoutItemProvider.notifier).getWorkoutsForDay(day);
-    }
+    _caloryService.getWeeklyCalories();
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final calorieData = ref.read(caloryProvider.notifier).weeklyCaloryChartData();
 
+    final weekDays = getWeekDays();
+    final calorieData = weekDays.map((date) => 
+      ref.read(caloryProvider.notifier).getCalorieForDay(date)
+    ).toList();
+    
     final todayIndex = DateTime.now().weekday - 1;
     final todayCalories = todayIndex < calorieData.length ? calorieData[todayIndex] : 0;
     final weeklyAverage = calorieData.isNotEmpty 
