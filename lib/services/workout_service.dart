@@ -1,8 +1,10 @@
 // lib/services/workout_service.dart
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:workout_tracker/models/workout/workout.dart';
+import 'package:workout_tracker/providers/workout_item_notifier.dart';
 
 class WorkoutService {
   static const _workoutKey = 'workouts';
@@ -95,7 +97,7 @@ class WorkoutService {
     await prefs.setString(_allWorkoutsKey, jsonEncode(filteredMaps));
   }
 
-  Future<bool> undoDelete(String workoutId) async {
+  Future<bool> undoDelete(String workoutId, WidgetRef ref) async {
     final prefs = await SharedPreferences.getInstance();
     final historyJson = prefs.getString(_allWorkoutsKey);
     if (historyJson == null) return false;
@@ -112,6 +114,8 @@ class WorkoutService {
     
     workouts.insert(0, workout);
     await saveWorkouts(workouts);
+    ref.watch(workoutItemProvider.notifier).getWorkouts();
     return true;
   }
+
 }

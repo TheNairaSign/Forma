@@ -48,9 +48,9 @@ class _WorkoutsPageState extends ConsumerState<WorkoutsPage> {
                   iconAlignment: IconAlignment.end,
                   icon: Icon(Icons.clear, color: Colors.red),
                   onPressed: () {
-                    Alerts.areYouSureDialog(context, () {
-                      ref.watch(workoutItemProvider.notifier).clearWorkouts(context);
-                    }, 
+                    Alerts.areYouSureDialog(
+                      context, 
+                      () => ref.watch(workoutItemProvider.notifier).clearWorkouts(context), 
                       'Are you sure you want to clear all workouts?',
                     );
                   }, 
@@ -76,7 +76,8 @@ class _WorkoutsPageState extends ConsumerState<WorkoutsPage> {
                           duration: const Duration(milliseconds: 450),
                           child: SlideAnimation(
                             horizontalOffset: 50.0,
-                            child: FadeInAnimation(child: WorkoutItem(workout: workout)))
+                            child: FadeInAnimation(child: WorkoutItem(workout: workout)),  
+                          )
                         )
                       );
                     },

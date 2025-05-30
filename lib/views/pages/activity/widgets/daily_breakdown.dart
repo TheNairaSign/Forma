@@ -74,9 +74,7 @@ class _DailyBreakdownState extends ConsumerState<DailyBreakdown> {
                         children: [
                           Text(
                             formatDate(day),
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: theme.colorScheme.onSurface.withOpacity(0.6),
-                            ),
+                            style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.6)),
                           ),
                           const SizedBox(height: 2),
                           Text(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:workout_tracker/models/enums/workout_group.dart';
 import 'package:workout_tracker/models/workout/workout.dart';
 import 'package:workout_tracker/providers/workout_item_notifier.dart';
 import 'package:workout_tracker/services/workout_service.dart';
@@ -18,6 +19,15 @@ class WorkoutItem extends ConsumerWidget {
     return '$hours:$minutes:$secs';
   }
 
+  void subtitle(WorkoutGroup workoutGroup) {
+    switch (workoutGroup) {
+      case WorkoutGroup.repetition:
+        '${workout.sets} sets, ${workout.reps} reps, Total: ${_formatTime(workout.durationInSeconds)}';
+      default:
+        '${workout.sets} sets, ${workout.reps} reps, Total: ${_formatTime(workout.durationInSeconds)}';
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return DismissibleItem(
@@ -26,7 +36,7 @@ class WorkoutItem extends ConsumerWidget {
       subtitle: '${workout.sets} sets, ${workout.reps} reps, Total: ${_formatTime(workout.durationInSeconds)}',
       onDismissed: (direction) async {
         await _workoutService.deleteWorkout(workout.id).then((_) {
-          ref.read(workoutItemProvider.notifier).getWorkouts();
+          ref.watch(workoutItemProvider.notifier).getWorkouts();
         });
       },
     );

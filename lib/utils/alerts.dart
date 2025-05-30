@@ -29,9 +29,8 @@ class Alerts {
         ],
       ),
       duration: const Duration(seconds: 3),
-      backgroundColor: isError ? const Color(0xfffef2f2) : GlobalColors.primaryColor,
+      backgroundColor: isError ? const Color(0xfffef2f2) : GlobalColors.primaryColorLight,
       flushbarPosition: FlushbarPosition.TOP,
-      
     ).show(context);
   }
 

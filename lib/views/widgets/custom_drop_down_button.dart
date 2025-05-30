@@ -1,11 +1,13 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first, must_be_immutable
 import 'package:flutter/material.dart';
+import 'package:workout_tracker/models/enums/workout_type.dart';
 
 class CustomDropdownButton extends StatefulWidget {
   final List items;
   String? initialValue;
   final String hint;
   final void Function(String?)? onChanged;
+  WorkoutType? selectedWorkoutType;
   final double width;
   final Color textColor;
   final Color? backgroundColor, borderColor;
@@ -19,7 +21,8 @@ class CustomDropdownButton extends StatefulWidget {
     this.width = double.infinity,
     this.textColor = Colors.black87,
     this.borderColor,
-    this.backgroundColor
+    this.backgroundColor,
+    this.selectedWorkoutType,
   });
 
   @override

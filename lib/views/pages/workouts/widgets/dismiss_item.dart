@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:workout_tracker/services/workout_service.dart';
 import 'package:workout_tracker/style/global_colors.dart';
 
-class DismissibleItem extends StatefulWidget {
+class DismissibleItem extends ConsumerStatefulWidget {
   final String title, id;
   final String subtitle;
   final Function(DismissDirection) onDismissed;
@@ -16,14 +17,14 @@ class DismissibleItem extends StatefulWidget {
   });
 
   @override
-  State<DismissibleItem> createState() => _DismissibleItemState();
+  ConsumerState<DismissibleItem> createState() => _DismissibleItemState();
 }
 
-class _DismissibleItemState extends State<DismissibleItem> {
+class _DismissibleItemState extends ConsumerState<DismissibleItem> {
 
   void undoDelete() async {
     final workoutService = WorkoutService();
-    final success = await workoutService.undoDelete(widget.id);
+    final success = await workoutService.undoDelete(widget.id, ref);
     if (mounted) {
       if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -88,11 +89,12 @@ class _DismissibleItemState extends State<DismissibleItem> {
         }
       },
       child: Container(
+        height: 70,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
           color: Colors.white,
           boxShadow: GlobalColors.boxShadow(context),
-        ),        // margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        ),
         child: ListTile(
           title: Text(widget.title, style: theme.textTheme.bodyLarge?.copyWith(color: Colors.black, fontWeight: FontWeight.bold),),
           subtitle: Text(widget.subtitle, style: theme.textTheme.bodyMedium?.copyWith(color: Colors.black)),

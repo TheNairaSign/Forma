@@ -725,6 +725,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.0"
+  nested:
+    dependency: transitive
+    description:
+      name: nested
+      sha256: "03bac4c528c64c95c722ec99280375a6f2fc708eec17c7b3f07253b626cd2a20"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.0"
   package_config:
     dependency: transitive
     description:
@@ -893,6 +901,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "6.0.1"
+  provider:
+    dependency: "direct main"
+    description:
+      name: provider
+      sha256: "4abbd070a04e9ddc287673bf5a030c7ca8b685ff70218720abab8b092f53dd84"
+      url: "https://pub.dev"
+    source: hosted
+    version: "6.1.5"
   pub_semver:
     dependency: transitive
     description:
@@ -941,6 +957,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.6.3"
+  sensors_plus:
+    dependency: "direct main"
+    description:
+      name: sensors_plus
+      sha256: "905282c917c6bb731c242f928665c2ea15445aa491249dea9d98d7c79dc8fd39"
+      url: "https://pub.dev"
+    source: hosted
+    version: "6.1.1"
+  sensors_plus_platform_interface:
+    dependency: transitive
+    description:
+      name: sensors_plus_platform_interface
+      sha256: "58815d2f5e46c0c41c40fb39375d3f127306f7742efe3b891c0b1c87e2b5cd5d"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.1"
   shared_preferences:
     dependency: "direct main"
     description:
