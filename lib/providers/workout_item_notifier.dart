@@ -6,7 +6,6 @@ import 'package:provider/provider.dart';
 import 'package:workout_tracker/models/enums/workout_group.dart';
 import 'package:workout_tracker/models/enums/workout_type.dart';
 import 'package:workout_tracker/models/workout/workout.dart';
-import 'package:workout_tracker/providers/calories_provider.dart';
 import 'package:workout_tracker/providers/steps_notifier.dart';
 import 'package:workout_tracker/providers/workout_group_notifier.dart';
 import 'package:workout_tracker/services/workout_service.dart';

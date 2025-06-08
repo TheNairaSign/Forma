@@ -68,7 +68,7 @@ class _BlueButtonState extends State<BlueButton> with SingleTickerProviderStateM
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
           decoration: BoxDecoration(
             color: GlobalColors.primaryBlue,
-            borderRadius: BorderRadius.circular(5),
+            borderRadius: BorderRadius.circular(15),
             boxShadow: const [
               BoxShadow(
                 color: Colors.black26,

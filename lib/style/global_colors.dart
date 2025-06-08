@@ -8,6 +8,7 @@ class GlobalColors {
   static const lightGreen = Color(0xff22c55e);
   static const borderColor = Color(0xffd1d5db);
   static const teal = Color(0xff6fffe9);
+  static const purple = Color(0xff7064e3);
   static const glowGreen = Color.fromARGB(255, 95, 234, 118);
   
 

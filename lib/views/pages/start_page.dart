@@ -3,8 +3,8 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:workout_tracker/auth/auth_wrapper.dart';
 import 'package:workout_tracker/style/global_colors.dart';
-import 'package:workout_tracker/views/pages/auth/login_page.dart.dart';
 
 class StartPage extends StatefulWidget {
   const StartPage({super.key});
@@ -17,7 +17,7 @@ class _StartPageState extends State<StartPage> {
   @override
   void initState() {
     super.initState();
-    Future.delayed(Duration(seconds: 5), () => Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => LoginPage())));
+    Future.delayed(Duration(seconds: 5), () => Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => AuthWrapper())));
   }
 
   final threeBounceSpinner = SpinKitChasingDots(color: Colors.white);
