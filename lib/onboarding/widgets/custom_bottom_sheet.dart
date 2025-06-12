@@ -10,7 +10,8 @@ class CustomBottomSheet extends StatelessWidget {
       padding: EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Color(0xff7064e3),
-        borderRadius: BorderRadius.only(topLeft: Radius.circular(30), topRight: Radius.circular(30))
+        // borderRadius: BorderRadius.only(topLeft: Radius.circular(30), topRight: Radius.circular(30)),
+        // borderRadius: BorderRadius.vertical(top: Radius.circular(30))
       ),
       child: Row(
         children: [

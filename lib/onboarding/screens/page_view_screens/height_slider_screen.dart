@@ -27,6 +27,7 @@ class HeightSliderScreenState extends State<HeightSliderScreen> {
   }
 
   @override
+
   void dispose() {
     _controller.dispose();
     super.dispose();
@@ -58,11 +59,11 @@ class HeightSliderScreenState extends State<HeightSliderScreen> {
               children: const {
                 true: Padding(
                   padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  child: Text("KG"),
+                  child: Text("CM"),
                 ),
                 false: Padding(
                   padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  child: Text("LB"),
+                  child: Text("FT"),
                 ),
               },
               groupValue: isKg,
@@ -88,25 +89,25 @@ class HeightSliderScreenState extends State<HeightSliderScreen> {
                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.grey[600])
                   ),
                   TextSpan(
-                    text: units,
+                    text: 'cm',
                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.grey[600])
                   )
                 ]
               )
             ),
+            const SizedBox(height: 10),
             Container(
-              width: 200,
+              width: 130,
               padding: EdgeInsets.symmetric(horizontal: 10),
               decoration: BoxDecoration(
                 color: Color(0xfff7f6fb),
-                borderRadius: BorderRadius.circular(30.0),
+                borderRadius: BorderRadius.circular(50.0),
               ),
               child: VerticalWeightSlider(
-                height: 150,
+                height: 350,
                 haptic: Haptic.selectionClick,
                 controller: _controller,
                 decoration: const PointerDecoration(
-                  // width: 130.0,
                   height: 3.0,
                   largeColor: Color(0xFF898989),
                   mediumColor: Color(0xFFC5C5C5),
@@ -120,7 +121,6 @@ class HeightSliderScreenState extends State<HeightSliderScreen> {
                 },
                 indicator: Container(
                   height: 3.0,
-                  // width: 200.0,
                   alignment: Alignment.centerLeft,
                   color: Colors.red[300],
                 ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:workout_tracker/constants.dart';
+import 'package:workout_tracker/models/enums/gender.dart';
 import 'package:workout_tracker/style/global_colors.dart';
 
 class GenderIdentityScreen extends StatefulWidget {
@@ -10,12 +11,6 @@ class GenderIdentityScreen extends StatefulWidget {
 }
 
 class _GenderIdentityScreenState extends State<GenderIdentityScreen> {
-  final List<Map<String, dynamic>> genderOptions = [
-    {'icon': Icons.male, 'label': 'Male'},
-    {'icon': Icons.female, 'label': 'Female'},
-    {'icon': Icons.transgender, 'label': 'Non-Binary'},
-    {'icon': Icons.close, 'label': 'Prefer Not to disclose'},
-  ];
 
   bool selected = false;
   int selectedGenderIndex = -1;
@@ -44,7 +39,7 @@ class _GenderIdentityScreenState extends State<GenderIdentityScreen> {
               child: ListView.separated(
                 scrollDirection: Axis.vertical,
                 physics: const NeverScrollableScrollPhysics(),
-                itemCount: genderOptions.length, 
+                itemCount: gender.length, 
                 separatorBuilder: (context, index) => SizedBox(height: 20),
                 itemBuilder: (context, index) {
                   return GestureDetector(
@@ -62,9 +57,9 @@ class _GenderIdentityScreenState extends State<GenderIdentityScreen> {
                       ),
                       child: Row(
                         children: [
-                          Icon(genderOptions[index]['icon'], color: isSelected(index)? Colors.white : Colors.grey[700], size: 25,),
+                          Icon(Gender.values[index].icon, color: isSelected(index)? Colors.white : Colors.grey[700], size: 25,),
                           SizedBox(width: 20),
-                          Text(genderOptions[index]['label'], style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: isSelected(index)? Colors.white : Colors.grey[700]))
+                          Text(Gender.values[index].name, style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: isSelected(index)? Colors.white : Colors.grey[700]))  
                         ]
                       )
                     )

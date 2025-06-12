@@ -33,6 +33,24 @@ class ProfileData extends HiveObject {
   @HiveField(8)
   final String? coverImagePath;
 
+  @HiveField(9)
+  final String? gender;
+
+  @HiveField(10)
+  final String? birthDate;
+
+  @HiveField(11)
+  final String? height;
+
+  @HiveField(12)
+  final String? weight;
+
+  @HiveField(14)
+  final String? weightGoal;
+
+  @HiveField(15)
+  final String? activityLevel;
+
   ProfileData({
     required this.name,
     required this.bio,
@@ -43,6 +61,12 @@ class ProfileData extends HiveObject {
     this.currentStreak = 0,
     this.longestStreak = 0,
     this.lastWorkoutDate,
+    this.gender,
+    this.birthDate,
+    this.height,
+    this.weight,
+    this.weightGoal,
+    this.activityLevel,
   });
 
   ProfileData copyWith({
@@ -55,6 +79,12 @@ class ProfileData extends HiveObject {
     int? currentStreak,
     int? longestStreak,
     DateTime? lastWorkoutDate,
+    String? gender,
+    String? birthDate,
+    String? height,
+    String? weight,
+    String? weightGoal,
+    String? activityLevel,
   }) {
     return ProfileData(
       name: name ?? this.name,
@@ -66,6 +96,12 @@ class ProfileData extends HiveObject {
       currentStreak: currentStreak ?? this.currentStreak,
       longestStreak: longestStreak ?? this.longestStreak,
       lastWorkoutDate: lastWorkoutDate ?? this.lastWorkoutDate,
+      gender: gender ?? this.gender,
+      birthDate: birthDate ?? this.birthDate,
+      height: height ?? this.height,
+      weight: weight ?? this.weight,
+      weightGoal: weightGoal ?? this.weightGoal,
+      activityLevel: activityLevel ?? this.activityLevel,
     );
   }
 
