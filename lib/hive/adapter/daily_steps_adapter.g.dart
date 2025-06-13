@@ -17,7 +17,7 @@ class DailyStepsAdapter extends TypeAdapter<DailySteps> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return DailySteps(
-      date: fields[0],
+      date: fields[0] as DateTime,
       steps: fields[1] as int,
       lastUpdated: fields[2] as DateTime,
     );

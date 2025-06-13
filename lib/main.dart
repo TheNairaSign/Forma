@@ -43,7 +43,6 @@ void main(List<String> args) async {
     Hive.registerAdapter(ProfileDataAdapter());
     await Hive.openBox<DailySteps>('dailyStepsBox');
     await Hive.openBox<CaloryState>('caloriesBox');
-    await Hive.deleteBoxFromDisk('calories');
     await Hive.openBox<ProfileData>('profile');
   }
 

@@ -5,7 +5,7 @@ part 'adapter/daily_steps_adapter.g.dart';
 @HiveType(typeId: 1)
 class DailySteps {
   @HiveField(0)
-  final DateTime date; // YYYY-MM-DD format
+  final DateTime date;
   
   @HiveField(1)
   final int steps;
