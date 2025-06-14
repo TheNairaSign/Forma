@@ -10,14 +10,29 @@ enum FoodPreference {
   meat,
 }
 
-// Map<FoodPreference, IconData> foodPreferenceIcons = {
-//   FoodPreference.fish : Icons.fish,
-//   FoodPreference.snacks : Icons.cookie,
-//   FoodPreference.protein : Icons.egg_alt,
-//   FoodPreference.dairy : Icons.dairy,
-//   FoodPreference.vegetables : Icons.vegetables,
-//   FoodPreference.fruits : Icons.fruits,
-//   FoodPreference.organic : Icons.organic,
-//   FoodPreference.vegan : Icons.vegan,
-//   FoodPreference.meat : Icons.meat,
-// };
+const assetPath = 'assets/svgs/food_preference';
+
+Map<FoodPreference, String> foodPreferenceIcons = {
+  FoodPreference.fish : '$assetPath/fish.svg',
+  FoodPreference.snacks : '$assetPath/snacks.svg',
+  FoodPreference.protein : '$assetPath/eggs.svg',
+  FoodPreference.dairy : '$assetPath/milk.svg',
+  FoodPreference.vegetables : '$assetPath/cauliflower.svg',
+  FoodPreference.fruits : '$assetPath/fruits-pear.svg',
+  FoodPreference.organic : '$assetPath/organic-nutrition.svg',
+  FoodPreference.vegan : '$assetPath/falafel.svg',
+  FoodPreference.meat : '$assetPath/steak-meat.svg',
+};
+
+extension FoodPreferenceExtension on FoodPreference {
+  String get icon {
+    return foodPreferenceIcons[this]!;
+  }
+}
+
+extension FoodPreferenceString on FoodPreference {
+  String get name {
+    return toString().split('.').last;
+  }
+}
+

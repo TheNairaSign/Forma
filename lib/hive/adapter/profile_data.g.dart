@@ -28,10 +28,11 @@ class ProfileDataAdapter extends TypeAdapter<ProfileData> {
       lastWorkoutDate: fields[7] as DateTime?,
       gender: fields[9] as String?,
       birthDate: fields[10] as String?,
-      height: fields[11] as String?,
-      weight: fields[12] as String?,
+      height: fields[11] as double?,
+      weight: fields[12] as double?,
       weightGoal: fields[14] as String?,
       activityLevel: fields[15] as String?,
+      foodPreference: fields[13] as List<String>?,
     );
   }
 
@@ -68,7 +69,9 @@ class ProfileDataAdapter extends TypeAdapter<ProfileData> {
       ..writeByte(14)
       ..write(obj.weightGoal)
       ..writeByte(15)
-      ..write(obj.activityLevel);
+      ..write(obj.activityLevel)
+      ..writeByte(13)
+      ..write(obj.foodPreference);
   }
 
   @override

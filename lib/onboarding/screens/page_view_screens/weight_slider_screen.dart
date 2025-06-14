@@ -1,16 +1,19 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:vertical_weight_slider/vertical_weight_slider.dart';
 import 'package:workout_tracker/constants.dart';
+import 'package:workout_tracker/onboarding/widgets/segmented_control_widget.dart';
+import 'package:workout_tracker/providers/profile_data_notifier.dart';
 
-class WeightSliderScreen extends StatefulWidget {
+class WeightSliderScreen extends ConsumerStatefulWidget {
   const WeightSliderScreen({super.key});
 
   @override
-  State<WeightSliderScreen> createState() => _WeightSliderScreenState();
+  ConsumerState<WeightSliderScreen> createState() => _WeightSliderScreenState();
 }
 
-class _WeightSliderScreenState extends State<WeightSliderScreen> {
+class _WeightSliderScreenState extends ConsumerState<WeightSliderScreen> {
   bool isKg = true;
   double weight = 75;
 
@@ -34,7 +37,6 @@ class _WeightSliderScreenState extends State<WeightSliderScreen> {
   @override
   Widget build(BuildContext context) {
     final units = isKg ? "kg" : "lb";
-    final step = 1.0;
 
     return Padding(
         padding: onboardingBodyPadding,
@@ -54,28 +56,14 @@ class _WeightSliderScreenState extends State<WeightSliderScreen> {
             const SizedBox(height: 24),
 
             // Toggle between KG and LB
-            CupertinoSegmentedControl<bool>(
-              children: const {
-                true: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  child: Text("KG"),
-                ),
-                false: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  child: Text("LB"),
-                ),
-              },
-              groupValue: isKg,
-              onValueChanged: (val) {
-                setState(() {
-                  isKg = val;
-                  weight = isKg ? 75 : 165; // default switch weight
-                });
-              },
-              selectedColor: Colors.deepPurple,
-              unselectedColor: Colors.white,
-              borderColor: Colors.deepPurple,
-              pressedColor: Colors.deepPurple.withOpacity(0.2),
+            CustomSegmentedControl(
+              option1: "KG", 
+              option2: "LB", 
+              selected: isKg, 
+              onChanged: (val) => setState(() {
+                isKg = val;
+                ref.read(profileDataProvider.notifier).setWeight(isKg ? weight : weight * 0.453592);
+              })
             ),
             const SizedBox(height: 30),
             Container(
@@ -117,6 +105,7 @@ class _WeightSliderScreenState extends State<WeightSliderScreen> {
                     ),
                     onChanged: (double value) {
                       setState(() {
+                        ref.read(profileDataProvider.notifier).setWeight(value);
                         _weight = value;
                       });
                     },

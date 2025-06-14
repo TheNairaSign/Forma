@@ -69,8 +69,7 @@ class ProfileDataNotifier extends StateNotifier<ProfileData> {
     }
   }
 
-
-  Future sendProfileData() async {
+  Future<void> sendProfileData() async {
     final newProfile = ProfileData(
       name: _nameController.text,
       bio: _bioController.text,
@@ -81,6 +80,49 @@ class ProfileDataNotifier extends StateNotifier<ProfileData> {
     );
     state = newProfile;
     _profileDataBox.add(newProfile);
+  }
+
+  String? _gender;
+  String? get gender => _gender;
+
+  int? _age;
+  int? get age => _age;
+
+  double? _height, _weight;
+  double? get height => _height;
+  double? get weight => _weight;
+
+  void updateGender(String newGender) {
+    state = state.copyWith(gender: newGender);
+  }
+
+  void setAge(int newAge) {
+    _age = newAge;
+  }
+
+  void setHeight(double newHeight) {
+    state = state.copyWith(height: newHeight);
+  }
+
+  void setWeight(double newWeight) {
+    state = state.copyWith(weight: newWeight);
+  }
+
+  void setFoodPreference(List<String> newFoodPreference) {
+    debugPrint('Food Preference: $newFoodPreference');
+    state = state.copyWith(foodPreference: newFoodPreference);
+  }
+
+  List<String>? get foodPreference => state.foodPreference;
+
+  Future<void> sendOnboardingData() async {
+    state = state.copyWith(
+      gender: gender,
+      // age: age ?? 0,
+      height: height ?? 0,
+      weight: weight ?? 0,
+      foodPreference: foodPreference,
+    );
   }
 
 }

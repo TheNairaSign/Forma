@@ -40,16 +40,21 @@ class ProfileData extends HiveObject {
   final String? birthDate;
 
   @HiveField(11)
-  final String? height;
+  final double? height;
 
   @HiveField(12)
-  final String? weight;
+  final double? weight;
 
   @HiveField(14)
   final String? weightGoal;
 
   @HiveField(15)
   final String? activityLevel;
+
+  @HiveField(13)
+  final List<String>? foodPreference;
+
+  
 
   ProfileData({
     required this.name,
@@ -67,6 +72,7 @@ class ProfileData extends HiveObject {
     this.weight,
     this.weightGoal,
     this.activityLevel,
+    this.foodPreference,
   });
 
   ProfileData copyWith({
@@ -81,10 +87,11 @@ class ProfileData extends HiveObject {
     DateTime? lastWorkoutDate,
     String? gender,
     String? birthDate,
-    String? height,
-    String? weight,
+    double? height,
+    double? weight,
     String? weightGoal,
     String? activityLevel,
+    List<String>? foodPreference,
   }) {
     return ProfileData(
       name: name ?? this.name,
@@ -102,6 +109,7 @@ class ProfileData extends HiveObject {
       weight: weight ?? this.weight,
       weightGoal: weightGoal ?? this.weightGoal,
       activityLevel: activityLevel ?? this.activityLevel,
+      foodPreference: foodPreference ?? this.foodPreference,
     );
   }
 

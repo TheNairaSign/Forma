@@ -4,7 +4,6 @@ import 'package:workout_tracker/onboarding/screens/onboarding_screen.dart';
 import 'package:workout_tracker/style/global_colors.dart';
 import 'package:workout_tracker/utils/constants.dart';
 import 'package:workout_tracker/utils/custom_route.dart';
-import 'package:workout_tracker/views/pages/navigation/navigation_page.dart';
 import 'package:workout_tracker/views/widgets/animated_page_entry.dart';
 import 'package:workout_tracker/views/widgets/blue_button.dart';
 import 'package:workout_tracker/views/widgets/custom_text_field.dart';

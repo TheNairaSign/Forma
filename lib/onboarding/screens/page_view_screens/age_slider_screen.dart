@@ -1,15 +1,17 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:workout_tracker/constants.dart';
+import 'package:workout_tracker/providers/profile_data_notifier.dart';
 
-class AgeSliderScreen extends StatefulWidget {
+class AgeSliderScreen extends ConsumerStatefulWidget {
   const AgeSliderScreen({super.key});
 
   @override
-  State<AgeSliderScreen> createState() => _AgeSliderScreenState();
+  ConsumerState<AgeSliderScreen> createState() => _AgeSliderScreenState();
 }
 
-class _AgeSliderScreenState extends State<AgeSliderScreen> {
+class _AgeSliderScreenState extends ConsumerState<AgeSliderScreen> {
   int selectedAge = 25; // Default selected age
   final List<int> ageRange = List.generate(100, (index) => index + 1);
 
@@ -46,6 +48,7 @@ class _AgeSliderScreenState extends State<AgeSliderScreen> {
                 scrollController: FixedExtentScrollController(initialItem: selectedAge - 1),
                 onSelectedItemChanged: (int index) {
                   setState(() {
+                    ref.read(profileDataProvider.notifier).setAge(ageRange[index]);
                     selectedAge = ageRange[index];
                   });
                 },

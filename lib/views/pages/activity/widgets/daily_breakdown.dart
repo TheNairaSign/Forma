@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:workout_tracker/providers/calories_provider.dart';
 import 'package:workout_tracker/providers/workout_item_notifier.dart';
-import 'package:workout_tracker/services/calorie_service.dart';
 import 'package:workout_tracker/style/global_colors.dart';
 import 'package:workout_tracker/utils/formatters/format_date.dart';
 import 'package:workout_tracker/utils/formatters/format_day.dart';
@@ -17,7 +16,6 @@ class DailyBreakdown extends ConsumerStatefulWidget {
 }
 
 class _DailyBreakdownState extends ConsumerState<DailyBreakdown> {
-  final _caloryService = CalorieService();
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +29,6 @@ class _DailyBreakdownState extends ConsumerState<DailyBreakdown> {
         const SizedBox(height: 12),
         ...List.generate(weekDays.length, (index) {
           final day = weekDays[index];
-          final calories = widget.calorieData[index];
           final isToday = day.day == DateTime.now().day && 
                         day.month == DateTime.now().month && 
                         day.year == DateTime.now().year;

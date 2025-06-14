@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart' hide Consumer;
-import 'package:workout_tracker/models/enums/workout_group.dart';
 import 'package:workout_tracker/models/enums/workout_type.dart';
 import 'package:workout_tracker/providers/workout_group_notifier.dart';
 import 'package:provider/provider.dart';
@@ -52,7 +51,6 @@ class _WorkoutFormSelectorState extends ConsumerState<WorkoutFormSelector> with 
 
   @override
   Widget build(BuildContext context) {
-    final workoutGroup = workoutGroupMap[widget.selectedWorkoutType]!;
     
     return FadeTransition(
       opacity: _animation,
