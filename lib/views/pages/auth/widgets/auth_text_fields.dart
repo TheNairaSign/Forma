@@ -1,6 +1,7 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:workout_tracker/style/global_colors.dart';
 
 class AuthTextField extends StatelessWidget {
   const AuthTextField({super.key, required this.hintText, required this.svgAsset});

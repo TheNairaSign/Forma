@@ -1,3 +1,5 @@
+// ignore_for_file: unused_field
+
 import 'package:flutter/material.dart';
 import 'package:workout_tracker/views/pages/auth/widgets/login_card.dart';
 import 'package:workout_tracker/views/pages/auth/widgets/signup_card.dart';
@@ -20,7 +22,6 @@ class _AuthPageState extends State<AuthPage> {
     return Scaffold(
       body: Stack(
         children: [
-          // Background
           Container(
             decoration: const BoxDecoration(
               image: DecorationImage(

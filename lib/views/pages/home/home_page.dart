@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:workout_tracker/providers/profile_data_notifier.dart';
 import 'package:workout_tracker/providers/steps_notifier.dart';
 import 'package:workout_tracker/views/pages/home/widgets/calory_container.dart';
 import 'package:workout_tracker/views/pages/home/widgets/overall_status_container.dart';
@@ -34,11 +35,12 @@ class _HomePageState extends ConsumerState<HomePage> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: Container(
-          height: 30,
-          width: 30,
           // padding: EdgeInsets.all(10),
-          margin: EdgeInsets.only(left: 20),
-          child: CircleAvatar()),
+          margin: EdgeInsets.only(left: 15),
+          child: CircleAvatar(
+            radius: 25,
+            backgroundImage: AssetImage(ref.watch(profileDataProvider).profileImagePath!),
+          )),
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

@@ -4,6 +4,9 @@ class GlobalColors {
   static const primaryBlue = Color(0xff1d329d);
   static const primaryColor = Color(0xff2EC4B6);
   static const primaryColorLight = Color(0xffCBF3F0);
+  // static const primaryColor = Colors.greenAccent;
+  // static const primaryColorLight = Color.fromARGB(255, 144, 236, 192);
+
   static const Color primaryGreen = Color(0xff204c27);
   static const lightGreen = Color(0xff22c55e);
   static const borderColor = Color(0xffd1d5db);

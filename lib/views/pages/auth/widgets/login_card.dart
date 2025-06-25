@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:workout_tracker/onboarding/screens/onboarding_screen.dart';
 import 'package:workout_tracker/views/pages/auth/widgets/auth_text_fields.dart';
 
 class LoginCard extends StatelessWidget {
@@ -60,7 +61,7 @@ class LoginCard extends StatelessWidget {
                   height: 50,
                   child: ElevatedButton(
                     onPressed: () {
-                      // Handle login
+                      Navigator.of(context).push(MaterialPageRoute(builder: (context) => OnboardingScreen()));
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.black,

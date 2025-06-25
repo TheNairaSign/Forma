@@ -32,7 +32,7 @@ class _WorkoutsPageState extends ConsumerState<WorkoutsPage> {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: Text('Workouts Page', style: Theme.of(context).textTheme.headlineSmall),
+        title: Text('Your Workouts', style: Theme.of(context).textTheme.headlineSmall),
         actionsPadding: EdgeInsets.only(right: 5),
         actions: [ IconButton(icon: Icon(Icons.add), onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const AddWorkoutPage()))) ]),
       body: Padding(
@@ -42,19 +42,21 @@ class _WorkoutsPageState extends ConsumerState<WorkoutsPage> {
           children: [
             Row(
               children: [
-                Text('Your Workouts', style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontSize: 20)),
-                const Spacer(),
-                TextButton.icon(
-                  iconAlignment: IconAlignment.end,
-                  icon: Icon(Icons.clear, color: Colors.red),
-                  onPressed: () {
-                    Alerts.areYouSureDialog(
-                      context, 
-                      () => ref.watch(workoutItemProvider.notifier).clearWorkouts(context), 
-                      'Are you sure you want to clear all workouts?',
-                    );
-                  }, 
-                  label: Text('Clear', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.red, fontWeight: FontWeight.bold)))
+                if (workouts.isNotEmpty) ... [
+                  const Spacer(),
+                  TextButton.icon(
+                    iconAlignment: IconAlignment.end,
+                    icon: Icon(Icons.clear, color: Colors.red),
+                    onPressed: () {
+                      Alerts.areYouSureDialog(
+                        context, 
+                        () => ref.watch(workoutItemProvider.notifier).clearWorkouts(context), 
+                        'Are you sure you want to clear all workouts?',
+                      );
+                    }, 
+                    label: Text('Clear', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.red, fontWeight: FontWeight.bold)),
+                  )
+                ]
               ],
             ),
             const SizedBox(height: 10),

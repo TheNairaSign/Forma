@@ -25,7 +25,7 @@ class _SettingsSectionState extends State<SettingsSection> {
       children: [
         Text(
           'Settings',
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
             fontWeight: FontWeight.bold,
             color: Colors.black
           ),

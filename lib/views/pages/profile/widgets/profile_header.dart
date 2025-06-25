@@ -1,20 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:workout_tracker/constants.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:workout_tracker/providers/profile_data_notifier.dart';
 
-class ProfileHeader extends StatelessWidget {
+class ProfileHeader extends ConsumerWidget {
   const ProfileHeader({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
-          width: 50,
-          height: 50,
-          decoration: BoxDecoration(shape: BoxShape.circle),
-          child: ClipOval(child: Image.network(placeholderProfilePic, fit: BoxFit.cover)),
+        CircleAvatar(
+          radius: 25,
+          backgroundImage: AssetImage(ref.watch(profileDataProvider).profileImagePath!),
         ),
         const SizedBox(width: 16),
         Expanded(

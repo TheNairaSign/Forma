@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:workout_tracker/constants.dart';
+import 'package:workout_tracker/onboarding/screens/avatar_page.dart';
 import 'package:workout_tracker/onboarding/screens/page_view_screens/age_slider_screen.dart';
 import 'package:workout_tracker/onboarding/screens/page_view_screens/food_preference_screen.dart';
 import 'package:workout_tracker/onboarding/screens/page_view_screens/gender_identity_screen.dart';
@@ -8,7 +9,6 @@ import 'package:workout_tracker/onboarding/screens/page_view_screens/height_slid
 import 'package:workout_tracker/onboarding/screens/page_view_screens/weight_slider_screen.dart';
 import 'package:workout_tracker/onboarding/widgets/custom_bottom_sheet.dart';
 import 'package:workout_tracker/style/global_colors.dart';
-import 'package:workout_tracker/views/pages/navigation/navigation_page.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -30,7 +30,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   void toggleScreens() {
     if (_currentPage == screens.length - 1) {
-      Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const NavigationPage()));
+      Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const PickAvatarPage()));
     } else {
       _pageController.nextPage(duration: Duration(milliseconds: 300), curve: Curves.easeIn);
     }

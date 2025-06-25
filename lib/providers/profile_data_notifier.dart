@@ -39,6 +39,10 @@ class ProfileDataNotifier extends StateNotifier<ProfileData> {
 
   final ImagePicker imagePicker = ImagePicker();
 
+  void updateUserAvatar(String imagePath) {
+    state = state.copyWith(profileImagePath: imagePath);
+  }
+
   void updateFitnessLevel(String value) {
     _fitnessLevel = value;
   }

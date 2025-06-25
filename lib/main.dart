@@ -2,7 +2,6 @@ import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart' hide ChangeNotifierProvider;
 import 'package:hive_flutter/adapters.dart';
-import 'package:workout_tracker/auth/auth_wrapper.dart';
 import 'package:workout_tracker/background_task_handler.dart';
 import 'package:workout_tracker/hive/daily_steps_adapter.dart';
 import 'package:workout_tracker/hive/adapter/calory_state.dart';
