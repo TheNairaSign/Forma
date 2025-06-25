@@ -10,6 +10,7 @@ import 'package:workout_tracker/models/state/profile_data.dart';
 import 'package:workout_tracker/style/theme/light_theme.dart';
 import 'package:workout_tracker/providers/workout_group_notifier.dart';
 import 'package:provider/provider.dart';
+import 'package:workout_tracker/views/pages/auth/auth_page.dart';
 
 void main(List<String> args) async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -53,7 +54,7 @@ class WorkoutTracker extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: AuthWrapper(),
+      home: AuthPage(),
       theme: lightTheme,
       // darkTheme: darkTheme,
     );
