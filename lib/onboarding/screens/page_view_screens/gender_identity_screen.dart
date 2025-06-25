@@ -53,14 +53,14 @@ class _GenderIdentityScreenState extends ConsumerState<GenderIdentityScreen> {
                     height: 60,
                     padding: EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: isSelected(index) ? GlobalColors.purple : Color(0xfff7f6fb),
+                      color: isSelected(index) ? GlobalColors.primaryColorLight : Color(0xfff7f6fb),
                       borderRadius: BorderRadius.circular(15),
                     ),
                     child: Row(
                       children: [
-                        Icon(Gender.values[index].icon, color: isSelected(index) ? Colors.white : Colors.grey[700], size: 25,),
+                        Icon(Gender.values[index].icon, color: isSelected(index) ? Colors.black : Colors.grey[700], size: 25,),
                         SizedBox(width: 20),
-                        Text(Gender.values[index].name, style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: isSelected(index) ? Colors.white : Colors.grey[700]))
+                        Text(Gender.values[index].name, style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: isSelected(index) ? Colors.black : Colors.grey[700]))
                       ]
                     )
                   )

@@ -40,11 +40,11 @@ class _CustomSegmentedControlState extends State<CustomSegmentedControl> {
             widget.onChanged(val);
           });
         },
-        selectedColor: GlobalColors.purple,
+        selectedColor: GlobalColors.primaryColorLight,
         unselectedColor: Colors.white,
         borderColor: const Color.fromARGB(45, 158, 158, 158),
         padding: EdgeInsets.zero,
-        pressedColor: Colors.deepPurple.withOpacity(0.2),
+        // pressedColor: Colors.deepPurple.withOpacity(0.2),
       ),
     );
   }

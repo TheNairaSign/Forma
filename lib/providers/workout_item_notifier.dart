@@ -31,8 +31,9 @@ class WorkoutItemNotifier extends StateNotifier<List<Workout>> {
   }
   String get workoutName => _workoutName;
 
-  WorkoutType _selectedWorkoutType = WorkoutType.arms;  // Set default type
-set selectedWorkoutType(WorkoutType value) {
+  WorkoutType _selectedWorkoutType = WorkoutType.arms;
+  
+  set selectedWorkoutType(WorkoutType value) {
     if (_selectedWorkoutType != value) {
       _selectedWorkoutType = value;
       _workoutGroup = workoutGroupMap[value];
@@ -99,8 +100,9 @@ set selectedWorkoutType(WorkoutType value) {
     debugPrint('Workouts: ${state.length}');
   } 
 
-  void clearWorkouts(BuildContext context) {
+  void clearWorkouts(BuildContext context) async {
     debugPrint('Clearing workouts...');
+    await ws.clearWorkouts();
     state = [];
     Alerts.showFlushBar(context, 'Workouts cleared', false);
   }

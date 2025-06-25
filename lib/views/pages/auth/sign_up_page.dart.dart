@@ -20,9 +20,10 @@ class SignUpPage extends StatelessWidget {
           padding: Constants.bodyPadding,
           child: AnimatedPageEntry(
             verticalOffset: 50,
+            duration: Duration(milliseconds: 400),
             children: [
-              Center(child: Text('FORMA', style: Theme.of(context).textTheme.displaySmall?.copyWith(color: GlobalColors.primaryBlue))),
-              const SizedBox(height: 30),
+              Center(child: Text('Forma', style: Theme.of(context).textTheme.displaySmall?.copyWith(color: GlobalColors.primaryColor))),
+              const SizedBox(height: 20),
 
               Text('Create your Account', style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
               const SizedBox(height: 30),
@@ -30,7 +31,7 @@ class SignUpPage extends StatelessWidget {
               // Lottie.asset('assets/lottie/workout-duo-animation.json'),
               // const SizedBox(height: 30),
 
-              CustomTextField(hintText: 'Username', controller: controller, labelText: 'Username',),
+              CustomTextField(hintText: 'Username', controller: controller, labelText: 'Username'),
               const SizedBox(height: 15),
               CustomTextField(hintText: 'Email', controller: controller, labelText: 'Email'),
               const SizedBox(height: 15),
@@ -48,7 +49,7 @@ class SignUpPage extends StatelessWidget {
                   const SizedBox(width: 5),
                   GestureDetector(
                     onTap: toggleView,
-                    child: Text("Login", style: Theme.of(context).textTheme.bodySmall?.copyWith(color: GlobalColors.primaryBlue))),
+                    child: Text("Login", style: Theme.of(context).textTheme.bodySmall?.copyWith(color: GlobalColors.primaryColor, decoration: TextDecoration.underline))),
                 ],
               )
               ],

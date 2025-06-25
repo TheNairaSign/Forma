@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:lottie/lottie.dart';
+// import 'package:lottie/lottie.dart';
 import 'package:workout_tracker/onboarding/screens/onboarding_screen.dart';
 import 'package:workout_tracker/style/global_colors.dart';
 import 'package:workout_tracker/utils/constants.dart';
@@ -29,14 +29,15 @@ class _LoginPageState extends State<LoginPage> {
           padding: Constants.bodyPadding,
           child: AnimatedPageEntry(
             verticalOffset: 50,
+            duration: Duration(milliseconds: 400),
               children: [
-                Center(child: Text('FORMA', style: Theme.of(context).textTheme.displaySmall?.copyWith(color: GlobalColors.purple))),
-                const SizedBox(height: 30),
+                Center(child: Text('Forma', style: Theme.of(context).textTheme.displaySmall?.copyWith(color: GlobalColors.primaryColor))),
+                const SizedBox(height: 20),
             
                 Text('Login to your Account', style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
-                const SizedBox(height: 15),
+                // const SizedBox(height: 15),
 
-                Lottie.asset('assets/lottie/workout-duo-animation.json'),
+                // Lottie.asset('assets/lottie/workout-duo-animation.json'),
 
                 const SizedBox(height: 30),
 
@@ -45,7 +46,7 @@ class _LoginPageState extends State<LoginPage> {
                 CustomTextField(hintText: 'Password', controller: controller, labelText: 'Password',),
                 const SizedBox(height: 25),
                 BlueButton(onPressed: () => Navigator.of(context).push(SlidePageRoute(page: OnboardingScreen())), text: 'Login'),
-                const SizedBox(height: 70),
+                const SizedBox(height: 50),
             
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -54,7 +55,7 @@ class _LoginPageState extends State<LoginPage> {
                     const SizedBox(width: 5),
                     GestureDetector(
                       onTap: widget.toggleView,
-                      child: Text("Sign up", style: Theme.of(context).textTheme.bodySmall?.copyWith(color: GlobalColors.primaryBlue))),
+                      child: Text("Sign up", style: Theme.of(context).textTheme.bodySmall?.copyWith(color: GlobalColors.primaryColor, decoration: TextDecoration.underline))),
                   ],
                 ),
               ],

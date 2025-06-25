@@ -44,6 +44,7 @@ class _AgeSliderScreenState extends ConsumerState<AgeSliderScreen> {
               child: CupertinoPicker(
                 diameterRatio: 1,
                 backgroundColor: const Color(0xFFF7F7F7),
+                useMagnifier: true,
                 itemExtent: 50,
                 scrollController: FixedExtentScrollController(initialItem: selectedAge - 1),
                 onSelectedItemChanged: (int index) {

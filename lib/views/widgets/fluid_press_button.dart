@@ -4,6 +4,7 @@ class FluidPressButton extends StatefulWidget {
   final VoidCallback onPressed;
   final String text;
   final Color? backgroundColor, textColor;
+  final Widget? trailIcon;
 
   const FluidPressButton({
     super.key, 
@@ -11,6 +12,7 @@ class FluidPressButton extends StatefulWidget {
     required this.text,
     this.backgroundColor = Colors.white,
     this.textColor = const Color(0xff1e0d2a),
+    this.trailIcon
   });
 
   @override
@@ -49,7 +51,7 @@ class _FluidPressButtonState extends State<FluidPressButton> with SingleTickerPr
 
   void _onTapUp(TapUpDetails details) {
     _controller.reverse();
-    widget.onPressed();
+    // widget.onPressed();
   }
 
   void _onTapCancel() {
@@ -70,7 +72,7 @@ class _FluidPressButtonState extends State<FluidPressButton> with SingleTickerPr
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
           decoration: BoxDecoration(
             color: widget.backgroundColor,
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(15),
             boxShadow: const [
               BoxShadow(
                 color: Colors.black26,
@@ -80,10 +82,15 @@ class _FluidPressButtonState extends State<FluidPressButton> with SingleTickerPr
             ],
           ),
           child: Center(
-            child: Text(
-              widget.text,
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyLarge!.copyWith(color: widget.textColor)
+            child: Row(
+              children: [
+                Text(
+                  widget.text,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodyLarge!.copyWith(color: widget.textColor)
+                ),
+                widget.trailIcon ?? const SizedBox.shrink(),
+              ],
             ),
           ),
         ),

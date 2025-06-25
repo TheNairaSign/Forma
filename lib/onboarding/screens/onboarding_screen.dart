@@ -3,11 +3,12 @@ import 'package:workout_tracker/constants.dart';
 import 'package:workout_tracker/onboarding/screens/page_view_screens/age_slider_screen.dart';
 import 'package:workout_tracker/onboarding/screens/page_view_screens/food_preference_screen.dart';
 import 'package:workout_tracker/onboarding/screens/page_view_screens/gender_identity_screen.dart';
-import 'package:workout_tracker/onboarding/screens/page_view_screens/goal_screen.dart';
+// import 'package:workout_tracker/onboarding/screens/page_view_screens/goal_screen.dart';
 import 'package:workout_tracker/onboarding/screens/page_view_screens/height_slider_screen.dart';
 import 'package:workout_tracker/onboarding/screens/page_view_screens/weight_slider_screen.dart';
 import 'package:workout_tracker/onboarding/widgets/custom_bottom_sheet.dart';
 import 'package:workout_tracker/style/global_colors.dart';
+import 'package:workout_tracker/views/pages/navigation/navigation_page.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -24,8 +25,16 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     WeightSliderScreen(),
     HeightSliderScreen(),
     FoodPreferenceScreen(),
-    GoalScreen()
+    // GoalScreen()
   ];
+
+  void toggleScreens() {
+    if (_currentPage == screens.length - 1) {
+      Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const NavigationPage()));
+    } else {
+      _pageController.nextPage(duration: Duration(milliseconds: 300), curve: Curves.easeIn);
+    }
+  }
 
   final PageController _pageController = PageController();
   int _currentPage = 0;
@@ -46,7 +55,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       margin: EdgeInsets.symmetric(horizontal: 4),
                       height: 4,
                       decoration: BoxDecoration(
-                        color: index <= _currentPage ? GlobalColors.purple : Colors.grey[300],
+                        color: index <= _currentPage ? GlobalColors.primaryColor : Colors.grey[300],
                         borderRadius: BorderRadius.circular(2),
                       ),
                     ),
@@ -59,9 +68,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               child: PageView(
                 controller: _pageController,
                 onPageChanged: (index) {
-                  setState(() {
-                    _currentPage = index;
-                  });
+                  setState(() => _currentPage = index);
                 },
                 children: screens,
               )
@@ -69,7 +76,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           ],
         ),
       ),
-      bottomSheet: CustomBottomSheet(),
+      bottomSheet: CustomBottomSheet(
+        currentPage: _currentPage, 
+        pages: screens.length, 
+        onPressed: () => toggleScreens(),
+      ),
     );
   }
 }

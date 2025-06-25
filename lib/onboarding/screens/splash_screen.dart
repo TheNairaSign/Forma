@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
-import 'package:workout_tracker/onboarding/widgets/custom_bottom_sheet.dart';
 import 'package:workout_tracker/utils/constants.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -105,7 +104,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
           ),
         ),
       ),
-      bottomSheet: CustomBottomSheet(),
+      // bottomSheet: CustomBottomSheet(),
     );
   }
 }

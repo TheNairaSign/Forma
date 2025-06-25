@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:workout_tracker/onboarding/widgets/segmented_control_widget.dart';
+import 'package:workout_tracker/style/global_colors.dart';
 
 class HeightSelector extends StatefulWidget {
   const HeightSelector({super.key});
@@ -88,7 +89,7 @@ class _HeightSelectorState extends State<HeightSelector> {
                         '$value',
                         style: TextStyle(
                           fontSize: isSelected ? 22 : 16,
-                          color: isSelected ? Colors.deepPurple : Colors.black54,
+                          color: isSelected ? GlobalColors.primaryColor : Colors.black54,
                           fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                         ),
                       ),
@@ -98,7 +99,7 @@ class _HeightSelectorState extends State<HeightSelector> {
               ),
               Positioned(
                 right: 4,
-                child: Icon(Icons.arrow_drop_down, color: Colors.deepPurple),
+                child: Icon(Icons.arrow_drop_down, color: GlobalColors.primaryColor),
               ),
             ],
           ),

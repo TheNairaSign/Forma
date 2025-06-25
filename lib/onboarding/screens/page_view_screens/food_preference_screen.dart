@@ -4,6 +4,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:workout_tracker/constants.dart';
 import 'package:workout_tracker/models/enums/food_preference.dart';
 import 'package:workout_tracker/providers/profile_data_notifier.dart';
+import 'package:workout_tracker/style/global_colors.dart';
 
 class FoodPreferenceScreen extends ConsumerStatefulWidget {
   const FoodPreferenceScreen({super.key});
@@ -30,12 +31,17 @@ class _FoodPreferenceScreenState extends ConsumerState<FoodPreferenceScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final themeColor = const Color(0xFF8265FF);
+    // final themeColor = const Color(0xFF8265FF);
+    final themeColor = GlobalColors.primaryColorLight;
 
     return Padding(
       padding: onboardingBodyPadding,
       child: Column(
         children: [
+          Text(
+            'What do you like?',
+            style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontSize: 26, fontWeight: FontWeight.bold),
+          ),
           Text(
             "This is used in getting & personalized results\n& plans for you",
             textAlign: TextAlign.center,
@@ -73,7 +79,7 @@ class _FoodPreferenceScreenState extends ConsumerState<FoodPreferenceScreen> {
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
-                          color: isSelected ? Colors.white : Colors.black87,
+                          color: Colors.black87,
                         ),
                       ),
                     ],
