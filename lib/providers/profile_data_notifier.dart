@@ -76,25 +76,18 @@ class ProfileDataNotifier extends StateNotifier<ProfileData> {
   Future<void> sendProfileData() async {
     final newProfile = ProfileData(
       name: _nameController.text,
-      bio: _bioController.text,
-      location: _locationController.text,
-      profileImagePath: _profileImagePath,
-      coverImagePath: _coverImagePath,
-      fitnessLevel: fitnessLevel
+      gender: state.gender,
+      height: state.height ?? 0,
+      weight: state.weight ?? 0,
+      foodPreference: foodPreference,
+      profileImagePath: state.profileImagePath,
     );
     state = newProfile;
     _profileDataBox.add(newProfile);
   }
 
-  String? _gender;
-  String? get gender => _gender;
-
   int? _age;
   int? get age => _age;
-
-  double? _height, _weight;
-  double? get height => _height;
-  double? get weight => _weight;
 
   void updateGender(String newGender) {
     state = state.copyWith(gender: newGender);
@@ -121,10 +114,10 @@ class ProfileDataNotifier extends StateNotifier<ProfileData> {
 
   Future<void> sendOnboardingData() async {
     state = state.copyWith(
-      gender: gender,
+      gender: state.gender,
       // age: age ?? 0,
-      height: height ?? 0,
-      weight: weight ?? 0,
+      height: state.height ?? 0,
+      weight: state.weight ?? 0,
       foodPreference: foodPreference,
     );
   }

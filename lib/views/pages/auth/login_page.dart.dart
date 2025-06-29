@@ -1,27 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 // import 'package:lottie/lottie.dart';
-import 'package:workout_tracker/onboarding/screens/onboarding_screen.dart';
+import 'package:workout_tracker/providers/auth/login_notifier.dart';
 import 'package:workout_tracker/style/global_colors.dart';
 import 'package:workout_tracker/utils/constants.dart';
-import 'package:workout_tracker/utils/custom_route.dart';
 import 'package:workout_tracker/views/widgets/animated_page_entry.dart';
 import 'package:workout_tracker/views/widgets/blue_button.dart';
 import 'package:workout_tracker/views/widgets/custom_text_field.dart';
 
-class LoginPage extends StatefulWidget {
+class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key, required this.toggleView});
   final VoidCallback toggleView;
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  ConsumerState<LoginPage> createState() => _LoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
-  final controller =  TextEditingController();
+class _LoginPageState extends ConsumerState<LoginPage> {
   final animationDuration = Duration(milliseconds: 3000);
   final double from = 400;
   @override
   Widget build(BuildContext context) {
+    final login = ref.read(loginProvider.notifier);
     return Scaffold(
       body: SafeArea(
         bottom: true,
@@ -41,11 +41,11 @@ class _LoginPageState extends State<LoginPage> {
 
                 const SizedBox(height: 30),
 
-                CustomTextField(hintText: 'Email', controller: controller, labelText: 'Email',),
+                CustomTextField(hintText: 'Email', controller: login.emailController, labelText: 'Email',),
                 const SizedBox(height: 15),
-                CustomTextField(hintText: 'Password', controller: controller, labelText: 'Password',),
+                CustomTextField(hintText: 'Password', controller: login.passwordController, labelText: 'Password',),
                 const SizedBox(height: 25),
-                BlueButton(onPressed: () => Navigator.of(context).push(SlidePageRoute(page: OnboardingScreen())), text: 'Login'),
+                BlueButton(onPressed: () => login.loginUser(context), text: 'Login'),
                 const SizedBox(height: 50),
             
                 Row(

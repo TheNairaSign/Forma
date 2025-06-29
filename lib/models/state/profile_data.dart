@@ -10,7 +10,7 @@ class ProfileData extends HiveObject {
   final String name;
   
   @HiveField(1)
-  final String bio;
+  final String? bio;
   
   @HiveField(2)
   final String? fitnessLevel;
@@ -58,9 +58,9 @@ class ProfileData extends HiveObject {
 
   ProfileData({
     required this.name,
-    required this.bio,
-    required this.fitnessLevel,
-    required this.location,
+    this.bio,
+    this.fitnessLevel,
+    this.location,
     this.profileImagePath,
     this.coverImagePath,
     this.currentStreak = 0,

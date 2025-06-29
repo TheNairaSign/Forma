@@ -16,23 +16,31 @@ class OverallStatusModel {
     required this.containerColor
   });
 
-  static List<OverallStatusModel> overallStatus = [
-    OverallStatusModel(
-      icon: SvgPicture.asset('assets/fire.svg'),
-      title: 'Calories loss',
-      subtitle: '12.183Kcal',
-      gain: '+2.8%',
-      progressPercentage: '37%', 
-      containerColor: Color(0xffffdab5),
-    ),
-    OverallStatusModel(
-      icon: SvgPicture.asset('assets/fire.svg'),
-      title: 'Weight loss',
-      subtitle: '10.57Kg',
-      gain: '+2.8%',
-      progressPercentage: '80%', 
-      containerColor: Color(0xffe9eaec),
-    ),
-  ];
+  static List<OverallStatusModel> getOverallStatus() {
+    List<OverallStatusModel> overallStatus = [];
+
+    overallStatus.add(
+      OverallStatusModel(
+        icon: SvgPicture.asset('assets/fire.svg'),
+        title: 'Calories loss',
+        subtitle: '12.183Kcal',
+        gain: '+2.8%',
+        progressPercentage: '37%', 
+        containerColor: Color(0xffffdab5),
+      ),
+    );
+
+    overallStatus.add(
+      OverallStatusModel(
+        icon: SvgPicture.asset('assets/fire.svg'),
+        title: 'Weight loss',
+        subtitle: '10.57Kg',
+        gain: '+2.8%',
+        progressPercentage: '80%', 
+        containerColor: Color(0xffe9eaec),
+      ),
+    );
+    return overallStatus;
+  }
 
 }

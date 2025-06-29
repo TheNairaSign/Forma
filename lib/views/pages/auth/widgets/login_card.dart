@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:workout_tracker/onboarding/screens/onboarding_screen.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:workout_tracker/providers/auth/login_notifier.dart';
 import 'package:workout_tracker/views/pages/auth/widgets/auth_text_fields.dart';
 
-class LoginCard extends StatelessWidget {
+class LoginCard extends ConsumerWidget {
   const LoginCard({super.key, required this.controller});
   final PageController controller;
 
@@ -14,7 +15,9 @@ class LoginCard extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final login = ref.read(loginProvider.notifier);
+    final state = ref.watch(loginProvider);
     return Align(
       alignment: Alignment.bottomCenter,
       child: Padding(
@@ -35,24 +38,12 @@ class LoginCard extends StatelessWidget {
                 const SizedBox(height: 20),
 
                 // Email field
-                AuthTextField(hintText: 'e-mail address', svgAsset: 'at',),
+                AuthTextField(hintText: 'e-mail address', svgAsset: 'at', controller: login.emailController,),
 
                 const SizedBox(height: 15),
 
                 // Mercedes code field with "I forgot"
-                Stack(
-                  alignment: Alignment.centerRight,
-                  children: [
-                    AuthTextField(hintText: 'Password', svgAsset: 'key',),
-                    Positioned(
-                      right: 15,
-                      child: TextButton(
-                        onPressed: () {},
-                        child: const Text("I forgot", style: TextStyle(fontWeight: FontWeight.bold)),
-                      ),
-                    )
-                  ],
-                ),
+                AuthTextField(hintText: 'Password', svgAsset: 'key', controller: login.passwordController,),
 
                 const SizedBox(height: 25),
 
@@ -61,15 +52,19 @@ class LoginCard extends StatelessWidget {
                   height: 50,
                   child: ElevatedButton(
                     onPressed: () {
-                      Navigator.of(context).push(MaterialPageRoute(builder: (context) => OnboardingScreen()));
+                      if (state is AsyncLoading) {
+                        null;
+                      }
+                      login.loginUser(context);
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.black,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                     ),
-                    child: Text("Log in", style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontSize: 18, color: Colors.white)),
+                    child: Text(
+                      state is AsyncLoading? "Loading..." : "Log in", 
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontSize: 18, color: Colors.white),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 10),

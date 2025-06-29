@@ -13,7 +13,7 @@ class OverallStatusContainer extends StatefulWidget {
 class _OverallStatusContainerState extends State<OverallStatusContainer> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
-    final overallStatus = OverallStatusModel.overallStatus;
+    final overallStatus = OverallStatusModel.getOverallStatus();
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(15),

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:workout_tracker/providers/auth/sign_up_notifier.dart';
 import 'package:workout_tracker/views/pages/auth/widgets/auth_text_fields.dart';
 
-class SignupCard extends StatelessWidget {
+class SignupCard extends ConsumerWidget {
   const SignupCard({super.key, required this.controller});
   final PageController controller;
 
@@ -14,7 +16,8 @@ class SignupCard extends StatelessWidget {
 
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final signup = ref.watch(signUpProvider.notifier);
     return Align(
       alignment: Alignment.bottomCenter,
       child: Padding(
@@ -35,18 +38,20 @@ class SignupCard extends StatelessWidget {
                 const SizedBox(height: 20),
 
                 // Name field
-                AuthTextField(hintText: 'Full name', svgAsset: 'account-avatar-head'),
+                AuthTextField(hintText: 'Full name', svgAsset: 'account-avatar-head', controller: signup.usernameController),
 
                 const SizedBox(height: 12),
 
                 // Email field
-                AuthTextField(hintText: 'e-mail address', svgAsset: 'at',),
+                AuthTextField(hintText: 'e-mail address', svgAsset: 'at', controller: signup.emailController),
                 
 
                 const SizedBox(height: 12),
 
                 // Password field
-                AuthTextField(hintText: 'Password', svgAsset: 'lock'),
+                AuthTextField(hintText: 'Password', svgAsset: 'lock', controller: signup.passwordController),
+                const SizedBox(height: 12),
+                AuthTextField(hintText: 'Confirm Password', svgAsset: 'lock', controller: signup.confirmPasswordController),
 
 
                 const SizedBox(height: 25),
@@ -56,7 +61,7 @@ class SignupCard extends StatelessWidget {
                   width: double.infinity,
                   height: 50,
                   child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () => signup.registerUser(context, controller),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.black,
                       shape: RoundedRectangleBorder(
