@@ -1,8 +1,10 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:workout_tracker/providers/profile_data_notifier.dart';
 import 'package:workout_tracker/style/global_colors.dart';
-import 'package:workout_tracker/views/pages/navigation/navigation_page.dart';
+import 'package:workout_tracker/views/pages/navigation/navigation_future_page.dart';
 
 class PickAvatarPage extends ConsumerStatefulWidget {
   const PickAvatarPage({super.key, this.isEdit = false});
@@ -93,7 +95,9 @@ class _PickAvatarPageState extends ConsumerState<PickAvatarPage> {
                 if(widget.isEdit) {
                   Navigator.of(context).pop();
                 } else {
-                  Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => NavigationPage()));
+                  ref.watch(profileDataProvider.notifier).sendProfileData().then((_) {
+                    Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => NavigationFuturePage()));
+                  });
                 }
               },
               style: ElevatedButton.styleFrom(

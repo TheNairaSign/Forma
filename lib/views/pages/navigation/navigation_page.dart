@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:workout_tracker/providers/profile_data_notifier.dart';
 import 'package:workout_tracker/providers/workout_item_notifier.dart';
 import 'package:workout_tracker/views/pages/activity/activity_page.dart';
 import 'package:workout_tracker/views/pages/home/home_page.dart';
@@ -29,6 +30,7 @@ class _NavigationPageState extends ConsumerState<NavigationPage> with SingleTick
   @override
   void initState() {
     super.initState();
+    ref.read(profileDataProvider.notifier).loadProfileData();
     ref.read(workoutItemProvider.notifier).getWorkouts();
     _pageController = PageController(initialPage: _selectedIndex);
     _animationController = AnimationController(vsync: this, duration: const Duration(milliseconds: 300));

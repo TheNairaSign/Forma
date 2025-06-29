@@ -40,21 +40,19 @@ class SignUpNotifier extends StateNotifier<AsyncValue> {
     }
 
     state = await AsyncValue.guard(() => _authService.register(
-          _usernameController.text,
-          _emailController.text,
-          _passwordController.text,
-        ));
+      _usernameController.text,
+      _emailController.text,
+      _passwordController.text,
+    ));
 
     if (state.hasError) {
       Alerts.showErrorDialog(context, 'Registration Error', state.error.toString());
     } else {
       debugPrint('User Registered successfully');
-      pageController
-          .previousPage(
+      pageController.previousPage(
         duration: Duration(milliseconds: 400),
         curve: Curves.easeIn,
-      )
-          .then((_) {
+      ).then((_) {
         _usernameController.clear();
         _emailController.clear();
         _passwordController.clear();

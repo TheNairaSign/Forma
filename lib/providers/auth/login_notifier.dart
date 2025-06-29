@@ -6,6 +6,7 @@ import 'package:workout_tracker/onboarding/screens/onboarding_screen.dart';
 import 'package:workout_tracker/services/auth_service.dart';
 import 'package:workout_tracker/utils/alerts.dart';
 import 'package:workout_tracker/utils/custom_route.dart';
+import 'package:workout_tracker/views/pages/auth/auth_page.dart';
 
 class LoginNotifier extends StateNotifier<AsyncValue> {
   LoginNotifier() : super(const AsyncValue.data(null));
@@ -34,6 +35,21 @@ class LoginNotifier extends StateNotifier<AsyncValue> {
       Alerts.showErrorDialog(context, 'Login Error', state.error.toString());
     } else {
       Navigator.of(context).push(SlidePageRoute(page: OnboardingScreen()));
+    }
+  }
+
+  Future<void> logoutUser(BuildContext context) async {
+    state = const AsyncValue.loading();
+
+    state = await AsyncValue.guard(() => _authService.logout());
+
+    if (state.hasError) {
+      Alerts.showErrorDialog(context, 'Logout Error', state.error.toString());
+    } else {
+      Navigator.of(context).pushAndRemoveUntil(
+        SlidePageRoute(page: AuthPage()),
+        (route) => false,
+      );
     }
   }
 }

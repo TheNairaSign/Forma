@@ -2,21 +2,37 @@ import 'dart:io';
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hive/hive.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:workout_tracker/models/state/profile_data.dart';
+import 'package:workout_tracker/services/auth_service.dart';
 
 class ProfileDataNotifier extends StateNotifier<ProfileData> {
-  ProfileDataNotifier() : super(
+  final AuthService _authService;
+  final Ref ref;
+  ProfileDataNotifier(this._authService, this.ref) : super(
     ProfileData(
       name: '',
       bio: '',
       fitnessLevel: '',
       location: '',
     ),
-  );
+  ) {
+    loadProfileData();
+  }
 
-  final Box<ProfileData> _profileDataBox = Hive.box('profile');
+  Future<void> loadProfileData() async {
+    final username = await _authService.getLoggedInUser();
+    debugPrint('Username: $username');
+    final profile = await _authService.getProfileData();
+    debugPrint('Profile: $profile');
+    if (profile != null) {
+      state = profile;
+      debugPrint("User: ${profile.name}, Fitness: ${profile.fitnessLevel}, Weight: ${profile.weight}");
+    } else {
+      debugPrint('New user');
+      state = state;
+    }
+  }
 
   final TextEditingController _nameController = TextEditingController();
   TextEditingController get nameController => _nameController;
@@ -74,17 +90,35 @@ class ProfileDataNotifier extends StateNotifier<ProfileData> {
   }
 
   Future<void> sendProfileData() async {
-    final newProfile = ProfileData(
-      name: _nameController.text,
+  final username = await _authService.getLoggedInUser();
+  debugPrint('Username here: $username');
+
+  if (username != null) {
+    final profile = ProfileData(
+      name: username,
       gender: state.gender,
       height: state.height ?? 0,
       weight: state.weight ?? 0,
       foodPreference: foodPreference,
       profileImagePath: state.profileImagePath,
+      coverImagePath: state.coverImagePath,
+      fitnessLevel: state.fitnessLevel,
+      birthDate: state.birthDate,
+      location: state.location,
+      bio: state.bio,
+      weightGoal: state.weightGoal,
+      activityLevel: state.activityLevel,
+      currentStreak: 0,
+      longestStreak: 0,
+      lastWorkoutDate: null,
     );
-    state = newProfile;
-    _profileDataBox.add(newProfile);
+    state = profile;
+
+    await _authService.createProfileData(username, profile);
+    debugPrint('$username profile data stored ✅');
   }
+}
+
 
   int? _age;
   int? get age => _age;
@@ -124,4 +158,7 @@ class ProfileDataNotifier extends StateNotifier<ProfileData> {
 
 }
 
-final profileDataProvider = StateNotifierProvider<ProfileDataNotifier, ProfileData>((ref) => ProfileDataNotifier());
+final profileDataProvider = StateNotifierProvider<ProfileDataNotifier, ProfileData>((ref) {
+  final authService = AuthService();
+  return ProfileDataNotifier(authService, ref);
+});

@@ -9,7 +9,7 @@ class LoginCard extends ConsumerWidget {
 
   void toggleScreens() {
     controller.nextPage(
-      duration: Duration(milliseconds: 400), 
+      duration: Duration(milliseconds: 400),
       curve: Curves.easeIn,
     );
   }
@@ -42,7 +42,6 @@ class LoginCard extends ConsumerWidget {
 
                 const SizedBox(height: 15),
 
-                // Mercedes code field with "I forgot"
                 AuthTextField(hintText: 'Password', svgAsset: 'key', controller: login.passwordController,),
 
                 const SizedBox(height: 25),

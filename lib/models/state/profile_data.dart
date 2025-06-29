@@ -1,4 +1,3 @@
-
 import 'dart:io';
 import 'package:hive/hive.dart';
 
@@ -7,7 +6,7 @@ part '../../hive/adapter/profile_data.g.dart';
 @HiveType(typeId: 3)
 class ProfileData extends HiveObject {
   @HiveField(0)
-  final String name;
+  final String? name;
   
   @HiveField(1)
   final String? bio;
@@ -54,10 +53,8 @@ class ProfileData extends HiveObject {
   @HiveField(13)
   final List<String>? foodPreference;
 
-  
-
   ProfileData({
-    required this.name,
+    this.name,
     this.bio,
     this.fitnessLevel,
     this.location,

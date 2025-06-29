@@ -27,6 +27,7 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final profile = ref.watch(profileDataProvider);
     final steps = ref.watch(stepsProvider).steps;
     debugPrint('Steps $steps');
     return Scaffold(
@@ -39,13 +40,13 @@ class _HomePageState extends ConsumerState<HomePage> {
           margin: EdgeInsets.only(left: 15),
           child: CircleAvatar(
             radius: 25,
-            backgroundImage: AssetImage(ref.watch(profileDataProvider).profileImagePath!),
+            backgroundImage: AssetImage(profile.profileImagePath?? ''),
           )),
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text("Welcome Back", style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.black54)),
-            Text("Nicolas Doflamingo",style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.black, fontWeight: FontWeight.bold)),
+            Text(profile.name ?? "Nicolas Doflamingo",style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.black, fontWeight: FontWeight.bold)),
           ],
         ),
         actionsPadding: EdgeInsets.only(right: 20),

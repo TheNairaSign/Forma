@@ -8,12 +8,14 @@ class ProfileHeader extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final profileData = ref.watch(profileDataProvider);
+
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         CircleAvatar(
           radius: 25,
-          backgroundImage: AssetImage(ref.watch(profileDataProvider).profileImagePath!),
+          backgroundImage: AssetImage(ref.watch(profileDataProvider).profileImagePath ?? ''),
         ),
         const SizedBox(width: 16),
         Expanded(
@@ -21,12 +23,12 @@ class ProfileHeader extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text( 
-                'Alex Johnson',
+                profileData.name ?? 'John Doe',
                 style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 4),
               Text(
-                'Fitness Enthusiast',
+                profileData.bio ?? 'Fitness Enthusiast',
                 style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.7)),
               ),
               const SizedBox(height: 5),
@@ -39,7 +41,7 @@ class ProfileHeader extends ConsumerWidget {
                   ),
                   const SizedBox(width: 4),
                   Text(
-                    'San Francisco, CA',
+                    profileData.location ?? 'San Francisco, CA',
                     style: theme.textTheme.bodySmall?.copyWith(color: Colors.grey),
                   ),
                 ],
