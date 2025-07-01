@@ -22,18 +22,19 @@ class _AddWorkoutPageState extends ConsumerState<AddWorkoutPage> {
 
   @override
   Widget build(BuildContext context) {
-    final _selectedWorkout = ref.watch(workoutItemProvider.notifier).selectedWorkoutTypeGetter;
+    final selectedWorkout = ref.watch(workoutItemProvider.notifier).selectedWorkoutTypeGetter;
     return Scaffold(
       appBar: AppBar(title: Text('Add Workout', style: Theme.of(context).textTheme.headlineSmall)),
       body: Padding(
         padding: bodyPadding,
         child: ListView(
           children: [
+            Text('Select workout', style:  Theme.of(context).textTheme.bodyLarge),
+            const SizedBox(height: 8),
             CustomDropdownButton(
-              borderColor: Colors.black,
               backgroundColor: Colors.white,
               items: WorkoutType.values.map((type) => type.name).toList(),
-              hint: _selectedWorkout.name,
+              hint: selectedWorkout.name,
               onChanged: (value) {
                 if (value != null) {
                   final selectedType = WorkoutType.values.firstWhere((type) => type.name == value, orElse: () => WorkoutType.arms);
@@ -44,8 +45,8 @@ class _AddWorkoutPageState extends ConsumerState<AddWorkoutPage> {
                 }
               },
             ),
-              const SizedBox(height: 10),
-            WorkoutFormSelector(selectedWorkoutType: _selectedWorkout),
+            const SizedBox(height: 10),
+            WorkoutFormSelector(selectedWorkoutType: selectedWorkout),
             const SizedBox(height: 15),
             SizedBox(
               width: double.infinity,

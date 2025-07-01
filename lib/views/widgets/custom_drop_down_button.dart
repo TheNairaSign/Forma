@@ -39,7 +39,7 @@ class _CustomDropdownButtonState extends State<CustomDropdownButton> {
       decoration: BoxDecoration(
         color: color,
         borderRadius: BorderRadius.circular(10),
-        border: widget.borderColor != null ? Border.all(color: widget.borderColor!, width: .5) : null,
+        border: widget.borderColor != null ? Border.all(color: widget.borderColor!, width: .3) : null,
       ),
       child: DropdownButtonHideUnderline(
         child: ButtonTheme(

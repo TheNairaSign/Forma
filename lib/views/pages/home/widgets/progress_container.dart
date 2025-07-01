@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:workout_tracker/providers/progress_provider.dart';
 import 'package:workout_tracker/providers/workout_item_notifier.dart';
 import 'package:workout_tracker/views/widgets/custom_progress_indicator.dart';
 
@@ -15,6 +16,7 @@ class _ProgressContainerState extends ConsumerState<ProgressContainer> {
   @override
   Widget build(BuildContext context) {
     final workouts = ref.watch(workoutItemProvider);
+    final progress = ref.watch(progressProvider).toDouble();
     final totalWorkouts = workouts.length;
     // final completedWorkouts = workouts.where((workout) => workout.isCompleted).length;
   final textTheme = Theme.of(context).textTheme;
@@ -33,7 +35,7 @@ class _ProgressContainerState extends ConsumerState<ProgressContainer> {
               Text('$totalWorkouts workouts done today', style: textTheme.bodyMedium?.copyWith(color: Colors.grey)),
             ],
           ),
-          CustomProgressIndicator(end: 0.65, textColor: Colors.white)
+          CustomProgressIndicator(end: progress, textColor: Colors.white)
         ],
       ),
     );

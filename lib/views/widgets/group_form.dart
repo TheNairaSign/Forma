@@ -45,10 +45,7 @@ class GroupForm extends StatelessWidget {
           fillColor: Colors.white,
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide(
-              color: Colors.black,
-              width: .5
-            )
+            borderSide: BorderSide(color: Colors.grey, width: .3)
           ),
           focusColor: Colors.white,
           focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.black, width: 1)),

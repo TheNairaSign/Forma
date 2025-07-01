@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:workout_tracker/hive/adapter/calory_state.dart';
+import 'package:workout_tracker/models/enums/workout_group.dart';
 import 'package:workout_tracker/providers/steps_notifier.dart';
 import 'package:workout_tracker/services/calorie_service.dart';
 
@@ -56,13 +57,64 @@ class CaloryNotifier extends StateNotifier<CaloryState> {
     state = CaloryState(
       calories: _calorieService.calculateWorkoutCalories(
         metValue: metValue,
-        durationMinutes: durationMinutes,
         weightKg: weightKg,
+        durationMinutes: durationMinutes,
       ),
       timestamp: DateTime.now(),
       source: 'workout:$workoutName'
     );
   }
+
+  void calculateCalories({
+    required WorkoutGroup group,
+    double? weightKg,
+    int? durationSeconds,
+    int? sets,
+    int? reps,
+    double? distance,
+    String? intensity,
+  }) {
+    // final durationHours = (durationSeconds ?? 0) / 3600;
+    final w = weightKg ?? 70;
+
+    switch (group) {
+      case WorkoutGroup.cardio:
+        final met = (intensity == 'high') ? 10.0 : 7.0;
+        state = CaloryState(calories: _calorieService.calculateWorkoutCalories(
+          metValue: met,
+          durationMinutes: (durationSeconds ?? 0) ~/ 60,
+          weightKg: w,
+        ),
+        timestamp: DateTime.now(),
+      );
+      // return met * w * durationHours;
+      case WorkoutGroup.time:
+      case WorkoutGroup.flow:
+      state = CaloryState(calories: _calorieService.calculateWorkoutCalories(
+        metValue: 5.0, 
+        durationMinutes: (durationSeconds ?? 0)  ~/ 60, 
+        weightKg: w,
+      ), 
+      timestamp: DateTime.now()
+      );
+        // return 5.0 * w * durationHours;
+      case WorkoutGroup.repetition:
+      case WorkoutGroup.strength:
+        final totalReps = (sets ?? 0) * (reps ?? 0);
+        state = CaloryState(calories: _calorieService.calculateWorkoutCalories(
+          metValue: (totalReps * 0.1), 
+          durationMinutes: (durationSeconds ?? 0)  ~/ 60, 
+          weightKg: (weightKg ?? 0) ,
+        ), 
+        timestamp: DateTime.now()
+        );
+        // return (totalReps * 0.1) + ((weightKg ?? 0) * 0.05);
+    }
+  }
+
+  // Future<void> addNewCalories() async {
+
+  // }
 
   Future<void> addStepsCalories(int steps, {double weightKg = 70, bool isRunning = false}) async {
     await _calorieService.addStepsCalories(steps, weightKg: weightKg, isRunning: isRunning);
@@ -98,6 +150,7 @@ class CaloryNotifier extends StateNotifier<CaloryState> {
 
     return weeklyCalories;
   }
+
 }
 
 final caloryProvider = StateNotifierProvider<CaloryNotifier, CaloryState>((ref) => CaloryNotifier(ref));

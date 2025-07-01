@@ -19,7 +19,7 @@ class TimeForm extends StatelessWidget {
             Expanded(
               child: GroupForm(
                 controller: workoutGroupProvider.minutesController,
-                labelText: 'Minutes',
+                labelText: 'Workout duration (Minutes)',
                 keyboardType: TextInputType.number,
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 validator: (value) {
@@ -34,7 +34,7 @@ class TimeForm extends StatelessWidget {
             Expanded(
               child: GroupForm(
                 controller: workoutGroupProvider.timeBasedSetsController,
-                labelText: 'Seconds',
+                labelText: 'Duration Seconds',
                 keyboardType: TextInputType.number,
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 validator: (value) {

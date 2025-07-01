@@ -83,7 +83,7 @@ class WorkoutGroupNotifier extends ChangeNotifier {
   Map<String, dynamic> getCardioValues() {
     return {
       'duration': int.tryParse(cardioDurationController.text) ?? 0,
-      'distance': double.tryParse(cardioDistanceController.text) ?? 0.0,
+      'distance': int.tryParse(cardioDistanceController.text) ?? 0,
       'intensity': cardioIntensity,
       'heartRate': int.tryParse(heartRateController.text) ?? 0,
     };
@@ -114,11 +114,16 @@ class WorkoutGroupNotifier extends ChangeNotifier {
     }
   }
 
+
+  Widget buildInfoContainer() {
+    return Placeholder();
+  }
+
   void addWorkout(BuildContext context, WidgetRef ref) {
     final provider = ref.watch(workoutItemProvider.notifier);
     final type = provider.selectedWorkoutTypeGetter;
     final workoutGroup = workoutGroupMap[type];
-    final workoutName = provider.workoutName[0].toUpperCase() + provider.workoutName.substring(1);
+    final workoutName = provider.selectedWorkoutTypeGetter.name[0].toUpperCase() + provider.workoutName.substring(1);
     debugPrint("WorkoutName: $workoutName");
     switch (workoutGroup) {
       case WorkoutGroup.repetition:
@@ -131,7 +136,7 @@ class WorkoutGroupNotifier extends ChangeNotifier {
             reps: values['reps'],
             weight: values['weight'],
           );
-          ref.watch(workoutItemProvider.notifier).addWorkout(context, workout);
+          ref.watch(workoutItemProvider.notifier).addWorkout(context, workout, WorkoutGroup.repetition);
         } catch (e) {
           debugPrint('Add repitition workout error: $e');
           Alerts.showErrorDialog(context, 'Error', 'Invalid Workout Type');
@@ -149,7 +154,7 @@ class WorkoutGroupNotifier extends ChangeNotifier {
             durationInSeconds: values['seconds'],
             sets: values['sets'],
           );
-          ref.watch(workoutItemProvider.notifier).addWorkout(context, workout);
+          ref.watch(workoutItemProvider.notifier).addWorkout(context, workout, WorkoutGroup.time);
         } catch (e) {
           debugPrint('Add time workout error: $e');
           Alerts.showErrorDialog(context, 'Error', 'Invalid Workout Type');
@@ -167,7 +172,7 @@ class WorkoutGroupNotifier extends ChangeNotifier {
             intensity: values['intensity'],
             description: values['notes'],
           ) ;
-          ref.watch(workoutItemProvider.notifier).addWorkout(context, workout);
+          ref.watch(workoutItemProvider.notifier).addWorkout(context, workout, WorkoutGroup.flow);
         } catch (e) {
           debugPrint('Add flow workout error: $e');
           Alerts.showErrorDialog(context, 'Error', 'Invalid Workout Type');
@@ -186,7 +191,7 @@ class WorkoutGroupNotifier extends ChangeNotifier {
             weight: values['weight'],
             restTime: values['restTime'],
           );
-          ref.watch(workoutItemProvider.notifier).addWorkout(context, workout);
+          ref.watch(workoutItemProvider.notifier).addWorkout(context, workout, WorkoutGroup.strength);
         } catch (e) {
           debugPrint('Add strength workout error: $e');
           Alerts.showErrorDialog(context, 'Error', 'Invalid Workout Type');
@@ -205,7 +210,7 @@ class WorkoutGroupNotifier extends ChangeNotifier {
             intensity: values['intensity'],
             heartRate: values['heartRate'],
           );
-          ref.watch(workoutItemProvider.notifier).addWorkout(context, workout);
+          ref.watch(workoutItemProvider.notifier).addWorkout(context, workout, WorkoutGroup.cardio);
           resetCardioForm();
         } catch (e) {
           debugPrint('Add cardio workout error: $e');

@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart' hide Provider;
 import 'package:provider/provider.dart';
 import 'package:workout_tracker/providers/workout_group_notifier.dart';
+import 'package:workout_tracker/providers/workout_item_notifier.dart';
 import 'package:workout_tracker/views/widgets/custom_drop_down_button.dart';
 import 'package:workout_tracker/views/widgets/group_form.dart';
 
-class CardioForm extends StatelessWidget {
+class CardioForm extends ConsumerWidget {
   final int? initialDuration;
   final double? initialDistance;
   final String? initialIntensity;
@@ -20,14 +22,15 @@ class CardioForm extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final workoutGroupProvider = Provider.of<WorkoutGroupNotifier>(context, listen: false);
+    final intensity = ref.watch(workoutItemProvider.notifier).workoutIntensity;
 
     return Column(
       children: [
         GroupForm(
           controller: workoutGroupProvider.cardioDurationController,
-          labelText: 'Duration (minutes)',
+          labelText: 'Workout Duration (minutes)',
           keyboardType: TextInputType.number,
           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
           validator: (value) {
@@ -54,7 +57,8 @@ class CardioForm extends StatelessWidget {
         CustomDropdownButton(
           backgroundColor: Color(0xfffef2f2),
           borderColor: Colors.red,
-          items: ['Light', 'Moderate', 'High', 'Very High'], 
+          textColor: Colors.red,
+          items: intensity, 
           hint: 'Intensity',
         ),
         const SizedBox(height: 16),

@@ -6,6 +6,8 @@ import 'package:provider/provider.dart';
 import 'package:workout_tracker/models/enums/workout_group.dart';
 import 'package:workout_tracker/models/enums/workout_type.dart';
 import 'package:workout_tracker/models/workout/workout.dart';
+import 'package:workout_tracker/providers/calories_provider.dart';
+import 'package:workout_tracker/providers/progress_provider.dart';
 import 'package:workout_tracker/providers/steps_notifier.dart';
 import 'package:workout_tracker/providers/workout_group_notifier.dart';
 import 'package:workout_tracker/services/workout_service.dart';
@@ -21,7 +23,7 @@ class WorkoutItemNotifier extends StateNotifier<List<Workout>> {
   WorkoutGroup? _workoutGroup;
   WorkoutGroup? get workoutGroup => _workoutGroup;
 
-  String _workoutName = '';
+  String _workoutName = 'Arms';
   set workoutNameValue(String value) {
     if (_workoutName != value) {
       _workoutName = value;
@@ -31,15 +33,22 @@ class WorkoutItemNotifier extends StateNotifier<List<Workout>> {
   }
   String get workoutName => _workoutName;
 
+  final List<String> workoutIntensity = [
+    'Light', 
+    'Moderate',
+    'High',
+    'Very High'
+  ];
+
   WorkoutType _selectedWorkoutType = WorkoutType.arms;
   
   set selectedWorkoutType(WorkoutType value) {
-    if (_selectedWorkoutType != value) {
+    // if (_selectedWorkoutType != value) {
       _selectedWorkoutType = value;
       _workoutGroup = workoutGroupMap[value];
-      state = [...state]; // Trigger state update
+      state = [...state];
       debugPrint('Workout type changed to: $value, group: ${workoutGroupMap[value]}');
-    }
+    // }
   }
   WorkoutType get selectedWorkoutTypeGetter => _selectedWorkoutType;
 
@@ -119,37 +128,26 @@ class WorkoutItemNotifier extends StateNotifier<List<Workout>> {
     }
   }
 
-  void addWorkout(BuildContext context, Workout newWorkout)  {
+  void addWorkout(BuildContext context, Workout newWorkout, WorkoutGroup group) async {
     debugPrint('Adding workout...');
     debugPrint('$newWorkout');
     validateAllForms(context);
     try {
       state = [...state, newWorkout];
-      ws.addWorkout(newWorkout).then((value) {
-        // try {
+      await ws.addWorkout(newWorkout).then((value) {
         debugPrint('Workout added: ${newWorkout.name}');
-        // try {
-        //   ref.watch(caloryProvider.notifier).addWorkoutCalories(
-        //     workoutName: _workoutName,
-        //     durationMinutes: newWorkout.goalDuration!,
-        //     metValue: WorkoutType.values.firstWhere(
-        //       (element) => element.name.toLowerCase() == _workoutName.toLowerCase(),
-        //       orElse: () => WorkoutType.strength, // Provide a default type
-        //     ).MET,
-        //   );
-        // } catch (e) {
-        //   debugPrint('Error adding workout calories: ${e.toString()}');
-        // }
+        Alerts.showFlushBar(context, 'Workout added', false);
+        try {
+          ref.watch(caloryProvider.notifier).calculateCalories(group: group);
+        } catch (e) {
+          debugPrint('Error adding workout calories: ${e.toString()}');
+        }
         getWorkouts();
-        // } catch (e) {
-        //   debugPrint('Error adding workout: ${e.toString()}'); 
-        // }
-        Navigator.of(context).pop();
       });
 
       debugPrint('Workout added: ${newWorkout.name}');
       // getWorkouts();
-      // Navigator.of(context).pop();
+      Navigator.of(context).pop();
     } catch (e) {
       debugPrint('Error adding workout: ${e.toString()}');
     }
@@ -173,6 +171,11 @@ class WorkoutItemNotifier extends StateNotifier<List<Workout>> {
         child: AddWorkoutPage(),
       ),
     );
+  }
+
+  double get workoutProgress {
+    final progress = ref.watch(progressProvider.notifier).calculateProgress(state.length, 10);
+    return progress.toDouble();
   }
 }
 

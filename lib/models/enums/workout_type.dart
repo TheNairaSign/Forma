@@ -1,3 +1,4 @@
+
 // ignore_for_file: non_constant_identifier_names
 
 enum WorkoutType {
@@ -117,6 +118,53 @@ extension WorkoutTypeExtension on WorkoutType {
         return "🏋️‍♂️";
       default:
         return "🏃‍♂️";
+    }
+  }
+
+  String get name {
+    switch (this) {
+      case WorkoutType.fullBody:
+        return "Full Body";
+      case WorkoutType.chest:
+        return "Chest";
+      case WorkoutType.back:
+        return "Back";
+      case WorkoutType.shoulders:
+        return "Shoulders";
+      case WorkoutType.legs:
+        return "Legs";
+      case WorkoutType.arms:
+        return "Arms";
+      case WorkoutType.core:
+        return "Core";
+      case WorkoutType.cardio:
+        return "Cardio";
+      case WorkoutType.hiit:
+        return "HIIT (High-Intensity Interval Training)";
+      case WorkoutType.pushDay:
+        return "Push Day";
+      case WorkoutType.pullDay:
+        return "Pull Day";
+      case WorkoutType.upperBody:
+        return "Upper Body";
+      case WorkoutType.lowerBody:
+        return "Lower Body";
+      case WorkoutType.yoga:
+        return "Yoga";
+      case WorkoutType.mobility:
+        return "Mobility";
+      case WorkoutType.strength:
+        return "Strength";
+      case WorkoutType.endurance:
+        return "Endurance";
+      case WorkoutType.balance:
+        return "Balance";
+      case WorkoutType.flexibility:
+        return "Flexibility";
+      case WorkoutType.warmUp:
+        return "Warm Up";
+      case WorkoutType.coolDown:
+        return "Cool Down";
     }
   }
 }

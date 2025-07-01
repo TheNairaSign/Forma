@@ -19,7 +19,7 @@ class ProgressNotifier extends StateNotifier<int> {
     return state;
   }
 
-  int workoutProgress() {
+  int stepsProgress() {
     final steps = ref.watch(stepsProvider);
     return calculateProgress(steps.steps, ref.watch(stepsProvider.notifier).dailyTargetSteps);
   }
