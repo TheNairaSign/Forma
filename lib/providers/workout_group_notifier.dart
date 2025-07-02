@@ -293,7 +293,8 @@ class WorkoutGroupNotifier extends ChangeNotifier {
 
     return minutes != null && minutes >= 0 && minutes <= 180 &&
            seconds != null && seconds >= 0 && seconds <= 59 &&
-           sets != null && sets > 0 && sets <= 20;
+           sets != null && sets > 0;
+          //  && sets <= 20;
   }
 
   bool validateFlowForm() {

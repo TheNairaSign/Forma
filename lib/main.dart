@@ -42,7 +42,8 @@ void main(List<String> args) async {
     Hive.registerAdapter(CaloryStateAdapter());
     Hive.registerAdapter(ProfileDataAdapter());
     await Hive.openBox<DailySteps>('dailyStepsBox');
-    await Hive.openBox<CaloryState>('caloriesBox');
+    await Hive.openBox<CaloryState>('calorieBox');
+    await Hive.deleteBoxFromDisk('caloriesBox');
   }
 
 class WorkoutTracker extends StatelessWidget {

@@ -23,7 +23,7 @@ class Alerts {
       borderRadius: BorderRadius.circular(5),
       messageText: Row(
         children: [
-          Icon(isError? Icons.error_outline : Icons.check_circle_outline, color: isError? Colors.red : Colors.green),
+          Icon(isError? Icons.error_outline : Icons.check_circle_outline, color: isError? Colors.red : GlobalColors.primaryColor),
           const SizedBox(width: 10),
           FittedBox(child: Text(message, style: Theme.of(context).textTheme.bodySmall?.copyWith(color:  isError ? Colors.red : Colors.black),)),
         ],

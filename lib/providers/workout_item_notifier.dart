@@ -10,6 +10,7 @@ import 'package:workout_tracker/providers/calories_provider.dart';
 import 'package:workout_tracker/providers/progress_provider.dart';
 import 'package:workout_tracker/providers/steps_notifier.dart';
 import 'package:workout_tracker/providers/workout_group_notifier.dart';
+import 'package:workout_tracker/services/calorie_service.dart';
 import 'package:workout_tracker/services/workout_service.dart';
 import 'package:workout_tracker/utils/alerts.dart';
 import 'package:workout_tracker/views/pages/workouts/sub_pages/add_workout_page.dart';
@@ -112,6 +113,7 @@ class WorkoutItemNotifier extends StateNotifier<List<Workout>> {
   void clearWorkouts(BuildContext context) async {
     debugPrint('Clearing workouts...');
     await ws.clearWorkouts();
+    await CalorieService().clearCalories();
     state = [];
     Alerts.showFlushBar(context, 'Workouts cleared', false);
   }
@@ -123,33 +125,55 @@ class WorkoutItemNotifier extends StateNotifier<List<Workout>> {
         workoutGroupProvider.validateRepetitionForm() || 
         workoutGroupProvider.validateStrengthForm() || 
         workoutGroupProvider.validateTimeForm()) {
-      Alerts.showErrorDialog(context, 'Empty text field', 'Please fill all required fields to continue');
+      // Alerts.showErrorDialog(context, 'Empty text field', 'Please fill all required fields to continue');
       return;
     }
   }
 
   void addWorkout(BuildContext context, Workout newWorkout, WorkoutGroup group) async {
-    debugPrint('Adding workout...');
-    debugPrint('$newWorkout');
+    debugPrint('Adding workout: $newWorkout');
     validateAllForms(context);
-    try {
-      state = [...state, newWorkout];
-      await ws.addWorkout(newWorkout).then((value) {
-        debugPrint('Workout added: ${newWorkout.name}');
-        Alerts.showFlushBar(context, 'Workout added', false);
-        try {
-          ref.watch(caloryProvider.notifier).calculateCalories(group: group);
-        } catch (e) {
-          debugPrint('Error adding workout calories: ${e.toString()}');
-        }
-        getWorkouts();
-      });
 
-      debugPrint('Workout added: ${newWorkout.name}');
-      // getWorkouts();
-      Navigator.of(context).pop();
+    // Optimistically update the state for a responsive UI
+    state = [...state, newWorkout];
+
+    try {
+      await ws.addWorkout(newWorkout);
+
+      // If the API call is successful, calculate calories.
+      try {
+        ref.watch(caloryProvider.notifier).calculateCalories(
+          group: group,
+          name: newWorkout.name,
+          durationSeconds: newWorkout.durationInSeconds,
+          weightKg: newWorkout.weight,
+          sets: newWorkout.sets,
+          reps: newWorkout.reps,
+        );
+        debugPrint('New workout details: $group, ${newWorkout.name}, ${newWorkout.durationInSeconds}, ${newWorkout.sets}, ${newWorkout.reps}, ${newWorkout.weight} ');
+      } catch (e) {
+        debugPrint('Error calculating calories for workout: ${e.toString()}');
+      }
+
+      // Show confirmation and then pop the screen.
+      debugPrint('Workout added successfully: ${newWorkout.name}');
+      if (context.mounted) {
+        Alerts.showFlushBar(context, 'Workout added', false);
+        
+        // Schedule the pop for after the build phase to avoid the debug lock.
+        // WidgetsBinding.instance.addPostFrameCallback((_) {
+        //   if(context.mounted) Navigator.of(context).pop();
+        // });
+      }
+
     } catch (e) {
       debugPrint('Error adding workout: ${e.toString()}');
+
+      // If the API call fails, roll back the optimistic state update.
+      state = state.where((w) => w != newWorkout).toList();
+      
+      // Notify the user of the error.
+      if (context.mounted) Alerts.showFlushBar(context, 'Failed to add workout', true);
     }
   }
 

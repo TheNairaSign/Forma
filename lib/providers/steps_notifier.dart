@@ -47,11 +47,11 @@ class StepsNotifier extends StateNotifier<StepsState> {
 
   int stepsCalory = 0;
 
-  int getStepsCalory() {
-    stepsCalory = (state.steps * 0.04).truncate();
-    debugPrint('Steps Calory: $stepsCalory');
-    return stepsCalory;
-  }
+  // int get stepsCalory {
+  //   final calories = (state.steps * 0.04).truncate();
+  //   debugPrint('Steps Calory: $calories');
+  //   return calories;
+  // }
 
   double stepsProgress(int? animationValue) {
     if (animationValue != null || animationValue != 0) {

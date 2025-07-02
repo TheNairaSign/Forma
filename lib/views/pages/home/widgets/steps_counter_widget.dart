@@ -47,7 +47,7 @@ class _StepCounterWidgetState extends ConsumerState<StepCounterWidget> with Sing
             const SizedBox(width: 12),
             StatsCard(
               title: 'Calories burned',
-              value: ref.watch(stepsProvider.notifier).getStepsCalory().toString(),
+              value: ref.watch(stepsProvider.notifier).stepsCalory.toString(),
               icon: Icons.timeline,
             ),
           ],

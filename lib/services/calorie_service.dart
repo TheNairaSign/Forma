@@ -7,7 +7,7 @@ class CalorieService {
   factory CalorieService() => _instance;
   CalorieService._internal();
 
-  final Box<CaloryState> _calorieBox = Hive.box<CaloryState>('caloriesBox');
+  final Box<CaloryState> _calorieBox = Hive.box<CaloryState>('calorieBox');
 
   /// Get all calorie entries for a specific day
   List<CaloryState> getDailyCalories(DateTime date) {
@@ -22,6 +22,9 @@ class CalorieService {
   /// Get total calories for a specific day
   int getDailyTotal(DateTime date) {
     final entries = getDailyCalories(date);
+    for (var entry in entries) {
+      print('Calory Entry Data: ${entry.source}, ${entry.calories}, ${entry.timestamp}');
+    }
     final todayTotal = entries.fold(0, (sum, entry) {
       debugPrint('Sum: $sum + Entry: ${entry.calories}');
       return sum + entry.calories;
@@ -44,7 +47,7 @@ class CalorieService {
     return weeklyCalories;
   }
 
-  bool _isToday(DateTime date) {
+  bool isToday(DateTime date) {
     final now = DateTime.now();
     return date.year == now.year && 
            date.month == now.month && 
@@ -61,7 +64,7 @@ class CalorieService {
       final dailyTotal = weeklyCalories[index].fold(0, (sum, entry) => sum + entry.calories);
       
       // Add steps calories only for today
-      if (_isToday(date)) {
+      if (isToday(date)) {
         return (dailyTotal + calculateStepsCalories(steps));
       }
       return dailyTotal;
@@ -110,11 +113,19 @@ class CalorieService {
   /// Calculate calories from workout
   int calculateWorkoutCalories({
     required double metValue,
-    required int durationMinutes,
+    required double durationMinutes,
     required double weightKg,
   }) {
-    int durationHours = durationMinutes ~/ 60;
-    return (metValue * weightKg * durationHours).truncate();
+    print('Met: $metValue \n Duration: $durationMinutes \n Weight: $weightKg');
+    // if (durationMinutes <= 0 || weightKg <= 0) {
+    //   print('Duration in minutes || weight <= 0');
+    //   return 0;
+    // }
+    // Formula: (MET * 3.5 * weight in kg) / 200 = Cals/min
+    // Total Calories = Cals/min * duration in minutes
+    final double calories = (metValue * 3.5 * weightKg / 200) * durationMinutes;
+    print('Calory: $calories');
+    return calories.truncate();
   }
 
   /// Add calories from steps
@@ -124,10 +135,10 @@ class CalorieService {
   }
 
   /// Add calories from workout
-  Future<void> addWorkoutCalories({
+  Future<CaloryState> addWorkoutCalories({
     required String workoutName,
     required double metValue,
-    required int durationMinutes,
+    required double durationMinutes,
     required double weightKg,
   }) async {
     final calories = calculateWorkoutCalories(
@@ -142,6 +153,8 @@ class CalorieService {
       source: 'workout:$workoutName',
     );
     await _calorieBox.add(newState);
+    print('The new state: ${newState.source}');
+    return newState;
   }
 
   /// Get calories from specific source for a day
@@ -168,7 +181,7 @@ class CalorieService {
     // Get workout calories
     final workoutCalories = getDailyWorkoutCalories(date);
     int stepsCalories = 0;
-    if (_isToday(date)) {
+    if (isToday(date)) {
       stepsCalories = calculateStepsCalories(steps);
     }
 
@@ -176,5 +189,14 @@ class CalorieService {
     debugPrint('Base: $baseCalories, Workout: $workoutCalories, Steps: $stepsCalories, Combined: $combined');
     
     return combined.truncate();
+  }
+
+  /// Clear all calorie entries from the box
+  Future<void> clearCalories() async {
+    try {
+      await _calorieBox.clear();
+    } catch (e) {
+      debugPrint('Error clearing calories: $e');
+    }
   }
 }

@@ -4,137 +4,88 @@ import 'package:workout_tracker/models/enums/workout_group.dart';
 import 'package:workout_tracker/providers/steps_notifier.dart';
 import 'package:workout_tracker/services/calorie_service.dart';
 
-class CaloryNotifier extends StateNotifier<CaloryState> {
+class CaloryNotifier extends StateNotifier<CaloryState?> {
   final Ref ref;
   final CalorieService _calorieService = CalorieService();
 
-  CaloryNotifier(this.ref) : super(CaloryState(calories: 0, timestamp: DateTime.now()));
+  CaloryNotifier(this.ref) : super(null);
 
   List<CaloryState> get allEntries => _calorieService.getAllEntries();
 
   int get todayTotal {
-    final now = DateTime.now();
-    final stepsCalory = ref.watch(stepsProvider.notifier).getStepsCalory();
-    final total = _calorieService.getDailyTotal(now) + stepsCalory;
-    print('TodayTotal: $total');
+    final steps = ref.watch(stepsProvider).steps;
+    final total = _calorieService.getCalorieForDay(DateTime.now(), steps: steps);
+    print('todayTotal: steps: $steps, total: $total');
     return total;
   }
 
   List<CaloryState> getDailyCalories(DateTime date) {
-    final dailyCalories = _calorieService.getDailyCalories(date);
-    
-    // Add steps calories if getting today's calories
-    final now = DateTime.now();
-    if (date.year == now.year && date.month == now.month && date.day == now.day) {
-      final stepsCalory = ref.read(stepsProvider.notifier).getStepsCalory();
-      dailyCalories.add(CaloryState(
-        calories: stepsCalory,
-        timestamp: now,
-        source: 'steps'
-      ));
-    }
-    return dailyCalories;
+    return _calorieService.getDailyCalories(date);
   }
 
   Future<void> addCalories(int amount) async {
     await _calorieService.addCalories(amount);
-    state = CaloryState(calories: amount, timestamp: DateTime.now());
+    // Optionally, update state if needed, though the main total is what matters.
+    state = CaloryState(calories: amount, timestamp: DateTime.now(), source: 'manual');
   }
 
-  Future<void> addWorkoutCalories({
-    required String workoutName,
-    required double metValue,
-    required int durationMinutes,
-    double weightKg = 70,
-  }) async {
-    print('Adding workout calories with values: $workoutName, $metValue, $durationMinutes, $weightKg');
-    await _calorieService.addWorkoutCalories(
-      workoutName: workoutName,
-      metValue: metValue,
-      durationMinutes: durationMinutes,
-      weightKg: weightKg,
-    );
-    state = CaloryState(
-      calories: _calorieService.calculateWorkoutCalories(
-        metValue: metValue,
-        weightKg: weightKg,
-        durationMinutes: durationMinutes,
-      ),
-      timestamp: DateTime.now(),
-      source: 'workout:$workoutName'
-    );
+  int estimateDurationSeconds({
+    required int sets,
+    required int reps,
+    int repTime = 4,           // seconds per rep
+    int restTime = 60,         // rest between sets
+  }) {
+    final exerciseTime = sets * reps * repTime;
+    final totalRest = (sets - 1) * restTime;
+    return exerciseTime + totalRest;
   }
 
-  void calculateCalories({
+
+  Future<void> calculateCalories({
     required WorkoutGroup group,
+    required String name,
     double? weightKg,
     int? durationSeconds,
     int? sets,
     int? reps,
-    double? distance,
-    String? intensity,
-  }) {
-    // final durationHours = (durationSeconds ?? 0) / 3600;
-    final w = weightKg ?? 70;
+  }) async {
+    final w = weightKg ?? 70.0; // Default weight if not provided
+    final estimate = estimateDurationSeconds(sets: sets ?? 1, reps: reps ?? 1);
+    print('Estimated Duration: $estimate');
+    final durationMinutes = (durationSeconds == 0 ? estimate : durationSeconds)! / 60.0;
+    print('Duration in minutes: $durationMinutes');
+    double metValue;
 
     switch (group) {
       case WorkoutGroup.cardio:
-        final met = (intensity == 'high') ? 10.0 : 7.0;
-        state = CaloryState(calories: _calorieService.calculateWorkoutCalories(
-          metValue: met,
-          durationMinutes: (durationSeconds ?? 0) ~/ 60,
-          weightKg: w,
-        ),
-        timestamp: DateTime.now(),
-      );
-      // return met * w * durationHours;
+        metValue = 7.0;
+        break;
       case WorkoutGroup.time:
       case WorkoutGroup.flow:
-      state = CaloryState(calories: _calorieService.calculateWorkoutCalories(
-        metValue: 5.0, 
-        durationMinutes: (durationSeconds ?? 0)  ~/ 60, 
-        weightKg: w,
-      ), 
-      timestamp: DateTime.now()
-      );
-        // return 5.0 * w * durationHours;
+        metValue = 4.0;
+        break;
       case WorkoutGroup.repetition:
       case WorkoutGroup.strength:
-        final totalReps = (sets ?? 0) * (reps ?? 0);
-        state = CaloryState(calories: _calorieService.calculateWorkoutCalories(
-          metValue: (totalReps * 0.1), 
-          durationMinutes: (durationSeconds ?? 0)  ~/ 60, 
-          weightKg: (weightKg ?? 0) ,
-        ), 
-        timestamp: DateTime.now()
-        );
-        // return (totalReps * 0.1) + ((weightKg ?? 0) * 0.05);
+        metValue = 5.0;
+        break;
     }
-  }
 
-  // Future<void> addNewCalories() async {
-
-  // }
-
-  Future<void> addStepsCalories(int steps, {double weightKg = 70, bool isRunning = false}) async {
-    await _calorieService.addStepsCalories(steps, weightKg: weightKg, isRunning: isRunning);
-    state = CaloryState(
-      calories: _calorieService.calculateStepsCalories(steps, weightKg: weightKg, isRunning: isRunning),
-      timestamp: DateTime.now(),
-      source: 'steps'
+    final newState = await _calorieService.addWorkoutCalories(
+      workoutName: name,
+      metValue: metValue,
+      durationMinutes: durationMinutes,
+      weightKg: w,
     );
+    state = newState;
+    print('Calculated calorie from state: ${newState.source}: ${newState.calories}');
   }
 
   Future<void> resetToday() async {
     await _calorieService.resetToday();
-    state = CaloryState(calories: 0, timestamp: DateTime.now());
+    state = null;
   }
 
   int getCalorieForDay(DateTime date) {
-    final now = DateTime.now();
-    if (date.year == now.year && date.month == now.month && date.day == now.day) {
-      return todayTotal;
-    }
     final steps = ref.read(stepsProvider).steps;
     return _calorieService.getCalorieForDay(date, steps: steps);
   }
@@ -142,15 +93,17 @@ class CaloryNotifier extends StateNotifier<CaloryState> {
   List<int> getWeeklyCalories() {
     final now = DateTime.now();
     final List<int> weeklyCalories = [];
+    final steps = ref.read(stepsProvider).steps;
 
     for (int i = 6; i >= 0; i--) {
       final date = now.subtract(Duration(days: i));
-      weeklyCalories.add(getCalorieForDay(date));
+      // For past days, steps are not counted, so we pass 0.
+      final dailySteps = _calorieService.isToday(date) ? steps : 0;
+      weeklyCalories.add(_calorieService.getCalorieForDay(date, steps: dailySteps));
     }
 
     return weeklyCalories;
   }
-
 }
 
-final caloryProvider = StateNotifierProvider<CaloryNotifier, CaloryState>((ref) => CaloryNotifier(ref));
+final caloryProvider = StateNotifierProvider<CaloryNotifier, CaloryState?>((ref) => CaloryNotifier(ref));
