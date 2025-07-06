@@ -63,6 +63,7 @@ class ProfileDataNotifier extends StateNotifier<ProfileData> {
 
   void updateFitnessLevel(String value) {
     _fitnessLevel = value;
+    state = state.copyWith(fitnessLevel: value);
   }
 
   // Future<void> selectProfileImage() async {
@@ -96,9 +97,8 @@ class ProfileDataNotifier extends StateNotifier<ProfileData> {
     debugPrint('Username here: $username');
 
     if (username != null) {
-      state.copyWith(name: username);
       final profile = ProfileData(
-        name: state.name,
+        name: username,
         gender: state.gender,
         height: state.height ?? 0,
         weight: state.weight ?? 0,
@@ -107,7 +107,7 @@ class ProfileDataNotifier extends StateNotifier<ProfileData> {
         coverImagePath: state.coverImagePath,
         fitnessLevel: _fitnessLevel,
         birthDate: state.birthDate,
-        location: locationController.text,
+        location: _locationController.text,
         bio: state.bio,
         weightGoal: state.weightGoal,
         activityLevel: state.activityLevel,
@@ -116,6 +116,24 @@ class ProfileDataNotifier extends StateNotifier<ProfileData> {
         lastWorkoutDate: null,
       );
       state = profile;
+
+      debugPrint('Profile State Data:');
+      debugPrint('Name: ${profile.name}');
+      debugPrint('Gender: ${profile.gender}');
+      debugPrint('Height: ${profile.height}');
+      debugPrint('Weight: ${profile.weight}');
+      debugPrint('Food Preference: ${profile.foodPreference}');
+      debugPrint('Profile Image: ${profile.profileImagePath}');
+      debugPrint('Cover Image: ${profile.coverImagePath}');
+      debugPrint('Fitness Level: ${profile.fitnessLevel}');
+      debugPrint('Birth Date: ${profile.birthDate}');
+      debugPrint('Location: ${profile.location}');
+      debugPrint('Bio: ${profile.bio}');
+      debugPrint('Weight Goal: ${profile.weightGoal}');
+      debugPrint('Activity Level: ${profile.activityLevel}');
+      debugPrint('Current Streak: ${profile.currentStreak}');
+      debugPrint('Longest Streak: ${profile.longestStreak}');
+      debugPrint('Last Workout: ${profile.lastWorkoutDate}');
 
       await _authService.createProfileData(username, profile);
       debugPrint('$username profile data stored ✅');

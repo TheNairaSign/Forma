@@ -14,8 +14,8 @@ class CalorieService {
     return _calorieBox.values.where((entry) {
       final entryDate = entry.timestamp;
       return entryDate.year == date.year && 
-             entryDate.month == date.month && 
-             entryDate.day == date.day;
+            entryDate.month == date.month && 
+            entryDate.day == date.day;
     }).toList();
   } 
 
@@ -50,8 +50,8 @@ class CalorieService {
   bool isToday(DateTime date) {
     final now = DateTime.now();
     return date.year == now.year && 
-           date.month == now.month && 
-           date.day == now.day;
+          date.month == now.month && 
+          date.day == now.day;
   }
 
   /// Get weekly calories as a list of daily totals

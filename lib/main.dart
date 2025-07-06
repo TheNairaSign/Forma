@@ -11,6 +11,8 @@ import 'package:workout_tracker/providers/workout_group_notifier.dart';
 import 'package:provider/provider.dart';
 import 'package:workout_tracker/views/pages/auth/auth_page.dart';
 
+import 'package:workout_tracker/services/daily_reset_service.dart';
+
 void main(List<String> args) async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -27,7 +29,7 @@ void main(List<String> args) async {
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => WorkoutGroupNotifier()),
+        ChangeNotifierProvider(create: (_) => WorkoutGroupNotifier()), 
       ],
       child: ProviderScope(child: WorkoutTracker()),
     ),
@@ -44,8 +46,22 @@ void main(List<String> args) async {
     await Hive.deleteBoxFromDisk('caloriesBox');
   }
 
-class WorkoutTracker extends StatelessWidget {
+class WorkoutTracker extends ConsumerStatefulWidget {
   const WorkoutTracker({super.key});
+
+  @override
+  ConsumerState<WorkoutTracker> createState() => _WorkoutTrackerState();
+}
+
+class _WorkoutTrackerState extends ConsumerState<WorkoutTracker> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final dailyResetService = DailyResetService(ref);
+      dailyResetService.resetDailyDataIfNeeded();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {

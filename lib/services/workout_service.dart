@@ -19,7 +19,7 @@ class WorkoutService {
 
   Future<void> saveToHistory(Workout workout) async {
     final prefs = await _prefs();
-    final history = await _getHistory();
+    final history = await getHistory();
     history.add(workout.toMap());
     await prefs.setString(_allWorkoutsKey, jsonEncode(history));
   }
@@ -54,7 +54,7 @@ class WorkoutService {
   }
 
   Future<int> getTotalWorkoutsCount() async {
-    return (await _getHistory()).length;
+    return (await getHistory()).length;
   }
 
   Future<Map<String, int>> getWorkoutStatistics() async {
@@ -95,7 +95,7 @@ class WorkoutService {
     await saveWorkouts(workouts);
   }
 
-  Future<List<dynamic>> _getHistory() async {
+  Future<List<dynamic>> getHistory() async {
     final jsonString = (await _prefs()).getString(_allWorkoutsKey);
     return jsonString != null ? jsonDecode(jsonString) as List : [];
   }

@@ -80,40 +80,27 @@ class WorkoutItemNotifier extends StateNotifier<List<Workout>> {
     final newWorkouts = await ws.getWorkoutsForDay(date);
     final weekDayIndex = date.weekday - 1;
     final stepsForDate = ref.read(stepsProvider.notifier).getStepsForDate(date) ?? 0;
-    
-    if (stepsForDate == 0 && newWorkouts.isEmpty) {
-      _workoutForDay[weekDayIndex] = DayActivity(
-        name: 'Rest Day',
-        steps: stepsForDate, 
-        isRestDay: true
-      );
-    } else if (newWorkouts.isNotEmpty && stepsForDate == 0) {
-      final workout = newWorkouts.first;
-      _workoutForDay[weekDayIndex] = DayActivity(
-        name: workout.name,
+
+    DayActivity dayActivity;
+    if (newWorkouts.isEmpty) {
+      dayActivity = DayActivity(
+        name: stepsForDate > 0 ? 'Steps only' : 'Rest Day',
         steps: stepsForDate,
-        sets: workout.sets!,
-        reps: workout.reps!,
-        goalDuration: workout.goalDuration,
-        isRestDay: false
-      );
-    } else if (stepsForDate > 0 && newWorkouts.isEmpty) {
-      _workoutForDay[weekDayIndex] = DayActivity(
-        name: 'Steps only',
-        steps: stepsForDate,
-        isRestDay: false
+        isRestDay: stepsForDate == 0,
       );
     } else {
       final workout = newWorkouts.first;
-      _workoutForDay[weekDayIndex] = DayActivity(
-        name: '${workout.name}, $stepsForDate steps',
+      dayActivity = DayActivity(
+        name: stepsForDate > 0 ? '${workout.name}, $stepsForDate steps' : workout.name,
         steps: stepsForDate,
         sets: workout.sets!,
         reps: workout.reps!,
         goalDuration: workout.goalDuration,
-        isRestDay: false
+        isRestDay: false,
       );
     }
+
+    _workoutForDay[weekDayIndex] = dayActivity;
     debugPrint('Workouts for day: ${newWorkouts.length}');
     return _workoutForDay;
   }
@@ -125,12 +112,14 @@ class WorkoutItemNotifier extends StateNotifier<List<Workout>> {
     debugPrint('Workouts: ${state.length}');
   } 
 
-  void clearWorkouts(BuildContext context, DateTime? date) async {
+  void clearWorkouts(BuildContext? context, DateTime? date, {bool showAlert = true}) async {
     debugPrint('Clearing workouts...');
     await ws.clearWorkouts(date: date ?? DateTime.now());
     await CalorieService().clearCaloriesByDay(date ?? DateTime.now());
     state = [];
-    Alerts.showFlushBar(context, 'Workouts cleared', false);
+    if (showAlert && context != null) {
+      Alerts.showFlushBar(context, 'Workouts cleared', false);
+    }
   }
 
   void validateAllForms(BuildContext context) {

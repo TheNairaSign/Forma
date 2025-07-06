@@ -222,6 +222,12 @@ class StepsNotifier extends StateNotifier<StepsState> {
   // Get all stored step data
   List<DailySteps> getAllSteps()  => _dailyStepsBox.values.toList();
 
+  void clearSteps() {
+    final todayKey = _getDateKey(DateTime.now());
+    _dailyStepsBox.put(todayKey, DailySteps(date: DateTime.now(), steps: 0, lastUpdated: DateTime.now()));
+    state = state.copyWith(steps: 0);
+  }
+
   /// Handle status changed
   void onPedestrianStatusChanged(PedestrianStatus event) => state =  state.copyWith(status: event.status);
   

@@ -28,7 +28,7 @@ class ProfileHeader extends ConsumerWidget {
               ),
               const SizedBox(height: 4),
               Text(
-                profileData.bio ?? 'Fitness Enthusiast',
+                profileData.fitnessLevel ?? 'Fitness Enthusiast',
                 style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.7)),
               ),
               const SizedBox(height: 5),

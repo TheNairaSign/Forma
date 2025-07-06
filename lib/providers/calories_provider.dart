@@ -80,6 +80,11 @@ class CaloryNotifier extends StateNotifier<CaloryState?> {
     print('Calculated calorie from state: ${newState.source}: ${newState.calories}');
   }
 
+  Future<void> clearCalories() async {
+    await _calorieService.clearCaloriesByDay(DateTime.now());
+    state = null;
+  }
+
   Future<void> resetToday() async {
     await _calorieService.resetToday();
     state = null;
