@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:workout_tracker/constants.dart';
 import 'package:workout_tracker/models/enums/gender.dart';
-import 'package:workout_tracker/providers/profile_data_notifier.dart';
+import 'package:workout_tracker/providers/profile/profile_data_notifier.dart';
 import 'package:workout_tracker/style/global_colors.dart';
 
 class GenderIdentityScreen extends ConsumerStatefulWidget {

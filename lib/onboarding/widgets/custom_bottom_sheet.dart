@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:workout_tracker/onboarding/screens/avatar_page.dart';
 import 'package:workout_tracker/style/global_colors.dart';
-import 'package:workout_tracker/views/pages/navigation/navigation_page.dart';
 import 'package:workout_tracker/views/widgets/fluid_press_button.dart';
 
 class CustomBottomSheet extends StatelessWidget {
@@ -23,7 +23,7 @@ class CustomBottomSheet extends StatelessWidget {
       child: Row(
         children: [
           TextButton(
-            onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const NavigationPage())), 
+            onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const PickAvatarPage())), 
             child: Text(
               'Do it later', 
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.white)

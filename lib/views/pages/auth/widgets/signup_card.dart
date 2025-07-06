@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:workout_tracker/providers/auth/sign_up_notifier.dart';
+import 'package:workout_tracker/style/global_colors.dart';
 import 'package:workout_tracker/views/pages/auth/widgets/auth_text_fields.dart';
 
 class SignupCard extends ConsumerWidget {
@@ -63,10 +64,8 @@ class SignupCard extends ConsumerWidget {
                   child: ElevatedButton(
                     onPressed: () => signup.registerUser(context, controller),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.black,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
+                      backgroundColor: GlobalColors.primaryColor,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                     ),
                     child: Text("Register", style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontSize: 18, color: Colors.white)),
                   ),
@@ -78,8 +77,10 @@ class SignupCard extends ConsumerWidget {
                   Text("Already have an account?", style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey)),
                   const SizedBox(width: 5),
                   GestureDetector(
+                    behavior: HitTestBehavior.opaque,
                     onTap: toggleScreens,
-                    child: Text("Login", style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.black, decoration: TextDecoration.underline))),
+                    child: Text("Login", style: Theme.of(context).textTheme.bodySmall?.copyWith(color: GlobalColors.primaryColor, decoration: TextDecoration.underline)),
+                  ),
                 ],
               )
               ],

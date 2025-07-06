@@ -25,7 +25,7 @@ class _AuthPageState extends State<AuthPage> {
           Container(
             decoration: const BoxDecoration(
               image: DecorationImage(
-                image: AssetImage('assets/images/workout-cover-image.png'), // Replace with your background
+                image: AssetImage('assets/images/stretch-cover-image.jpg'), // Replace with your background
                 fit: BoxFit.cover,
               ),
             ),

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:workout_tracker/models/state/edit_profile_state.dart';
-import 'package:workout_tracker/providers/profile_data_notifier.dart';
+import 'package:workout_tracker/providers/profile/profile_data_notifier.dart';
 
 class EditProfileNotifier extends StateNotifier<EditProfileState> {
   Ref ref;

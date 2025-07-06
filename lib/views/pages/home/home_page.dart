@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:workout_tracker/providers/profile_data_notifier.dart';
+import 'package:workout_tracker/providers/profile/profile_data_notifier.dart';
 import 'package:workout_tracker/providers/steps_notifier.dart';
 import 'package:workout_tracker/views/pages/home/widgets/calory_container.dart';
 import 'package:workout_tracker/views/pages/home/widgets/overall_status_container.dart';

@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:workout_tracker/providers/steps_notifier.dart';
+import 'package:workout_tracker/providers/workout_item_notifier.dart';
 
 class ProgressNotifier extends StateNotifier<int> {
   final Ref ref;
@@ -17,6 +18,14 @@ class ProgressNotifier extends StateNotifier<int> {
     // Round to nearest integer
     state = percentage.round();
     return state;
+  }
+
+  double get workoutProgress {
+    final workouts = ref.read(workoutItemProvider);
+    final progress = calculateProgress(workouts.length, 10);
+    // state = progress;
+    print('Progress: $progress');
+    return progress / 100;
   }
 
   int stepsProgress() {

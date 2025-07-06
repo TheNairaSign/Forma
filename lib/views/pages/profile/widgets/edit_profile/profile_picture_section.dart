@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:workout_tracker/onboarding/screens/avatar_page.dart';
-import 'package:workout_tracker/providers/profile_data_notifier.dart';
+import 'package:workout_tracker/providers/profile/profile_data_notifier.dart';
 import 'package:workout_tracker/style/global_colors.dart';
 
 class ProfilePictureSection extends ConsumerStatefulWidget {

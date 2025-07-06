@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:workout_tracker/models/text_field_model.dart';
+import 'package:workout_tracker/providers/profile/profile_data_notifier.dart';
 import 'package:workout_tracker/style/global_colors.dart';
 import 'package:workout_tracker/views/widgets/custom_text_field.dart';
 
@@ -17,8 +18,10 @@ class _PersonalInfoCardState extends ConsumerState<PersonalInfoCard> {
   @override
   void initState() {
     super.initState();
+    ref.read(profileDataProvider.notifier).updateInitialValues();
     editProfileFields = TextFieldModel.editProfileTextFields(context, ref);
   }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -40,7 +43,16 @@ class _PersonalInfoCardState extends ConsumerState<PersonalInfoCard> {
               children: [
                 Text(editProfileField.labelText, style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold, color: GlobalColors.primaryBlue)),
                 const SizedBox(height: 8),
-                CustomTextField( fillColor: Color(0xffeeeef0), controller: editProfileField.controller, hintText: editProfileField.hintText),
+                CustomTextField(
+                  fillColor: Color(0xffeeeef0), 
+                  controller: editProfileField.controller, 
+                  hintText: editProfileField.hintText,
+                  // onChanged: (value) {
+                  //   setState(() {
+                  //     ref.watch(profileDataProvider.notifier).updateInitialValues();
+                  //   });
+                  // },
+                ),
               ],
             ),
           );

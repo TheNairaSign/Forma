@@ -73,8 +73,26 @@ class WorkoutService {
     await saveWorkouts(workouts);
   }
 
-  Future<void> clearWorkouts() async {
-    await (await _prefs()).setString(_workoutKey, jsonEncode([]));
+  Future<void> clearWorkouts({DateTime? date}) async {
+    if (date == null) {
+      // Clear all workouts if no date specified
+      await (await _prefs()).setString(_workoutKey, jsonEncode([]));
+      return;
+    }
+
+    // Get existing workouts
+    final workouts = await getWorkouts();
+    
+    // Remove workouts for the specified date
+    workouts.removeWhere((workout) => workout.sessions.any(
+      (session) => 
+        session.timestamp.year == date.year &&
+        session.timestamp.month == date.month &&
+        session.timestamp.day == date.day
+    ));
+
+    // Save filtered workouts
+    await saveWorkouts(workouts);
   }
 
   Future<List<dynamic>> _getHistory() async {

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:workout_tracker/providers/auth/login_notifier.dart';
+import 'package:workout_tracker/style/global_colors.dart';
 import 'package:workout_tracker/views/pages/auth/widgets/auth_text_fields.dart';
 
 class LoginCard extends ConsumerWidget {
@@ -57,7 +58,7 @@ class LoginCard extends ConsumerWidget {
                       login.loginUser(context);
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.black,
+                      backgroundColor: GlobalColors.primaryColor,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                     ),
                     child: Text(
@@ -74,7 +75,7 @@ class LoginCard extends ConsumerWidget {
                     const SizedBox(width: 5),
                     GestureDetector(
                       onTap: toggleScreens,
-                      child: Text("Sign up", style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.black, decoration: TextDecoration.underline))),
+                      child: Text("Sign up", style: Theme.of(context).textTheme.bodySmall?.copyWith(color: GlobalColors.primaryColor, decoration: TextDecoration.underline))),
                   ],
                 ),
               ],

@@ -2,7 +2,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:workout_tracker/providers/profile_data_notifier.dart';
+import 'package:workout_tracker/constants.dart';
+import 'package:workout_tracker/onboarding/screens/page_view_screens/finish_up_screen.dart';
+import 'package:workout_tracker/providers/profile/profile_data_notifier.dart';
 import 'package:workout_tracker/style/global_colors.dart';
 import 'package:workout_tracker/views/pages/navigation/navigation_future_page.dart';
 
@@ -37,80 +39,79 @@ class _PickAvatarPageState extends ConsumerState<PickAvatarPage> {
         title: Text("Choose your Avatar", style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: Colors.black)),
         centerTitle: true,
       ),
-      body: Column(
-        children: [
-          const SizedBox(height: 20),
-
-          // Avatars Grid
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+      body: Padding(
+        padding: bodyPadding,
+        child: Column(
+          children: [
+            // Avatars Grid
+            SizedBox(
+              height: 250,
               child: GridView.builder(
-                itemCount: avatars.length,
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3,
-                  crossAxisSpacing: 16,
-                  mainAxisSpacing: 16,
-                ),
-                itemBuilder: (context, index) {
-                  final isSelected = index == selectedIndex;
-                  return GestureDetector(
-                    onTap: () {
-                      setState(() => selectedIndex = index);
-                    },
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        CircleAvatar(
-                          radius: 50,
-                          backgroundImage: AssetImage(avatars[index]),
-                        ),
-                        if (isSelected)
-                          Container(
-                            width: 100,
-                            height: 100,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(color: GlobalColors.primaryColor, width: 4),
-                            ),
+                  itemCount: avatars.length,
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 3,
+                    crossAxisSpacing: 16,
+                    mainAxisSpacing: 16,
+                  ),
+                  itemBuilder: (context, index) {
+                    final isSelected = index == selectedIndex;
+                    return GestureDetector(
+                      onTap: () {
+                        setState(() => selectedIndex = index);
+                      },
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          CircleAvatar(
+                            radius: 50,
+                            backgroundImage: AssetImage(avatars[index]),
                           ),
-                        if (isSelected)
-                          const Icon(Icons.check_circle, color: GlobalColors.primaryColor, size: 30),
-                      ],
-                    ),
-                  );
-                },
-              ),
-            ),
-          ),
-
-          // Continue Button
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: ElevatedButton(
-              onPressed: selectedIndex == null ? null : () {
-                final selectedAvatar = avatars[selectedIndex!];
-                debugPrint("Selected Avatar: $selectedAvatar");
-                ref.watch(profileDataProvider.notifier).updateUserAvatar(selectedAvatar);
-                if(widget.isEdit) {
-                  Navigator.of(context).pop();
-                } else {
-                  ref.watch(profileDataProvider.notifier).sendProfileData().then((_) {
-                    Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => NavigationFuturePage()));
-                  });
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: GlobalColors.primaryColor,
-                minimumSize: const Size.fromHeight(50),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30),
+                          if (isSelected)
+                            Container(
+                              width: 100,
+                              height: 100,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                border: Border.all(color: GlobalColors.primaryColor, width: 4),
+                              ),
+                            ),
+                          if (isSelected)
+                            const Icon(Icons.check_circle, color: GlobalColors.primaryColor, size: 30),
+                        ],
+                      ),
+                    );
+                  },
                 ),
               ),
-              child: Text("Continue", style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontSize: 18, color: Colors.white)),
+        
+            FinishUpScreen(),
+          ],
+        ),
+      ),
+      bottomSheet: Padding(
+        padding: const EdgeInsets.all(16),
+        child: ElevatedButton(
+          onPressed: selectedIndex == null ? null : () {
+            final selectedAvatar = avatars[selectedIndex!];
+            debugPrint("Selected Avatar: $selectedAvatar");
+            ref.watch(profileDataProvider.notifier).updateUserAvatar(selectedAvatar);
+            if(widget.isEdit) {
+              Navigator.of(context).pop();
+            } else {
+              ref.watch(profileDataProvider.notifier).sendProfileData().then((_) {
+                Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => NavigationFuturePage()));
+              });
+            }
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: GlobalColors.primaryColor,
+            minimumSize: const Size.fromHeight(50),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(30),
             ),
           ),
-        ],
+          child: Text("Continue", style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontSize: 18, color: Colors.white)),
+        ),
       ),
     );
   }

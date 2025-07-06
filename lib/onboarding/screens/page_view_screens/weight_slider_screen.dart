@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:vertical_weight_slider/vertical_weight_slider.dart';
 import 'package:workout_tracker/constants.dart';
 import 'package:workout_tracker/onboarding/widgets/segmented_control_widget.dart';
-import 'package:workout_tracker/providers/profile_data_notifier.dart';
+import 'package:workout_tracker/providers/profile/profile_data_notifier.dart';
 
 class WeightSliderScreen extends ConsumerStatefulWidget {
   const WeightSliderScreen({super.key});

@@ -1,20 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:workout_tracker/constants.dart';
+import 'package:workout_tracker/providers/profile/profile_data_notifier.dart';
 import 'package:workout_tracker/style/global_colors.dart';
 import 'package:workout_tracker/views/pages/profile/widgets/edit_profile/fitness_info_card.dart';
 import 'package:workout_tracker/views/pages/profile/widgets/edit_profile/personal_info_card.dart';
 
 import 'package:workout_tracker/views/pages/profile/widgets/edit_profile/profile_picture_section.dart';
 
-class EditProfilePage extends StatefulWidget {
+class EditProfilePage extends ConsumerStatefulWidget {
 
   const EditProfilePage({super.key});
 
   @override
-  State<EditProfilePage> createState() => _EditProfilePageState();
+  ConsumerState<EditProfilePage> createState() => _EditProfilePageState();
 }
 
-class _EditProfilePageState extends State<EditProfilePage> {
+class _EditProfilePageState extends ConsumerState<EditProfilePage> {
+
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   ref.read(profileDataProvider.notifier).updateInitialValues();
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +32,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
         centerTitle: true,
         actions: [
           TextButton(
-            onPressed: () {},
+            onPressed: () => ref.watch(profileDataProvider.notifier).updateProfile(context),
             child: Text(
               'Save',
               style: Theme.of(context).textTheme.bodyLarge!.copyWith(

@@ -41,6 +41,21 @@ class WorkoutItemNotifier extends StateNotifier<List<Workout>> {
     'Very High'
   ];
 
+  double getMETByIntensity(String? intensity) {
+    switch (intensity?.toLowerCase()) {
+      case 'high':
+        return 8.0;
+      case 'moderate':
+      case 'medium':
+        return 6.0;
+      case 'low':
+        return 3.5;
+      default:
+        return 5.0; // average
+    }
+  }
+
+
   WorkoutType _selectedWorkoutType = WorkoutType.arms;
   
   set selectedWorkoutType(WorkoutType value) {
@@ -110,10 +125,10 @@ class WorkoutItemNotifier extends StateNotifier<List<Workout>> {
     debugPrint('Workouts: ${state.length}');
   } 
 
-  void clearWorkouts(BuildContext context) async {
+  void clearWorkouts(BuildContext context, DateTime? date) async {
     debugPrint('Clearing workouts...');
-    await ws.clearWorkouts();
-    await CalorieService().clearCalories();
+    await ws.clearWorkouts(date: date ?? DateTime.now());
+    await CalorieService().clearCaloriesByDay(date ?? DateTime.now());
     state = [];
     Alerts.showFlushBar(context, 'Workouts cleared', false);
   }

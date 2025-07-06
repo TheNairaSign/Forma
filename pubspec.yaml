@@ -28,6 +28,7 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
+  accordion: ^2.6.0
   android_alarm_manager_plus: ^4.0.7
   animate_do: ^4.2.0
   another_flushbar: ^1.12.30

@@ -50,7 +50,7 @@ class _WorkoutsPageState extends ConsumerState<WorkoutsPage> {
                     onPressed: () {
                       Alerts.areYouSureDialog(
                         context, 
-                        () => ref.watch(workoutItemProvider.notifier).clearWorkouts(context), 
+                        () => ref.watch(workoutItemProvider.notifier).clearWorkouts(context, DateTime.now()), 
                         'Are you sure you want to clear all workouts?',
                       );
                     }, 

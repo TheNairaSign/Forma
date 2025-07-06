@@ -25,7 +25,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     WeightSliderScreen(),
     HeightSliderScreen(),
     FoodPreferenceScreen(),
-    // GoalScreen()
   ];
 
   void toggleScreens() {

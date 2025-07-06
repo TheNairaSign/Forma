@@ -192,11 +192,17 @@ class CalorieService {
   }
 
   /// Clear all calorie entries from the box
-  Future<void> clearCalories() async {
+  Future<void> clearCaloriesByDay(DateTime date) async {
     try {
-      await _calorieBox.clear();
+      final dailyEntries = getDailyCalories(date);
+      for (final entry in dailyEntries) {
+        final index = _calorieBox.values.toList().indexOf(entry);
+        if (index != -1) {
+          await _calorieBox.deleteAt(index);
+        }
+      }
     } catch (e) {
-      debugPrint('Error clearing calories: $e');
+      debugPrint('Error clearing calories for ${date.toString()}: $e');
     }
   }
 }

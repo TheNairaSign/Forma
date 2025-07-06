@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:workout_tracker/providers/edit_profile_provider.dart';
+import 'package:workout_tracker/providers/profile/profile_data_notifier.dart';
+import 'package:workout_tracker/providers/profile/update_profile_notifier.dart';
 class TextFieldModel {
   final String hintText, labelText;
   final bool showSuffix, obscureText, enabled;
@@ -106,40 +107,41 @@ class TextFieldModel {
   */
 
   static List<TextFieldModel> editProfileTextFields(BuildContext context, WidgetRef ref) {
-    List<TextFieldModel> editProfileFields = [];
-    final editProfileControllers = ref.read(editProfileProvider.notifier);
+    List<TextFieldModel> updateProfileFields = [];
+    final state = ref.read(profileDataProvider);
+    final updateProfile = ref.read(updateProfleProvider(state).notifier);
 
-    editProfileFields.add(
+    updateProfileFields.add(
       TextFieldModel(
         hintText: 'Enter your name',
         showSuffix: false,
         prefixIcon: const Icon(Icons.person_outline, color: iconColor),
-        controller: editProfileControllers.nameController,
+        controller: updateProfile.nameController,
         obscureText: false,
         labelText: 'Name',
       ),
     );
 
-    editProfileFields.add(
+    updateProfileFields.add(
       TextFieldModel(
         hintText: 'A brief bio of yourself',
         showSuffix: true,
         prefixIcon: const Icon(Icons.info_outline, color: iconColor),
-        controller: editProfileControllers.bioController,
+        controller: updateProfile.bioController,
         obscureText: true,
         labelText: 'Bio',
       ),
     );
-    editProfileFields.add(
+    updateProfileFields.add(
       TextFieldModel(
         hintText: 'Enter your Location',
         showSuffix: true,
         prefixIcon: const Icon(Icons.location_on_outlined, color: iconColor),
-        controller: editProfileControllers.locationController,
+        controller: updateProfile.locationController,
         obscureText: true,
         labelText: 'Location',
       ),
     );
-    return editProfileFields;
+    return updateProfileFields;
   }
 }
