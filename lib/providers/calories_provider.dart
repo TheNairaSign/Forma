@@ -40,6 +40,10 @@ class CaloryNotifier extends StateNotifier<CaloryState?> {
     return exerciseTime + totalRest;
   }
 
+  int? _caloriesAdded;
+  int? get caloriesAdded => _caloriesAdded;
+
+
 
   Future<void> calculateCalories({
     required WorkoutGroup group,
@@ -77,6 +81,7 @@ class CaloryNotifier extends StateNotifier<CaloryState?> {
       weightKg: w,
     );
     state = newState;
+    _caloriesAdded = newState.calories;
     print('Calculated calorie from state: ${newState.source}: ${newState.calories}');
   }
 

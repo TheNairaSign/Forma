@@ -54,6 +54,10 @@ class UpdateProfileNotifier extends StateNotifier<ProfileData> {
       }
     }
   }
+
+  Future<void> editUserData() async {
+    
+  }
 }
 
 final updateProfleProvider = StateNotifierProvider.family<UpdateProfileNotifier, ProfileData, ProfileData>((ref, profileData) {

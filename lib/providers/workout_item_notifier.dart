@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart' hide Provider;
+import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 import 'package:workout_tracker/models/enums/workout_group.dart';
 import 'package:workout_tracker/models/enums/workout_type.dart';
@@ -154,7 +155,18 @@ class WorkoutItemNotifier extends StateNotifier<List<Workout>> {
           weightKg: newWorkout.weight,
           sets: newWorkout.sets,
           reps: newWorkout.reps,
-        );
+        ).then((_) {
+          showDialog(context: context, builder: (context) {
+            final calories = ref.watch(caloryProvider.notifier).caloriesAdded;
+            return SizedBox(
+              height: 150,
+              child: AlertDialog(
+                title: Text('Congrats, you just burnt $calories calories!'),
+                content: LottieBuilder.asset('assets/lottie/check-animation.json', repeat: false),
+              ),
+            );
+          });
+        });
         debugPrint('New workout details: $group, ${newWorkout.name}, ${newWorkout.durationInSeconds}, ${newWorkout.sets}, ${newWorkout.reps}, ${newWorkout.weight} ');
       } catch (e) {
         debugPrint('Error calculating calories for workout: ${e.toString()}');
@@ -163,7 +175,7 @@ class WorkoutItemNotifier extends StateNotifier<List<Workout>> {
       // Show confirmation and then pop the screen.
       debugPrint('Workout added successfully: ${newWorkout.name}');
       if (context.mounted) {
-        Alerts.showFlushBar(context, 'Workout added', false);
+        // Alerts.showFlushBar(context, 'Workout added', false);
         
         // Schedule the pop for after the build phase to avoid the debug lock.
         // WidgetsBinding.instance.addPostFrameCallback((_) {

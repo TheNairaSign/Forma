@@ -5,7 +5,7 @@ import 'package:workout_tracker/onboarding/screens/page_view_screens/age_slider_
 import 'package:workout_tracker/onboarding/screens/page_view_screens/food_preference_screen.dart';
 import 'package:workout_tracker/onboarding/screens/page_view_screens/gender_identity_screen.dart';
 // import 'package:workout_tracker/onboarding/screens/page_view_screens/goal_screen.dart';
-import 'package:workout_tracker/onboarding/screens/page_view_screens/height_slider_screen.dart';
+import 'package:workout_tracker/onboarding/screens/page_view_screens/height_slider_screen.dart.dart';
 import 'package:workout_tracker/onboarding/screens/page_view_screens/weight_slider_screen.dart';
 import 'package:workout_tracker/onboarding/widgets/custom_bottom_sheet.dart';
 import 'package:workout_tracker/style/global_colors.dart';
