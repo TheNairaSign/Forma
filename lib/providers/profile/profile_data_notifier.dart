@@ -52,8 +52,8 @@ class ProfileDataNotifier extends StateNotifier<ProfileData> {
 
   // String? _profileImagePath, _coverImagePath;
 
-  String? _fitnessLevel;
-  String? get fitnessLevel => _fitnessLevel;
+  String _fitnessLevel = FitnessLevel.beginner.name;
+  String get fitnessLevel => _fitnessLevel;
 
   final ImagePicker imagePicker = ImagePicker();
 
@@ -104,36 +104,13 @@ class ProfileDataNotifier extends StateNotifier<ProfileData> {
         weight: state.weight ?? 0,
         foodPreference: foodPreference,
         profileImagePath: state.profileImagePath,
-        coverImagePath: state.coverImagePath,
         fitnessLevel: _fitnessLevel,
-        birthDate: state.birthDate,
         location: _locationController.text,
-        bio: state.bio,
-        weightGoal: state.weightGoal,
-        activityLevel: state.activityLevel,
         currentStreak: 0,
         longestStreak: 0,
         lastWorkoutDate: null,
       );
       state = profile;
-
-      debugPrint('Profile State Data:');
-      debugPrint('Name: ${profile.name}');
-      debugPrint('Gender: ${profile.gender}');
-      debugPrint('Height: ${profile.height}');
-      debugPrint('Weight: ${profile.weight}');
-      debugPrint('Food Preference: ${profile.foodPreference}');
-      debugPrint('Profile Image: ${profile.profileImagePath}');
-      debugPrint('Cover Image: ${profile.coverImagePath}');
-      debugPrint('Fitness Level: ${profile.fitnessLevel}');
-      debugPrint('Birth Date: ${profile.birthDate}');
-      debugPrint('Location: ${profile.location}');
-      debugPrint('Bio: ${profile.bio}');
-      debugPrint('Weight Goal: ${profile.weightGoal}');
-      debugPrint('Activity Level: ${profile.activityLevel}');
-      debugPrint('Current Streak: ${profile.currentStreak}');
-      debugPrint('Longest Streak: ${profile.longestStreak}');
-      debugPrint('Last Workout: ${profile.lastWorkoutDate}');
 
       await _authService.createProfileData(username, profile);
       debugPrint('$username profile data stored ✅');

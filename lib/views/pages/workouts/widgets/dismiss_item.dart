@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:workout_tracker/models/workout/workout.dart';
 import 'package:workout_tracker/services/workout_service.dart';
 import 'package:workout_tracker/style/global_colors.dart';
 
@@ -7,6 +8,7 @@ class DismissibleItem extends ConsumerStatefulWidget {
   final String title, id;
   final String subtitle;
   final Function(DismissDirection) onDismissed;
+  final Workout workout;
 
   const DismissibleItem({
     super.key,
@@ -14,6 +16,7 @@ class DismissibleItem extends ConsumerStatefulWidget {
     required this.title,
     required this.subtitle,
     required this.onDismissed,
+    required this.workout,
   });
 
   @override
@@ -96,9 +99,16 @@ class _DismissibleItemState extends ConsumerState<DismissibleItem> {
           boxShadow: GlobalColors.boxShadow(context),
         ),
         child: ListTile(
+          leading: Container(
+            height: 10, 
+            width: 10,
+            decoration: BoxDecoration(
+              color: widget.workout.workoutColor ??  GlobalColors.purple,
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
           title: Text(widget.title, style: theme.textTheme.bodyLarge?.copyWith(color: Colors.black, fontWeight: FontWeight.bold),),
           subtitle: Text(widget.subtitle, style: theme.textTheme.bodyMedium?.copyWith(color: Colors.black)),
-          trailing: const Icon(Icons.arrow_forward_ios, size: 16),
         ),
       ),
     );

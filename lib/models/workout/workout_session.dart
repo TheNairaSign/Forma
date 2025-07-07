@@ -1,14 +1,14 @@
 class WorkoutSession {
   final DateTime timestamp;
-  final int durationInSeconds;
-  final int setsCompleted;
-  final int repsCompleted;
+  final int? durationInSeconds;
+  final int? setsCompleted;
+  final int? repsCompleted;
 
   WorkoutSession({
     required this.timestamp,
-    required this.durationInSeconds,
-    required this.setsCompleted,
-    required this.repsCompleted,
+    this.durationInSeconds,
+    this.setsCompleted,
+    this.repsCompleted,
   });
 
   Map<String, dynamic> toMap() {

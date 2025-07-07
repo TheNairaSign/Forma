@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:uuid/uuid.dart';
 import 'package:workout_tracker/models/enums/workout_group.dart';
 import 'package:workout_tracker/models/workout/workout_session.dart';
@@ -17,6 +19,7 @@ class Workout {
   int? goalDuration, heartRate;
   WorkoutGroup? workoutGroup;
   String? intensity;
+  Color? workoutColor;
 
   Workout({
     required this.name,
@@ -35,6 +38,7 @@ class Workout {
     this.goalDuration,
     this.intensity,
     this.workoutGroup,
+    this.workoutColor,
   }) : id = Uuid().v4();
 
   Map<String, dynamic> toMap() {

@@ -2,6 +2,7 @@ import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart' hide ChangeNotifierProvider;
 import 'package:hive_flutter/adapters.dart';
+import 'package:workout_tracker/auth/auth_checker.dart';
 import 'package:workout_tracker/background_task_handler.dart';
 import 'package:workout_tracker/hive/daily_steps_adapter.dart';
 import 'package:workout_tracker/hive/adapter/calory_state.dart';
@@ -9,9 +10,7 @@ import 'package:workout_tracker/models/state/profile_data.dart';
 import 'package:workout_tracker/style/theme/light_theme.dart';
 import 'package:workout_tracker/providers/workout_group_notifier.dart';
 import 'package:provider/provider.dart';
-import 'package:workout_tracker/views/pages/auth/auth_page.dart';
 
-import 'package:workout_tracker/services/daily_reset_service.dart';
 
 void main(List<String> args) async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -54,20 +53,20 @@ class WorkoutTracker extends ConsumerStatefulWidget {
 }
 
 class _WorkoutTrackerState extends ConsumerState<WorkoutTracker> {
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final dailyResetService = DailyResetService(ref);
-      dailyResetService.resetDailyDataIfNeeded();
-    });
-  }
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   WidgetsBinding.instance.addPostFrameCallback((_) {
+  //     final dailyResetService = DailyResetService(ref);
+  //     dailyResetService.resetDailyDataIfNeeded();
+  //   });
+  // }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: const AuthPage(),
+      home: const AuthChecker(),
       theme: lightTheme,
     );
   }

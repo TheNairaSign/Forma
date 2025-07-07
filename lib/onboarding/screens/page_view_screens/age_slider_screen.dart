@@ -49,8 +49,8 @@ class _AgeSliderScreenState extends ConsumerState<AgeSliderScreen> {
                 scrollController: FixedExtentScrollController(initialItem: selectedAge - 1),
                 onSelectedItemChanged: (int index) {
                   setState(() {
-                    ref.read(profileDataProvider.notifier).setAge(ageRange[index]);
                     selectedAge = ageRange[index];
+                    ref.read(profileDataProvider.notifier).setAge(selectedAge);
                   });
                 },
                 children: ageRange.map((age) {

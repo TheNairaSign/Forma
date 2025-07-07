@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:workout_tracker/models/enums/workout_group.dart';
 import 'package:workout_tracker/models/workout/workout.dart';
+import 'package:workout_tracker/models/workout/workout_session.dart';
 import 'package:workout_tracker/providers/workout_item_notifier.dart';
 import 'package:workout_tracker/utils/alerts.dart';
 import 'package:workout_tracker/views/widgets/forms/cardio_form.dart';
@@ -131,10 +132,17 @@ class WorkoutGroupNotifier extends ChangeNotifier {
           final values = getRepetitionValues();
           final workout = Workout(
             name: workoutName,
-            // workoutGroup: workoutGroup,
             sets: values['sets'],
             reps: values['reps'],
             weight: values['weight'],
+            workoutColor: Colors.blue,
+            sessions: <WorkoutSession>[
+              WorkoutSession(
+                timestamp: DateTime.now(),
+                setsCompleted: values['sets'],
+                repsCompleted: values['reps'],
+              ),
+            ]
           );
           ref.watch(workoutItemProvider.notifier).addWorkout(context, workout, WorkoutGroup.repetition);
         } catch (e) {
@@ -149,10 +157,17 @@ class WorkoutGroupNotifier extends ChangeNotifier {
           final values = getTimeValues();
           final workout = Workout(
             name: workoutName,
-            // workoutGroup: workoutGroup,
             goalDuration: values['minutes'],
             durationInSeconds: values['seconds'],
             sets: values['sets'],
+            workoutColor: Colors.orange,
+            sessions: <WorkoutSession>[
+              WorkoutSession(
+                timestamp: DateTime.now(), 
+                durationInSeconds: values['seconds'], 
+                setsCompleted: values['sets'],
+              ),
+            ]
           );
           ref.watch(workoutItemProvider.notifier).addWorkout(context, workout, WorkoutGroup.time);
         } catch (e) {
@@ -167,10 +182,15 @@ class WorkoutGroupNotifier extends ChangeNotifier {
           final values = getFlowValues();
           final workout = Workout(
             name: workoutName,
-            // workoutGroup: workoutGroup,
             goalDuration: values['duration'],
             intensity: values['intensity'],
             description: values['notes'],
+            workoutColor: Colors.purple,
+            sessions: <WorkoutSession>[
+              WorkoutSession(
+                timestamp: DateTime.now(),
+              ),
+            ]
           ) ;
           ref.watch(workoutItemProvider.notifier).addWorkout(context, workout, WorkoutGroup.flow);
         } catch (e) {
@@ -185,11 +205,18 @@ class WorkoutGroupNotifier extends ChangeNotifier {
           final values = getStrengthValues();
           final workout = Workout(
             name: workoutName,
-            // workoutGroup: workoutGroup,
             sets: values['sets'],
             reps: values['reps'],
             weight: values['weight'],
             restTime: values['restTime'],
+            workoutColor: Colors.red,
+            sessions: <WorkoutSession>[
+              WorkoutSession(
+                timestamp: DateTime.now(),
+                setsCompleted: values['sets'],
+                repsCompleted: values['reps'],
+              ),
+            ]
           );
           ref.watch(workoutItemProvider.notifier).addWorkout(context, workout, WorkoutGroup.strength);
         } catch (e) {
@@ -204,11 +231,16 @@ class WorkoutGroupNotifier extends ChangeNotifier {
           final values = getCardioValues();
           final workout = Workout(
             name: workoutName,
-            // workoutGroup: workoutGroup,
             goalDuration: values['duration'],
             distance: values['distance'],
             intensity: values['intensity'],
             heartRate: values['heartRate'],
+            workoutColor: Colors.green,
+            sessions: <WorkoutSession>[
+              WorkoutSession(
+                timestamp: DateTime.now(),
+              ),
+            ]
           );
           ref.watch(workoutItemProvider.notifier).addWorkout(context, workout, WorkoutGroup.cardio);
           resetCardioForm();

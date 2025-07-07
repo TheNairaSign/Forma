@@ -10,7 +10,7 @@ class NavigationFuturePage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final profileDataFuture = ref.watch(profileDataProvider.notifier).loadProfileData();
-    final workoutItemsFuture = ref.watch(workoutItemProvider.notifier).getWorkouts();
+    final workoutItemsFuture = ref.watch(workoutItemProvider.notifier).getWorkoutsForDay(DateTime.now());
 
     return FutureBuilder(
       future: Future.wait([profileDataFuture, workoutItemsFuture]),

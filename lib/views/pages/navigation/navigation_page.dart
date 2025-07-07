@@ -31,7 +31,7 @@ class _NavigationPageState extends ConsumerState<NavigationPage> with SingleTick
   void initState() {
     super.initState();
     ref.read(profileDataProvider.notifier).loadProfileData();
-    ref.read(workoutItemProvider.notifier).getWorkouts();
+    ref.read(workoutItemProvider.notifier).getWorkoutsForDay(DateTime.now());
     _pageController = PageController(initialPage: _selectedIndex);
     _animationController = AnimationController(vsync: this, duration: const Duration(milliseconds: 300));
   }

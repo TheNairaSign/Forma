@@ -102,6 +102,7 @@ class WorkoutItemNotifier extends StateNotifier<List<Workout>> {
 
     _workoutForDay[weekDayIndex] = dayActivity;
     debugPrint('Workouts for day: ${newWorkouts.length}');
+    state = newWorkouts;
     return _workoutForDay;
   }
 

@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:workout_tracker/onboarding/widgets/segmented_control_widget.dart';
+import 'package:workout_tracker/providers/profile/profile_data_notifier.dart';
 import 'package:workout_tracker/style/global_colors.dart';
 
-class HeightSelector extends StatefulWidget {
+class HeightSelector extends ConsumerStatefulWidget {
   const HeightSelector({super.key});
 
   @override
-  State<HeightSelector> createState() => _HeightSelectorState();
+  ConsumerState<HeightSelector> createState() => _HeightSelectorState();
 }
 
-class _HeightSelectorState extends State<HeightSelector> {
+class _HeightSelectorState extends ConsumerState<HeightSelector> {
   bool isCm = true;
   int cmValue = 175;
 
@@ -77,6 +79,7 @@ class _HeightSelectorState extends State<HeightSelector> {
                 onSelectedItemChanged: (index) {
                   setState(() {
                     cmValue = minCm + index;
+                    ref.read(profileDataProvider.notifier).setHeight(cmValue.toDouble());
                   });
                 },
                 childDelegate: ListWheelChildBuilderDelegate(

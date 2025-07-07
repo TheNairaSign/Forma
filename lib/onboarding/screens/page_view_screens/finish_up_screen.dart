@@ -37,10 +37,11 @@ class _FinishUpScreen extends ConsumerState<FinishUpScreen> {
             SizedBox(
               width: width,
               child: CustomDropdownButton(
-                items: Level.values.map((value) => value.name[0].toUpperCase() + value.name.substring(1)).toList(), 
+                items: Level.values.map((value) => value.name).toList(), 
                 hint: profile.level[0].toUpperCase() + profile.level.substring(1),
                 textColor: Colors.black,
                 onChanged: (p0) {
+                  debugPrint('Switched level: $p0');
                   profile.switchLevel(p0!);
                   setState(() {});
                 }, 
@@ -55,8 +56,10 @@ class _FinishUpScreen extends ConsumerState<FinishUpScreen> {
                 hint: profile.level == Level.personal.name  
                     ? 'Fitness level' 
                     : 'Fitness Role',
-                // backgroundColor: Colors.white,
                 textColor: Colors.black,
+                onChanged: (fitnessLevel) {
+                  profile.updateFitnessLevel(fitnessLevel!);
+                },
               ),
             ),
           ],
