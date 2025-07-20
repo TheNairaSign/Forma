@@ -17,14 +17,15 @@ class ProfileDataAdapter extends TypeAdapter<ProfileData> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return ProfileData(
-      name: fields[0] as String,
-      bio: fields[1] as String,
+      id: fields[16] as String?,
+      name: fields[0] as String?,
+      bio: fields[1] as String?,
       fitnessLevel: fields[2] as String?,
       location: fields[3] as String?,
       profileImagePath: fields[4] as String?,
       coverImagePath: fields[8] as String?,
-      currentStreak: fields[5] as int,
-      longestStreak: fields[6] as int,
+      currentStreak: fields[5] as int?,
+      longestStreak: fields[6] as int?,
       lastWorkoutDate: fields[7] as DateTime?,
       gender: fields[9] as String?,
       birthDate: fields[10] as String?,
@@ -32,14 +33,14 @@ class ProfileDataAdapter extends TypeAdapter<ProfileData> {
       weight: fields[12] as double?,
       weightGoal: fields[14] as String?,
       activityLevel: fields[15] as String?,
-      foodPreference: fields[13] as List<String>?,
+      foodPreference: (fields[13] as List?)?.cast<String>(),
     );
   }
 
   @override
   void write(BinaryWriter writer, ProfileData obj) {
     writer
-      ..writeByte(15)
+      ..writeByte(17)
       ..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)
@@ -71,7 +72,9 @@ class ProfileDataAdapter extends TypeAdapter<ProfileData> {
       ..writeByte(15)
       ..write(obj.activityLevel)
       ..writeByte(13)
-      ..write(obj.foodPreference);
+      ..write(obj.foodPreference)
+      ..writeByte(16)
+      ..write(obj.id);
   }
 
   @override

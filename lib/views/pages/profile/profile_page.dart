@@ -22,7 +22,8 @@ class ProfilePage extends ConsumerWidget {
           onTap: () {
             Alerts.areYouSureDialog(
               context, 
-              () => ref.read(loginProvider.notifier).logoutUser(context),
+              // () => ref.read(loginProvider.notifier).logoutUser(context),
+              () {},
               'Are you sure you want to logout'
             );
           },

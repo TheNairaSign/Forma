@@ -7,8 +7,14 @@ import 'package:workout_tracker/models/workout/workout.dart';
 import 'package:workout_tracker/providers/workout_item_notifier.dart';
 
 class WorkoutService {
-  static const _workoutKey = 'workouts';
-  static const _allWorkoutsKey = 'all_workouts_history';
+  // static const _workoutKey = 'workouts';
+  // static const _allWorkoutsKey = 'all_workouts_history';
+
+  final String? userId;
+  WorkoutService({this.userId});
+
+  String get _workoutKey => 'workouts_$userId';
+  String get _allWorkoutsKey => 'all_workouts_history_$userId';
 
   Future<SharedPreferences> _prefs() => SharedPreferences.getInstance();
 

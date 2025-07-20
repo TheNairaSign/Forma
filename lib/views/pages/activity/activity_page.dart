@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:workout_tracker/providers/calories_provider.dart';
-import 'package:workout_tracker/services/calorie_service.dart';
 import 'package:workout_tracker/utils/get_week_days.dart';
 import 'package:workout_tracker/views/pages/activity/widgets/daily_breakdown.dart';
 import 'package:workout_tracker/views/pages/activity/widgets/nutrition_tip_container.dart';
@@ -17,11 +16,10 @@ class CalorieDetailsPage extends ConsumerStatefulWidget {
 }
 
 class _CalorieDetailsPageState extends ConsumerState<CalorieDetailsPage> {
-  final _caloryService = CalorieService();
   @override
   void initState() {
     super.initState();
-    _caloryService.getWeeklyCalories();
+    ref.read(caloryProvider.notifier).getWeeklyTotals();
   }
 
   @override

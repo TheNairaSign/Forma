@@ -62,6 +62,7 @@ dependencies:
   sensors_plus: ^6.1.1
   shared_preferences: ^2.5.3
   step_progress_indicator: ^1.0.2
+  supabase_flutter: ^2.9.1
   timezone: ^0.10.0
   uuid: ^4.5.1
   vertical_weight_slider: ^2.6.0

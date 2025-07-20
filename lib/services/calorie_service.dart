@@ -1,208 +1,158 @@
-import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:workout_tracker/hive/adapter/calory_state.dart';
 
 class CalorieService {
-  static final CalorieService _instance = CalorieService._internal();
-  factory CalorieService() => _instance;
-  CalorieService._internal();
+  final String userId;
 
-  final Box<CaloryState> _calorieBox = Hive.box<CaloryState>('calorieBox');
+  CalorieService({required this.userId});
 
-  /// Get all calorie entries for a specific day
+  // <Box<CaloryState>> get _calorieBox =>
+  //   HiveBoxManager.openUserBox<CaloryState>(
+  //     boxType: 'calories',
+  //     userId: userId,
+  //   );
+
+  Box<CaloryState> get _calorieBox => Hive.box<CaloryState>('calorieBox_$userId');
+
   List<CaloryState> getDailyCalories(DateTime date) {
-    return _calorieBox.values.where((entry) {
-      final entryDate = entry.timestamp;
-      return entryDate.year == date.year && 
-            entryDate.month == date.month && 
-            entryDate.day == date.day;
+    final box = _calorieBox;
+    return box.values.where((entry) {
+      final d = entry.timestamp;
+      return d.year == date.year && d.month == date.month && d.day == date.day;
     }).toList();
-  } 
-
-  /// Get total calories for a specific day
-  int getDailyTotal(DateTime date) {
-    final entries = getDailyCalories(date);
-    for (var entry in entries) {
-      print('Calory Entry Data: ${entry.source}, ${entry.calories}, ${entry.timestamp}');
-    }
-    final todayTotal = entries.fold(0, (sum, entry) {
-      debugPrint('Sum: $sum + Entry: ${entry.calories}');
-      return sum + entry.calories;
-    });
-    print('Today total: $todayTotal');
-    return todayTotal;
   }
 
-  /// Get all calorie entries for the current week
+  int getDailyTotal(DateTime date) {
+    final entries = getDailyCalories(date);
+    final newEntries = entries.fold(0, (sum, e) => sum + e.calories);
+    return newEntries;
+  }
+
   List<List<CaloryState>> getWeeklyCalories() {
     final now = DateTime.now();
-    final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
-    final weeklyCalories = <List<CaloryState>>[];
-
+    final start = now.subtract(Duration(days: now.weekday - 1));
+    List<List<CaloryState>> weekly = [];
     for (int i = 0; i < 7; i++) {
-      final date = startOfWeek.add(Duration(days: i));
-      weeklyCalories.add(getDailyCalories(date));
+      final day = start.add(Duration(days: i));
+      final entries = getDailyCalories(day);
+      weekly.add(entries);
     }
-
-    return weeklyCalories;
+    return weekly;
   }
 
   bool isToday(DateTime date) {
     final now = DateTime.now();
-    return date.year == now.year && 
-          date.month == now.month && 
-          date.day == now.day;
+    return date.year == now.year &&
+        date.month == now.month &&
+        date.day == now.day;
   }
 
-  /// Get weekly calories as a list of daily totals
   List<int> getWeeklyTotals(int steps) {
-    final weeklyCalories = getWeeklyCalories();
     final now = DateTime.now();
-    
-    return List.generate(7, (index) {
-      final date = now.subtract(Duration(days: now.weekday - 1)).add(Duration(days: index));
-      final dailyTotal = weeklyCalories[index].fold(0, (sum, entry) => sum + entry.calories);
-      
-      // Add steps calories only for today
-      if (isToday(date)) {
-        return (dailyTotal + calculateStepsCalories(steps));
-      }
-      return dailyTotal;
+    final start = now.subtract(Duration(days: now.weekday - 1));
+    final weekly = getWeeklyCalories();
+
+    return List.generate(7, (i) {
+      final date = start.add(Duration(days: i));
+      final total = weekly[i].fold(0, (sum, e) => sum + e.calories);
+      return isToday(date) ? total + calculateStepsCalories(steps) : total;
     });
   }
 
-  /// Add a new calorie entry
-  Future<void> addCalories(int amount) async {
-    final newState = CaloryState(
+  void addCalories(int amount, {String? source}) {
+    final box = _calorieBox;
+    final entry = CaloryState(
       calories: amount,
       timestamp: DateTime.now(),
+      source: source,
     );
-    await _calorieBox.add(newState);
+    box.add(entry);
   }
 
-  /// Reset all calorie entries for today
-  Future<void> resetToday() async {
-    try {
-      final now = DateTime.now();
-      final todayEntries = getDailyCalories(now);
-      
-      for (final entry in todayEntries) {
-        final key = _calorieBox.values.toList().indexOf(entry);
-        if (key != -1) {
-          await _calorieBox.deleteAt(key);
-        }
-      }
-    } catch (e) {
-      debugPrint('Error resetting today\'s calories: $e');
+  void addStepsCalories(int steps, {double weightKg = 70, bool isRunning = false}) {
+    final cal = calculateStepsCalories(steps, weightKg: weightKg, isRunning: isRunning);
+    addCalories(cal, source: 'steps');
+  }
+
+  CaloryState addWorkoutCalories({
+    required String workoutName,
+    required double metValue,
+    required double durationMinutes,
+    required double weightKg,
+  }) {
+    final cal = calculateWorkoutCalories(
+      metValue: metValue,
+      durationMinutes: durationMinutes,
+      weightKg: weightKg,
+    );
+    final state = CaloryState(
+      calories: cal,
+      timestamp: DateTime.now(),
+      source: 'workout:$workoutName',
+    );
+    final box = _calorieBox;
+    box.add(state);
+    return state;
+  }
+
+  void resetToday() {
+    final box = _calorieBox;
+    final now = DateTime.now();
+    final today = getDailyCalories(now);
+    for (var e in today) {
+      final idx = box.values.toList().indexOf(e);
+      if (idx != -1) box.deleteAt(idx);
     }
   }
 
-  /// Get all calorie entries
-  List<CaloryState> getAllEntries() {
-    return _calorieBox.values.toList();
-  }
-
-  /// Calculate calories from steps
   int calculateStepsCalories(int steps, {double weightKg = 70, bool isRunning = false}) {
-    if (isRunning) {
-      return (steps * 0.75 * weightKg) ~/ 1000;
-    }
-    return (steps * 0.04).truncate(); // Simple calculation for walking
+    return isRunning
+        ? (steps * 0.75 * weightKg ~/ 1000)
+        : (steps * 0.04).truncate();
   }
 
-  /// Calculate calories from workout
   int calculateWorkoutCalories({
     required double metValue,
     required double durationMinutes,
     required double weightKg,
   }) {
-    print('Met: $metValue \n Duration: $durationMinutes \n Weight: $weightKg');
-    // if (durationMinutes <= 0 || weightKg <= 0) {
-    //   print('Duration in minutes || weight <= 0');
-    //   return 0;
-    // }
-    // Formula: (MET * 3.5 * weight in kg) / 200 = Cals/min
-    // Total Calories = Cals/min * duration in minutes
-    final double calories = (metValue * 3.5 * weightKg / 200) * durationMinutes;
-    print('Calory: $calories');
-    return calories.truncate();
+    return ((metValue * 3.5 * weightKg / 200) * durationMinutes).truncate();
   }
 
-  /// Add calories from steps
-  Future<void> addStepsCalories(int steps, {double weightKg = 70, bool isRunning = false}) async {
-    final calories = calculateStepsCalories(steps, weightKg: weightKg, isRunning: isRunning);
-    await addCalories(calories);
-  }
-
-  /// Add calories from workout
-  Future<CaloryState> addWorkoutCalories({
-    required String workoutName,
-    required double metValue,
-    required double durationMinutes,
-    required double weightKg,
-  }) async {
-    final calories = calculateWorkoutCalories(
-      metValue: metValue,
-      durationMinutes: durationMinutes,
-      weightKg: weightKg,
-    );
-    
-    final newState = CaloryState(
-      calories: calories,
-      timestamp: DateTime.now(),
-      source: 'workout:$workoutName',
-    );
-    await _calorieBox.add(newState);
-    print('The new state: ${newState.source}');
-    return newState;
-  }
-
-  /// Get calories from specific source for a day
   int getDailyCaloriesFromSource(DateTime date, String source) {
-    final entries = getDailyCalories(date).where((entry) => entry.source?.startsWith(source) ?? false);
-    return entries.fold(0, (sum, entry) => sum + entry.calories);
+    final entries = getDailyCalories(date);
+    final newEntry = entries
+        .where((e) => e.source?.startsWith(source) ?? false)
+        .fold(0, (sum, e) => sum + e.calories);
+    return newEntry;
   }
 
-  /// Get steps calories for a day
   int getDailyStepsCalories(DateTime date) {
     return getDailyCaloriesFromSource(date, 'steps');
   }
 
-  /// Get workout calories for a day
   int getDailyWorkoutCalories(DateTime date) {
     return getDailyCaloriesFromSource(date, 'workout');
   }
 
-  /// Get total calories for a specific day including all sources
   int getCalorieForDay(DateTime date, {required int steps}) {
-    // Get base calories from all entries
-    final baseCalories = getDailyTotal(date);
-    
-    // Get workout calories
-    final workoutCalories = getDailyWorkoutCalories(date);
-    int stepsCalories = 0;
-    if (isToday(date)) {
-      stepsCalories = calculateStepsCalories(steps);
-    }
-
-    final combined = baseCalories + workoutCalories + stepsCalories;
-    debugPrint('Base: $baseCalories, Workout: $workoutCalories, Steps: $stepsCalories, Combined: $combined');
-    
-    return combined.truncate();
+    final base = getDailyTotal(date);
+    final workout = getDailyWorkoutCalories(date);
+    final stepCal = isToday(date) ? calculateStepsCalories(steps) : 0;
+    return base + workout + stepCal;
   }
 
-  /// Clear all calorie entries from the box
-  Future<void> clearCaloriesByDay(DateTime date) async {
-    try {
-      final dailyEntries = getDailyCalories(date);
-      for (final entry in dailyEntries) {
-        final index = _calorieBox.values.toList().indexOf(entry);
-        if (index != -1) {
-          await _calorieBox.deleteAt(index);
-        }
-      }
-    } catch (e) {
-      debugPrint('Error clearing calories for ${date.toString()}: $e');
+  void clearCaloriesByDay(DateTime date) {
+    final box = _calorieBox;
+    final entries = getDailyCalories(date);
+    for (var entry in entries) {
+      final idx = box.values.toList().indexOf(entry);
+      if (idx != -1) box.deleteAt(idx);
     }
+  }
+
+  List<CaloryState> getAllEntries() {
+    final box = _calorieBox;
+    return box.values.toList();
   }
 }

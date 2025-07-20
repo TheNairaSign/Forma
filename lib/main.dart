@@ -2,8 +2,10 @@ import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart' hide ChangeNotifierProvider;
 import 'package:hive_flutter/adapters.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:workout_tracker/auth/auth_checker.dart';
 import 'package:workout_tracker/background_task_handler.dart';
+import 'package:workout_tracker/constants.dart';
 import 'package:workout_tracker/hive/daily_steps_adapter.dart';
 import 'package:workout_tracker/hive/adapter/calory_state.dart';
 import 'package:workout_tracker/models/state/profile_data.dart';
@@ -16,6 +18,13 @@ void main(List<String> args) async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await initHive();
+
+  await Supabase.initialize(
+    url: projectUrl,
+    anonKey: anonKey,
+    // debug: true,
+  );
+
 
   await AndroidAlarmManager.initialize();
   await AndroidAlarmManager.periodic(
@@ -40,9 +49,11 @@ void main(List<String> args) async {
     Hive.registerAdapter(DailyStepsAdapter());
     Hive.registerAdapter(CaloryStateAdapter());
     Hive.registerAdapter(ProfileDataAdapter());
-    await Hive.openBox<DailySteps>('dailyStepsBox');
-    await Hive.openBox<CaloryState>('calorieBox');
-    await Hive.deleteBoxFromDisk('caloriesBox');
+    // await Hive.openBox<DailySteps>('dailyStepsBox');
+    // await Hive.openBox<CaloryState>('calorieBox');
+    await Hive.openBox<ProfileData>('newUser');
+
+
   }
 
 class WorkoutTracker extends ConsumerStatefulWidget {
@@ -53,14 +64,6 @@ class WorkoutTracker extends ConsumerStatefulWidget {
 }
 
 class _WorkoutTrackerState extends ConsumerState<WorkoutTracker> {
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   WidgetsBinding.instance.addPostFrameCallback((_) {
-  //     final dailyResetService = DailyResetService(ref);
-  //     dailyResetService.resetDailyDataIfNeeded();
-  //   });
-  // }
 
   @override
   Widget build(BuildContext context) {

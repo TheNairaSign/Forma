@@ -1,5 +1,9 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:workout_tracker/auth/supabase/email_confirmation_screen.dart';
+import 'package:workout_tracker/auth/supabase/supabase_auth.dart';
 import 'package:workout_tracker/providers/auth/sign_up_notifier.dart';
 import 'package:workout_tracker/style/global_colors.dart';
 import 'package:workout_tracker/views/pages/auth/widgets/auth_text_fields.dart';
@@ -62,7 +66,20 @@ class SignupCard extends ConsumerWidget {
                   width: double.infinity,
                   height: 50,
                   child: ElevatedButton(
-                    onPressed: () => signup.registerUser(context, controller),
+                    // onPressed: () => signup.registerUser(context, controller),
+                    onPressed: () async {
+                      final isSignIn = await SupabaseAuth.instance.signUp(
+                        signup.emailController.text, 
+                        signup.passwordController.text,
+                      );
+                      if (isSignIn) {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (ctx) => EmailConfirmationScreen(email: signup.emailController.text)
+                          ),
+                        );
+                      }
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: GlobalColors.primaryColor,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),

@@ -7,6 +7,7 @@ import 'package:workout_tracker/models/enums/fitness_level.dart';
 import 'package:workout_tracker/models/state/profile_data.dart';
 import 'package:workout_tracker/providers/profile/update_profile_notifier.dart';
 import 'package:workout_tracker/services/auth_service.dart';
+import 'package:workout_tracker/services/onboarding_service.dart';
 
 class ProfileDataNotifier extends StateNotifier<ProfileData> {
   final AuthService _authService;
@@ -22,11 +23,11 @@ class ProfileDataNotifier extends StateNotifier<ProfileData> {
     loadProfileData();
   }
 
-  Future<void> loadProfileData() async {
+  Future<ProfileData?> loadProfileData() async {
     final username = await _authService.getLoggedInUser();
     debugPrint('Username: $username');
     final profile = await _authService.getProfileData();
-    debugPrint('Profile: $profile');
+    debugPrint('Profile drom cache: ${profile.toString()}');
     if (profile != null) {
       state = profile;
       debugPrint("User: ${profile.name}, Fitness: ${profile.fitnessLevel}, Weight: ${profile.weight}");
@@ -34,6 +35,18 @@ class ProfileDataNotifier extends StateNotifier<ProfileData> {
       debugPrint('New user');
       state = state;
     }
+    return state;
+  }
+
+  Future<bool> onBoardingCompleted() async {
+    final userId = state.id;
+    debugPrint('User Id logged in?: $userId');
+    return await OnboardingService.instance.hasUserCompletedOnboarding(userId!);
+  }
+
+  void updateProfileId(String userId) {
+    debugPrint('Upadating user id: $userId');
+    state = state.copyWith(id: userId);
   }
 
   final TextEditingController _nameController = TextEditingController();
@@ -98,6 +111,7 @@ class ProfileDataNotifier extends StateNotifier<ProfileData> {
 
     if (username != null) {
       final profile = ProfileData(
+        id: state.id,
         name: username,
         gender: state.gender,
         height: state.height ?? 0,
@@ -113,7 +127,7 @@ class ProfileDataNotifier extends StateNotifier<ProfileData> {
       state = profile;
 
       await _authService.createProfileData(username, profile);
-      debugPrint('$username profile data stored ✅');
+      debugPrint('$username profile data stored ✅ with details \n ${state.toString()}');
     }
   }
 

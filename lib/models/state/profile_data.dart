@@ -21,10 +21,10 @@ class ProfileData extends HiveObject {
   final String? profileImagePath;
 
   @HiveField(5)
-  final int currentStreak;
+  final int? currentStreak;
 
   @HiveField(6)
-  final int longestStreak;
+  final int? longestStreak;
 
   @HiveField(7)
   final DateTime? lastWorkoutDate;
@@ -53,7 +53,11 @@ class ProfileData extends HiveObject {
   @HiveField(13)
   final List<String>? foodPreference;
 
+  @HiveField(16)
+  final String? id;
+
   ProfileData({
+    this.id,
     this.name,
     this.bio,
     this.fitnessLevel,
@@ -73,6 +77,7 @@ class ProfileData extends HiveObject {
   });
 
   ProfileData copyWith({
+    String? id,
     String? name,
     String? bio,
     String? fitnessLevel,
@@ -91,14 +96,15 @@ class ProfileData extends HiveObject {
     List<String>? foodPreference,
   }) {
     return ProfileData(
+      id: id ?? this.id,
       name: name ?? this.name,
       bio: bio ?? this.bio,
       fitnessLevel: fitnessLevel ?? this.fitnessLevel,
       location: location ?? this.location,
       profileImagePath: profileImagePath ?? this.profileImagePath,
       coverImagePath: coverImagePath ?? this.coverImagePath,
-      currentStreak: currentStreak ?? this.currentStreak,
-      longestStreak: longestStreak ?? this.longestStreak,
+      currentStreak: currentStreak ?? this.currentStreak ?? 0,
+      longestStreak: longestStreak ?? this.longestStreak ?? 0,
       lastWorkoutDate: lastWorkoutDate ?? this.lastWorkoutDate,
       gender: gender ?? this.gender,
       birthDate: birthDate ?? this.birthDate,
@@ -108,6 +114,16 @@ class ProfileData extends HiveObject {
       activityLevel: activityLevel ?? this.activityLevel,
       foodPreference: foodPreference ?? this.foodPreference,
     );
+  }
+
+  @override
+  String toString() {
+    return 'ProfileData(id: $id, name: $name, bio: $bio, fitnessLevel: $fitnessLevel, '
+      'location: $location, profileImagePath: $profileImagePath, coverImagePath: $coverImagePath, '
+      'currentStreak: $currentStreak, longestStreak: $longestStreak, '
+      'lastWorkoutDate: $lastWorkoutDate, gender: $gender, birthDate: $birthDate, '
+      'height: $height, weight: $weight, weightGoal: $weightGoal, '
+      'activityLevel: $activityLevel, foodPreference: $foodPreference)';
   }
 
   File? get profileImage => profileImagePath != null ? File(profileImagePath!) : null;

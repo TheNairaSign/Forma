@@ -1,3 +1,4 @@
+
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:flutter/material.dart';
@@ -8,10 +9,13 @@ import 'package:pedometer/pedometer.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:workout_tracker/hive/daily_steps_adapter.dart';
 import 'package:workout_tracker/models/state/steps_state.dart';
+import 'package:workout_tracker/providers/profile/profile_data_notifier.dart';
 import 'package:workout_tracker/utils/alerts.dart';
 
 class StepsNotifier extends StateNotifier<StepsState> {
-  StepsNotifier() : super(StepsState(
+  final Ref ref;
+  String userId;
+  StepsNotifier(this.ref, this.userId) : super(StepsState(
     stepCountStream: const Stream.empty(),
     pedestrianStatusStream: const Stream.empty(),
     status: '0',
@@ -19,7 +23,11 @@ class StepsNotifier extends StateNotifier<StepsState> {
     date: DateTime.now(),
   ));
 
-  final Box<DailySteps> _dailyStepsBox = Hive.box<DailySteps>('dailyStepsBox');
+  
+  // Box<DailySteps> get _dailyStepsBox => ref.watch(userBoxServiceProvider).dailyStepsBox;
+
+  Box<DailySteps> get _dailyStepsBox => Hive.box<DailySteps>('stepsBox_$userId');
+
   DateTime _currentDate = DateTime.now();
 
   late Stream<StepCount> _stepCountStream;
@@ -289,4 +297,8 @@ class StepsNotifier extends StateNotifier<StepsState> {
   }
 }
 
-final stepsProvider = StateNotifierProvider<StepsNotifier, StepsState>((ref) => StepsNotifier());
+final stepsProvider = StateNotifierProvider<StepsNotifier, StepsState>((ref) {
+  final userId = ref.watch(profileDataProvider).id;
+  print('User id in steps provider: $userId');
+  return StepsNotifier(ref, userId!);
+});

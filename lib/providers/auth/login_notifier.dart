@@ -29,7 +29,7 @@ class LoginNotifier extends StateNotifier<AsyncValue> {
       return;
     }
 
-    state = await AsyncValue.guard(() => _authService.login(_emailController.text, _passwordController.text));
+    // state = await AsyncValue.guard(() => _authService.login(_emailController.text, _passwordController.text));
 
     if (state.hasError) {
       Alerts.showErrorDialog(context, 'Login Error', state.error.toString());

@@ -5,8 +5,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:workout_tracker/constants.dart';
 import 'package:workout_tracker/onboarding/screens/page_view_screens/finish_up_screen.dart';
 import 'package:workout_tracker/providers/profile/profile_data_notifier.dart';
+import 'package:workout_tracker/services/onboarding_service.dart';
 import 'package:workout_tracker/style/global_colors.dart';
-import 'package:workout_tracker/views/pages/navigation/navigation_future_page.dart';
+import 'package:workout_tracker/views/pages/navigation/navigation_page.dart';
 
 class PickAvatarPage extends ConsumerStatefulWidget {
   const PickAvatarPage({super.key, this.isEdit = false});
@@ -66,7 +67,7 @@ class _PickAvatarPageState extends ConsumerState<PickAvatarPage> {
                             radius: 50,
                             backgroundImage: AssetImage(avatars[index]),
                           ),
-                          if (isSelected)
+                          if (isSelected)...[
                             Container(
                               width: 100,
                               height: 100,
@@ -75,8 +76,12 @@ class _PickAvatarPageState extends ConsumerState<PickAvatarPage> {
                                 border: Border.all(color: GlobalColors.primaryColor, width: 4),
                               ),
                             ),
-                          if (isSelected)
-                            const Icon(Icons.check_circle, color: GlobalColors.primaryColor, size: 30),
+                            const Icon(
+                              Icons.check_circle, 
+                              color: GlobalColors.primaryColor, 
+                              size: 30,
+                            ),
+                          ]
                         ],
                       ),
                     );
@@ -99,7 +104,9 @@ class _PickAvatarPageState extends ConsumerState<PickAvatarPage> {
               Navigator.of(context).pop();
             } else {
               ref.watch(profileDataProvider.notifier).sendProfileData().then((_) {
-                Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => NavigationFuturePage()));
+                debugPrint("Profile Data sent successfully");
+                OnboardingService.instance.setUserCompletedOnboarding(ref.watch(profileDataProvider).id!);
+                Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => NavigationPage()));
               });
             }
           },

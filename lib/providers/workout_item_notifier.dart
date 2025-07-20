@@ -11,7 +11,6 @@ import 'package:workout_tracker/providers/calories_provider.dart';
 import 'package:workout_tracker/providers/progress_provider.dart';
 import 'package:workout_tracker/providers/steps_notifier.dart';
 import 'package:workout_tracker/providers/workout_group_notifier.dart';
-import 'package:workout_tracker/services/calorie_service.dart';
 import 'package:workout_tracker/services/workout_service.dart';
 import 'package:workout_tracker/utils/alerts.dart';
 import 'package:workout_tracker/views/pages/workouts/sub_pages/add_workout_page.dart';
@@ -117,7 +116,7 @@ class WorkoutItemNotifier extends StateNotifier<List<Workout>> {
   void clearWorkouts(BuildContext? context, DateTime? date, {bool showAlert = true}) async {
     debugPrint('Clearing workouts...');
     await ws.clearWorkouts(date: date ?? DateTime.now());
-    await CalorieService().clearCaloriesByDay(date ?? DateTime.now());
+    // await CalorieService().clearCaloriesByDay(date ?? DateTime.now());
     state = [];
     if (showAlert && context != null) {
       Alerts.showFlushBar(context, 'Workouts cleared', false);

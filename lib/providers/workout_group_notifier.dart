@@ -12,6 +12,7 @@ import 'package:workout_tracker/views/widgets/forms/strength_form.dart';
 import 'package:workout_tracker/views/widgets/forms/time_form.dart';
 
 class WorkoutGroupNotifier extends ChangeNotifier {
+  
   // Repetition Form Controllers
   final TextEditingController setsController = TextEditingController();
   final TextEditingController repsController = TextEditingController();

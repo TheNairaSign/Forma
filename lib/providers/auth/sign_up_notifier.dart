@@ -2,13 +2,13 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:workout_tracker/services/auth_service.dart';
+// import 'package:workout_tracker/services/auth_service.dart';
 import 'package:workout_tracker/utils/alerts.dart';
 
 class SignUpNotifier extends StateNotifier<AsyncValue> {
   SignUpNotifier() : super(AsyncLoading());
 
-  final _authService = AuthService();
+  // final _authService = AuthService();
 
   final TextEditingController _usernameController = TextEditingController();
   TextEditingController get usernameController => _usernameController;
@@ -39,11 +39,11 @@ class SignUpNotifier extends StateNotifier<AsyncValue> {
       return;
     }
 
-    state = await AsyncValue.guard(() => _authService.register(
-      _usernameController.text,
-      _emailController.text,
-      _passwordController.text,
-    ));
+    // state = await AsyncValue.guard(() => _authService.register(
+    //   _usernameController.text,
+    //   _emailController.text,
+    //   _passwordController.text,
+    // ));
 
     if (state.hasError) {
       Alerts.showErrorDialog(context, 'Registration Error', state.error.toString());
