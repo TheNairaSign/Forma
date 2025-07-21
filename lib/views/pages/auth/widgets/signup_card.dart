@@ -2,8 +2,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:workout_tracker/auth/supabase/email_confirmation_screen.dart';
-import 'package:workout_tracker/auth/supabase/supabase_auth.dart';
 import 'package:workout_tracker/providers/auth/sign_up_notifier.dart';
 import 'package:workout_tracker/style/global_colors.dart';
 import 'package:workout_tracker/views/pages/auth/widgets/auth_text_fields.dart';
@@ -43,20 +41,32 @@ class SignupCard extends ConsumerWidget {
                 const SizedBox(height: 20),
 
                 // Name field
-                AuthTextField(hintText: 'Full name', svgAsset: 'account-avatar-head', controller: signup.usernameController),
+                AuthTextField(hintText: 'Username', svgAsset: 'account-avatar-head', controller: signup.usernameController),
 
                 const SizedBox(height: 12),
 
                 // Email field
-                AuthTextField(hintText: 'e-mail address', svgAsset: 'at', controller: signup.emailController),
+                AuthTextField(hintText: 'Email', svgAsset: 'at', controller: signup.emailController),
                 
 
                 const SizedBox(height: 12),
 
                 // Password field
-                AuthTextField(hintText: 'Password', svgAsset: 'lock', controller: signup.passwordController),
+                AuthTextField(
+                  hintText: 'Password', 
+                  svgAsset: 'lock', 
+                  controller: signup.passwordController,
+                  showSuffix: true,
+                  obscure: true,
+                ),
                 const SizedBox(height: 12),
-                AuthTextField(hintText: 'Confirm Password', svgAsset: 'lock', controller: signup.confirmPasswordController),
+                AuthTextField(
+                  hintText: 'Confirm Password',
+                  svgAsset: 'lock',
+                  controller: signup.confirmPasswordController,
+                  showSuffix: true,
+                  obscure: true,
+                ),
 
 
                 const SizedBox(height: 25),
@@ -66,20 +76,20 @@ class SignupCard extends ConsumerWidget {
                   width: double.infinity,
                   height: 50,
                   child: ElevatedButton(
-                    // onPressed: () => signup.registerUser(context, controller),
-                    onPressed: () async {
-                      final isSignIn = await SupabaseAuth.instance.signUp(
-                        signup.emailController.text, 
-                        signup.passwordController.text,
-                      );
-                      if (isSignIn) {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (ctx) => EmailConfirmationScreen(email: signup.emailController.text)
-                          ),
-                        );
-                      }
-                    },
+                    onPressed: () => signup.registerUser(context, controller),
+                    // onPressed: () async {
+                    //   final isSignIn = await SupabaseAuth.instance.signUp(
+                    //     signup.emailController.text, 
+                    //     signup.passwordController.text,
+                    //   );
+                    //   if (isSignIn) {
+                    //     Navigator.of(context).push(
+                    //       MaterialPageRoute(
+                    //         builder: (ctx) => EmailConfirmationScreen(email: signup.emailController.text)
+                    //       ),
+                    //     );
+                    //   }
+                    // },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: GlobalColors.primaryColor,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),

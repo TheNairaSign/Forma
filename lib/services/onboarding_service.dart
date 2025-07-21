@@ -16,4 +16,11 @@ class OnboardingService {
     await prefs.setBool('onboarding_$userId', true);
   }
 
+  Future<void> clearOnboardingStatus(String? userId) async {
+    final prefs = await SharedPreferences.getInstance();
+    // if (prefs.containsKey('onboarding_$userId')) {
+      await prefs.remove('onboarding_$userId');
+    // }
+  }
+
 }

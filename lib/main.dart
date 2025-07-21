@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart' hide ChangeNotifierProvider;
 import 'package:hive_flutter/adapters.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:workout_tracker/auth/auth_checker.dart';
+import 'package:workout_tracker/auth/supabase/auth_checker.dart';
 import 'package:workout_tracker/background_task_handler.dart';
 import 'package:workout_tracker/constants.dart';
 import 'package:workout_tracker/hive/daily_steps_adapter.dart';
@@ -12,7 +12,6 @@ import 'package:workout_tracker/models/state/profile_data.dart';
 import 'package:workout_tracker/style/theme/light_theme.dart';
 import 'package:workout_tracker/providers/workout_group_notifier.dart';
 import 'package:provider/provider.dart';
-
 
 void main(List<String> args) async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -49,11 +48,8 @@ void main(List<String> args) async {
     Hive.registerAdapter(DailyStepsAdapter());
     Hive.registerAdapter(CaloryStateAdapter());
     Hive.registerAdapter(ProfileDataAdapter());
-    // await Hive.openBox<DailySteps>('dailyStepsBox');
-    // await Hive.openBox<CaloryState>('calorieBox');
+    await Hive.deleteBoxFromDisk('dailyStepsBox');
     await Hive.openBox<ProfileData>('newUser');
-
-
   }
 
 class WorkoutTracker extends ConsumerStatefulWidget {

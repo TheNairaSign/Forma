@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:workout_tracker/providers/workout_item_notifier.dart';
+import 'package:workout_tracker/style/global_colors.dart';
 import 'package:workout_tracker/utils/constants.dart';
 import 'package:workout_tracker/views/pages/workouts/sub_pages/add_workout_page.dart';
 import 'package:workout_tracker/views/pages/workouts/widgets/workout_item.dart';
@@ -32,7 +33,8 @@ class _WorkoutsPageState extends ConsumerState<WorkoutsPage> {
         automaticallyImplyLeading: false,
         title: Text('Your Workouts', style: Theme.of(context).textTheme.headlineSmall),
         actionsPadding: EdgeInsets.only(right: 5),
-        actions: [ IconButton(icon: Icon(Icons.add), onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const AddWorkoutPage()))) ]),
+        // actions: [ IconButton(icon: Icon(Icons.add), onPressed: () =>  ]
+        ),
       body: Padding(
         padding: Constants.bodyPadding,
         child: Column(
@@ -87,6 +89,11 @@ class _WorkoutsPageState extends ConsumerState<WorkoutsPage> {
         ),
       ),
       resizeToAvoidBottomInset: true,
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: GlobalColors.teal,
+        onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const AddWorkoutPage())),
+        child: Icon(Icons.add, color: Colors.black),
+      ),
     );
   }
 }

@@ -44,51 +44,71 @@ class _CalorieDetailsPageState extends ConsumerState<CalorieDetailsPage> {
             expandedHeight: 460,
             floating: false,
             pinned: true,
-            centerTitle: true,
-            title: Text('Activities', style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold, color: Colors.white)),
             foregroundColor: Colors.white,
-            collapsedHeight: 60,
             backgroundColor: backgroundColor,
-            // toolbarHeight: 400,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.only(bottomLeft: Radius.circular(15), bottomRight: Radius.circular(15)),),
-            flexibleSpace: FlexibleSpaceBar(
-              background: Container(
-                margin: const EdgeInsets.fromLTRB(0, kToolbarHeight + 25 , 0, 16),
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(color: backgroundColor),
-                child: Column(
-                  // physics: const AlwaysScrollableScrollPhysics(),
-                  children: [
-                    // Text('Weekly Overview', style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold, color: Colors.white)),
-                    const SizedBox(height: 8),
-                    Row(
+            flexibleSpace: LayoutBuilder(
+              builder: (context, constraints) {
+                final top = constraints.biggest.height;
+                final statusBar = MediaQuery.of(context).padding.top;
+                final isCollapsed = top <= kToolbarHeight + statusBar;
+                
+                return FlexibleSpaceBar(
+                  collapseMode: isCollapsed ? CollapseMode.parallax : CollapseMode.pin,
+                  title: isCollapsed ? Text('Daily Breakdown', style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold, color: Colors.white)) : null,
+                  centerTitle: true,
+                titlePadding: const EdgeInsets.only(bottom: 16.0, left: 16.0),
+                  background: Container(
+                    margin: const EdgeInsets.fromLTRB(0, kToolbarHeight + 15 , 0, 16),
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(color: backgroundColor),
+                    child: Column(
+                      // physics: const AlwaysScrollableScrollPhysics(),
                       children: [
-                        StatsCard(
-                          title: 'Today',
-                          value: '$todayCalories kcal',
-                          icon: Icons.local_fire_department,
+                        Text('Weekly Overview', style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold, color: Colors.white)),
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            StatsCard(
+                              title: 'Today',
+                              value: '$todayCalories kcal',
+                              icon: Icons.local_fire_department,
+                            ),
+                            const SizedBox(width: 12),
+                            StatsCard(
+                              title: 'Weekly Avg',
+                              value: '$weeklyAverage kcal',
+                              icon: Icons.timeline,
+                            ),
+                          ],
                         ),
-                        const SizedBox(width: 12),
-                        StatsCard(
-                          title: 'Weekly Avg',
-                          value: '$weeklyAverage kcal',
-                          icon: Icons.timeline,
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 24),
-                    WeeklyChartContainer(calorieData: calorieData, backgroundColor: backgroundColor,),
-                  ]
-                )
-              )
+                        const SizedBox(height: 24),
+                        WeeklyChartContainer(calorieData: calorieData, backgroundColor: backgroundColor,),
+                      ]
+                    )
+                  ),
+                );
+              }
             )
-          ),        
+          ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 5),
+                  Text("Daily Breakdown", style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold, color: backgroundColor)),
+                  const SizedBox(height: 5),
+                ],
+              ),
+            ),
+          ),   
+          DailyBreakdown(calorieData: calorieData),
           SliverToBoxAdapter(
             child: Padding(
               padding: EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 16),
               child: Column(
                 children: [
-                  DailyBreakdown(calorieData: calorieData),
                   const SizedBox(height: 24),
                   NutritionTipContainer(),
                 ],

@@ -28,104 +28,108 @@ class _EmailConfirmationScreenState extends ConsumerState<EmailConfirmationScree
     final confirmationState = ref.watch(emailConfirmationProvider);
 
     return Scaffold(
-      body: Center(
-        child: Container(
-          margin: EdgeInsets.symmetric(horizontal: 24),
-          padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Stack(
-            children: [
-              Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const SizedBox(height: 20),
-                  LottieBuilder.asset('assets/lottie/email.json', repeat: true),
-                  const SizedBox(height: 10),
-                  Text(
-                    'Email Confirmation',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 16),
-                  RichText(
-                    textAlign: TextAlign.center,
-                    text: TextSpan(
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.black87),
-                      children: [
-                        const TextSpan(text: 'We have sent email to '),
-                        TextSpan(
-                          text: widget.email,
-                          style: const TextStyle(color: Colors.blue),
-                        ),
-                        const TextSpan(
-                          text: ' to confirm the validity of our email address. After receiving the email, follow the link provided to complete your registration.',
-                        ),
-                      ],
+      resizeToAvoidBottomInset: true,
+      body: Padding(
+        padding: const EdgeInsets.only(bottom: 20.0),
+        child: Center(
+          child: Container(
+            margin: EdgeInsets.symmetric(horizontal: 24),
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Stack(
+              children: [
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const SizedBox(height: 20),
+                    LottieBuilder.asset('assets/lottie/email.json', repeat: true),
+                    const SizedBox(height: 10),
+                    Text(
+                      'Email Confirmation',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
                     ),
-                  ),
-                  const SizedBox(height: 20),
-                  const Divider(color: Colors.grey),
-                  const SizedBox(height: 10),
-                  GestureDetector(
-                    onTap: () {
-                      // ScaffoldMessenger.of(context).showSnackBar(
-                      //   const SnackBar(content: Text('Resending email...')),
-                      // );
-                      confirmationNotifier.resendEmail(context);
-                    },
-                    child: Text.rich(
-                      TextSpan(
-                        text: 'Resend email in ',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.black87),
+                    const SizedBox(height: 16),
+                    RichText(
+                      textAlign: TextAlign.center,
+                      text: TextSpan(
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.black87),
                         children: [
+                          const TextSpan(text: 'We have sent email to '),
                           TextSpan(
-                            text: '${confirmationState.secondsLeft} secs',
-                            style: TextStyle(
-                              color: Colors.blue,
-                              fontWeight: FontWeight.w500,
-                            ),
+                            text: widget.email,
+                            style: const TextStyle(color: Colors.blue),
+                          ),
+                          const TextSpan(
+                            text: ' to confirm the validity of our email address. After receiving the email, follow the link provided to complete your registration.',
                           ),
                         ],
                       ),
-                      textAlign: TextAlign.center,
                     ),
-                  ),
-                  const SizedBox(height: 10),
-
-                  ElevatedButton(
-                    onPressed: () {
-                      // setState(() {
-                      //   _isLoading = true;
-                      // });
-                      // SupabaseAuth.instance.getUser();
-                      // if (SupabaseAuth.instance.isEmailConfirmed == true) {
-                      //   Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (ctx) => const AuthPage()));
-                      //   Alerts.showFlushBar(context, 'Email confirmed successfully!', false);
-                      // }
-                      Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const AuthPage()));
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: GlobalColors.primaryColor,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                    const SizedBox(height: 20),
+                    const Divider(color: Colors.grey),
+                    const SizedBox(height: 10),
+                    GestureDetector(
+                      onTap: () {
+                        // ScaffoldMessenger.of(context).showSnackBar(
+                        //   const SnackBar(content: Text('Resending email...')),
+                        // );
+                        confirmationNotifier.resendEmail(context);
+                      },
+                      child: Text.rich(
+                        TextSpan(
+                          text: 'Resend email in ',
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.black87),
+                          children: [
+                            TextSpan(
+                              text: '${confirmationState.secondsLeft} secs',
+                              style: TextStyle(
+                                color: Colors.blue,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
                     ),
-                    child: Text(
-                      "Continue",
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontSize: 18, color: Colors.white),
+                    const SizedBox(height: 10),
+        
+                    ElevatedButton(
+                      onPressed: () {
+                        // setState(() {
+                        //   _isLoading = true;
+                        // });
+                        // SupabaseAuth.instance.getUser();
+                        // if (SupabaseAuth.instance.isEmailConfirmed == true) {
+                        //   Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (ctx) => const AuthPage()));
+                        //   Alerts.showFlushBar(context, 'Email confirmed successfully!', false);
+                        // }
+                        Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const AuthPage()));
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: GlobalColors.primaryColor,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                      ),
+                      child: Text(
+                        "Continue",
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontSize: 18, color: Colors.white),
+                      ),
                     ),
-                  ),
-                ],
-              ),
-              Positioned(
-                right: 0,
-                top: 0,
-                child: IconButton(
-                  icon: const Icon(Icons.close, size: 20),
-                  onPressed: () => Navigator.pop(context),
+                  ],
                 ),
-              ),
-            ],
+                Positioned(
+                  right: 0,
+                  top: 0,
+                  child: IconButton(
+                    icon: const Icon(Icons.close, size: 20),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

@@ -2,15 +2,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:workout_tracker/auth/supabase/supabase_auth.dart';
-import 'package:workout_tracker/onboarding/screens/onboarding_screen.dart';
 import 'package:workout_tracker/providers/auth/login_notifier.dart';
-import 'package:workout_tracker/providers/profile/profile_data_notifier.dart';
 import 'package:workout_tracker/style/global_colors.dart';
-import 'package:workout_tracker/utils/alerts.dart';
 import 'package:workout_tracker/views/pages/auth/widgets/auth_text_fields.dart';
-import 'package:workout_tracker/views/pages/navigation/navigation_future_page.dart';
-import 'package:workout_tracker/views/pages/navigation/navigation_page.dart';
 
 class LoginCard extends ConsumerWidget {
   const LoginCard({super.key, required this.controller});
@@ -51,7 +45,13 @@ class LoginCard extends ConsumerWidget {
 
                 const SizedBox(height: 15),
 
-                AuthTextField(hintText: 'Password', svgAsset: 'key', controller: login.passwordController,),
+                AuthTextField(
+                  hintText: 'Password', 
+                  svgAsset: 'key', 
+                  controller: login.passwordController,
+                  showSuffix: true,
+                  obscure: true,
+                ),
 
                 const SizedBox(height: 25),
 
@@ -64,18 +64,13 @@ class LoginCard extends ConsumerWidget {
                         null;
                       }
 
-                      final auth = SupabaseAuth.instance;
-                      await auth.signIn(login.emailController.text, login.passwordController.text, ref);
+                      await login.loginUser(context);
 
-                      if (auth.isEmailConfirmed != true) {
-                        Alerts.showErrorDialog(context, 'Email not confirmed', 'Please check your email and confirm your account.');
-                        return;
-                      }
-                      if (await ref.watch(profileDataProvider.notifier).onBoardingCompleted()) {
-                        Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (ctx) => NavigationFuturePage()));
-                      } else {
-                        Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (ctx) => OnboardingScreen()));
-                      }
+                      // if (await ref.watch(profileDataProvider.notifier).onBoardingCompleted()) {
+                      //   Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (ctx) => NavigationFuturePage()));
+                      // } else {
+                      //   Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (ctx) => OnboardingScreen()));
+                      // }
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: GlobalColors.primaryColor,

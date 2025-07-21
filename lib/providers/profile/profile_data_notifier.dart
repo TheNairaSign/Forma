@@ -40,7 +40,7 @@ class ProfileDataNotifier extends StateNotifier<ProfileData> {
 
   Future<bool> onBoardingCompleted() async {
     final userId = state.id;
-    debugPrint('User Id logged in?: $userId');
+    debugPrint('User Id completed onBoarding?: $userId');
     return await OnboardingService.instance.hasUserCompletedOnboarding(userId!);
   }
 

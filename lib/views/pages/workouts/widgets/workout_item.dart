@@ -21,14 +21,29 @@ class WorkoutItem extends ConsumerWidget {
     return '$hours:$minutes:$secs';
   }
 
-  void subtitle(WorkoutGroup workoutGroup) {
-    switch (workoutGroup) {
-      case WorkoutGroup.repetition:
-        '${workout.sets} sets, ${workout.reps} reps, Total: ${_formatTime(workout.durationInSeconds)}';
-      default:
-        '${workout.sets} sets, ${workout.reps} reps, Total: ${_formatTime(workout.durationInSeconds)}';
-    }
+  String subtitle(Workout workout) {
+  switch (workout.workoutGroup) {
+    case WorkoutGroup.repetition:
+      return '${workout.sets} sets • ${workout.reps} reps • ${_formatTime(workout.durationInSeconds)} total';
+
+    case WorkoutGroup.time:
+      return 'Duration: ${_formatTime(workout.durationInSeconds)}';
+
+    case WorkoutGroup.flow:
+      return 'Flow • Duration: ${_formatTime(workout.durationInSeconds)}';
+
+    case WorkoutGroup.strength:
+      return '${workout.sets} sets • ${workout.reps} reps • Strength training';
+
+    case WorkoutGroup.cardio:
+      final distance = workout.distance?.toStringAsFixed(2) ?? '--';
+      return 'Cardio • $distance km • ${_formatTime(workout.durationInSeconds)}';
+
+    default:
+      return 'Workout Summary';
   }
+}
+
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

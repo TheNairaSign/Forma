@@ -60,6 +60,7 @@ class Workout {
       'intensity': intensity,
       'goalDuration': goalDuration,
       'workoutGroup': workoutGroup,
+      'workoutColor' : workoutColor
     };
   }
 
@@ -80,7 +81,8 @@ class Workout {
       heartRate: map['heartRate'],
       intensity: map['intensity'],
       goalDuration: map['goalDuration'],
-      workoutGroup: map['workoutGroup']
+      workoutGroup: map['workoutGroup'],
+      workoutColor: map['workoutColor'],
     )..id = map['id'];
   }
 
@@ -101,6 +103,7 @@ class Workout {
     int? goalDuration,
     int? heartRate,
     WorkoutGroup? workoutGroup,
+    Color? workoutColor,
   }) {
     return Workout(
       name: name ?? this.name,
@@ -119,6 +122,7 @@ class Workout {
       goalDuration: goalDuration ?? this.goalDuration,
       intensity: intensity?? this.intensity,
       workoutGroup: workoutGroup ?? this.workoutGroup,
+      workoutColor: workoutColor ?? this.workoutColor,
     );
   }
 }

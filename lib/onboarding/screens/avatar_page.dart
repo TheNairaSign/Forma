@@ -106,7 +106,7 @@ class _PickAvatarPageState extends ConsumerState<PickAvatarPage> {
               ref.watch(profileDataProvider.notifier).sendProfileData().then((_) {
                 debugPrint("Profile Data sent successfully");
                 OnboardingService.instance.setUserCompletedOnboarding(ref.watch(profileDataProvider).id!);
-                Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => NavigationPage()));
+                Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (ctx) => NavigationPage()));
               });
             }
           },

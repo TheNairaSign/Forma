@@ -55,7 +55,7 @@ class SupabaseAuth {
   bool? _isEmailConfirmed;
   bool? get isEmailConfirmed => _isEmailConfirmed;
 
-  Future<bool> signIn(String email, String password, WidgetRef ref) async { 
+  Future<bool> signIn(String email, String password, Ref ref) async { 
     try {
       final response = await supabase.auth.signInWithPassword(
         email: email,
@@ -69,7 +69,7 @@ class SupabaseAuth {
         print('Email confirmed: $_isEmailConfirmed');
         print('User id: ${response.user?.id}');
         final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('loggedIn', response.user!.email!);
+        await prefs.setString('loggedIn', response.user?.userMetadata?['displayName']);
         final userId = response.user?.id;
         ref.watch(profileDataProvider.notifier).updateProfileId(userId!);
         await UserBoxService(userId).getCaloriesBox();
@@ -103,11 +103,14 @@ class SupabaseAuth {
     }
   }
 
-  Future<bool> signUp(String email, String password) async {
+  Future<bool> signUp({required String email, required String password, required String displayName}) async {
     try {
       final response = await supabase.auth.signUp(
         email: email,
         password: password,
+        data: {
+          'displayName' : displayName,
+        }
       );
       print('Response received from supabase: ${response.user}');
       if (response.user != null) {
@@ -119,5 +122,14 @@ class SupabaseAuth {
       throw('Error Signing up: $e');
     }
     return false;
+  }
+
+  Future<void> signOut() async {
+    try {
+      supabase.auth.signOut();
+      print('User signed out successfully');
+    } on NetworkException catch (e) {
+      print('Error signing out: $e');
+    }
   }
 }

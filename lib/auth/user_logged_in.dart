@@ -4,8 +4,8 @@ import 'package:workout_tracker/services/auth_service.dart';
 import 'package:workout_tracker/views/pages/auth/auth_page.dart';
 import 'package:workout_tracker/views/pages/navigation/navigation_future_page.dart';
 
-class AuthChecker extends ConsumerWidget {
-  const AuthChecker({super.key});
+class UserLoggedIn extends ConsumerWidget {
+  const UserLoggedIn({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
