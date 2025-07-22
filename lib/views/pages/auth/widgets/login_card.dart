@@ -63,14 +63,7 @@ class LoginCard extends ConsumerWidget {
                       if (state is AsyncLoading) {
                         null;
                       }
-
-                      await login.loginUser(context);
-
-                      // if (await ref.watch(profileDataProvider.notifier).onBoardingCompleted()) {
-                      //   Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (ctx) => NavigationFuturePage()));
-                      // } else {
-                      //   Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (ctx) => OnboardingScreen()));
-                      // }
+                      login.navigate(context);
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: GlobalColors.primaryColor,

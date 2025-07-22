@@ -7,7 +7,7 @@ import 'package:workout_tracker/auth/supabase/supabase_auth.dart';
 import 'package:workout_tracker/utils/alerts.dart';
 
 class SignUpNotifier extends StateNotifier<AsyncValue> {
-  SignUpNotifier() : super(AsyncLoading());
+  SignUpNotifier() : super(const AsyncValue.data(null));
 
   final _supabaseAuth = SupabaseAuth.instance;
 
@@ -23,9 +23,7 @@ class SignUpNotifier extends StateNotifier<AsyncValue> {
   final TextEditingController _confirmPasswordController = TextEditingController();
   TextEditingController get confirmPasswordController => _confirmPasswordController;
 
-  Future<void> registerUser(BuildContext context, PageController pageController) async {
-    state = const AsyncValue.loading();
-
+  void _validateFields(BuildContext context) {
     if (_usernameController.text.isEmpty ||
         _emailController.text.isEmpty ||
         _passwordController.text.isEmpty ||
@@ -39,6 +37,12 @@ class SignUpNotifier extends StateNotifier<AsyncValue> {
       Alerts.showErrorDialog(context, "Passwords mismatch", 'Passwords do not match');
       return;
     }
+  }
+
+  Future<void> registerUser(BuildContext context) async {
+    state = const AsyncValue.loading();
+
+    _validateFields(context);
 
     state = await AsyncValue.guard(() => _supabaseAuth.signUp(
       displayName: _usernameController.text,
@@ -52,15 +56,6 @@ class SignUpNotifier extends StateNotifier<AsyncValue> {
       throw Exception('Registration Error: ${state.error.toString()}');
     } else {
       debugPrint('User Registered successfully');
-      // pageController.previousPage(
-      //   duration: Duration(milliseconds: 400),
-      //   curve: Curves.easeIn,
-      // ).then((_) {
-      //   _usernameController.clear();
-      //   _emailController.clear();
-      //   _passwordController.clear();
-      //   _confirmPasswordController.clear();
-      // });
       Navigator.of(context).push(
         MaterialPageRoute(
           builder: (ctx) => EmailConfirmationScreen(email: _emailController.text)

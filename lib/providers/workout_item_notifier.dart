@@ -8,6 +8,7 @@ import 'package:workout_tracker/models/enums/workout_group.dart';
 import 'package:workout_tracker/models/enums/workout_type.dart';
 import 'package:workout_tracker/models/workout/workout.dart';
 import 'package:workout_tracker/providers/calories_provider.dart';
+import 'package:workout_tracker/providers/profile/profile_data_notifier.dart';
 import 'package:workout_tracker/providers/progress_provider.dart';
 import 'package:workout_tracker/providers/steps_notifier.dart';
 import 'package:workout_tracker/providers/workout_group_notifier.dart';
@@ -17,9 +18,10 @@ import 'package:workout_tracker/views/pages/workouts/sub_pages/add_workout_page.
 
 class WorkoutItemNotifier extends StateNotifier<List<Workout>> {
   final Ref ref;
-  WorkoutItemNotifier(this.ref) : super([]);
+  final WorkoutService ws;
 
-  final ws = WorkoutService();
+  WorkoutItemNotifier(this.ref, this.ws) : super([]);
+
 
   WorkoutGroup? _workoutGroup;
   WorkoutGroup? get workoutGroup => _workoutGroup;
@@ -75,11 +77,21 @@ class WorkoutItemNotifier extends StateNotifier<List<Workout>> {
   ));
   List<DayActivity> get workoutForDay => _workoutForDay;
 
+  Future<String> getWorkoutStats() async {
+    final workoutStats = await ws.getWorkoutStatistics();
+    return workoutStats['overallWorkouts'].toString();
+  }
+
   Future<List<DayActivity>> getWorkoutsForDay(DateTime date) async {
     debugPrint('Getting workouts for ${date.toString()}...');
     final newWorkouts = await ws.getWorkoutsForDay(date);
     final weekDayIndex = date.weekday - 1;
     final stepsForDate = ref.read(stepsProvider.notifier).getStepsForDate(date) ?? 0;
+    debugPrint('Workouts for date: ${workoutForDay.length}');
+
+    for (var workout in workoutForDay) {
+      debugPrint(workout.name);
+    }
 
     DayActivity dayActivity;
     if (newWorkouts.isEmpty) {
@@ -93,8 +105,8 @@ class WorkoutItemNotifier extends StateNotifier<List<Workout>> {
       dayActivity = DayActivity(
         name: stepsForDate > 0 ? '${workout.name}, $stepsForDate steps' : workout.name,
         steps: stepsForDate,
-        sets: workout.sets!,
-        reps: workout.reps!,
+        sets: workout.sets ?? 0,
+        reps: workout.reps ?? 0,
         goalDuration: workout.goalDuration,
         isRestDay: false,
       );
@@ -220,7 +232,12 @@ class WorkoutItemNotifier extends StateNotifier<List<Workout>> {
 }
 
 // Updated provider declaration
-final workoutItemProvider = StateNotifierProvider<WorkoutItemNotifier, List<Workout>>((ref) => WorkoutItemNotifier(ref));
+final workoutItemProvider = StateNotifierProvider<WorkoutItemNotifier, List<Workout>>((ref) {
+  final profileId = ref.watch(profileDataProvider).id;
+  print('User id in workout provider: $profileId');
+  final ws = WorkoutService(userId: profileId!);
+  return WorkoutItemNotifier(ref, ws);
+});
 
 class DayActivity {
   final String name;

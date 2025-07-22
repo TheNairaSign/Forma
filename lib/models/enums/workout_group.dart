@@ -1,10 +1,19 @@
+import 'package:hive/hive.dart';
 import 'package:workout_tracker/models/enums/workout_type.dart';
 
+part 'workout_group.g.dart';
+
+@HiveType(typeId: 6)
 enum WorkoutGroup {
+  @HiveField(0)
   repetition,
+  @HiveField(1)
   time,
+  @HiveField(2)
   flow,
+  @HiveField(3)
   strength,
+  @HiveField(4)
   cardio,
 }
 

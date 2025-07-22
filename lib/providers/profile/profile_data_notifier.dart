@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:workout_tracker/auth/supabase/supabase_auth.dart';
 import 'package:workout_tracker/models/enums/fitness_level.dart';
 import 'package:workout_tracker/models/state/profile_data.dart';
 import 'package:workout_tracker/providers/profile/update_profile_notifier.dart';
@@ -27,10 +28,11 @@ class ProfileDataNotifier extends StateNotifier<ProfileData> {
     final username = await _authService.getLoggedInUser();
     debugPrint('Username: $username');
     final profile = await _authService.getProfileData();
-    debugPrint('Profile drom cache: ${profile.toString()}');
     if (profile != null) {
+      debugPrint('User with $username Exists');
+      debugPrint('Profile from cache: ${profile.toString()}');
       state = profile;
-      debugPrint("User: ${profile.name}, Fitness: ${profile.fitnessLevel}, Weight: ${profile.weight}");
+      await SupabaseAuth.instance.getUserFromCache(profile.id);
     } else {
       debugPrint('New user');
       state = state;
@@ -39,7 +41,8 @@ class ProfileDataNotifier extends StateNotifier<ProfileData> {
   }
 
   Future<bool> onBoardingCompleted() async {
-    final userId = state.id;
+    final user = await SupabaseAuth.instance.getUser();
+    final userId = user?.id;
     debugPrint('User Id completed onBoarding?: $userId');
     return await OnboardingService.instance.hasUserCompletedOnboarding(userId!);
   }

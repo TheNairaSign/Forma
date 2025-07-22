@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:workout_tracker/services/workout_service.dart';
+import 'package:workout_tracker/providers/workout_item_notifier.dart';
 import 'package:workout_tracker/style/global_colors.dart';
 import 'package:workout_tracker/views/pages/profile/widgets/user_stats_item.dart';
 
@@ -26,12 +26,6 @@ class _UserStatsState extends ConsumerState<UserStats> with SingleTickerProvider
     _controller.forward();
   }
 
-  Future<String> workoutCount() async {
-    final workoutService = WorkoutService();
-    final workoutCount = await workoutService.getWorkoutStatistics();
-    debugPrint('workoutCount: $workoutCount');
-    return workoutCount['overallWorkouts'].toString();
-  }
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -52,7 +46,7 @@ class _UserStatsState extends ConsumerState<UserStats> with SingleTickerProvider
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     FutureBuilder<String>(
-                      future: workoutCount(),
+                      future: ref.watch(workoutItemProvider.notifier).getWorkoutStats(),
                       builder: (context, snapshot) {
                         return UserStatsItem(
                           value: snapshot.data ?? '0',  

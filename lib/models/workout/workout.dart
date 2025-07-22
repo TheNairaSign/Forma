@@ -1,24 +1,49 @@
 import 'dart:ui';
+import 'package:hive/hive.dart';
 
 import 'package:uuid/uuid.dart';
 import 'package:workout_tracker/models/enums/workout_group.dart';
 import 'package:workout_tracker/models/workout/workout_session.dart';
 
-class Workout {
+part 'workout.g.dart';
+
+@HiveType(typeId: 4)
+class Workout extends HiveObject {
+  @HiveField(0)
   String id;
+  @HiveField(1)
   String name;
+  @HiveField(2)
   int? sets;
+  @HiveField(3)
   int? reps;
+  @HiveField(4)
   double? weight;
-  int? distance, timeBasedSets, restTime;
+  @HiveField(5)
+  int? distance;
+  @HiveField(15)
+  int? timeBasedSets;
+  @HiveField(16)
+  int? restTime;
+  @HiveField(6)
   int durationInSeconds;
+  @HiveField(7)
   bool isActive;
+  @HiveField(8)
   String? description;
+  @HiveField(9)
   List<WorkoutSession> sessions;
+  @HiveField(10)
   int? goalReps;
-  int? goalDuration, heartRate;
+  @HiveField(11)
+  int? goalDuration;
+  @HiveField(17)
+  int? heartRate;
+  @HiveField(12)
   WorkoutGroup? workoutGroup;
+  @HiveField(13)
   String? intensity;
+  @HiveField(14)
   Color? workoutColor;
 
   Workout({

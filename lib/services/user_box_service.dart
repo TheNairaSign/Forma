@@ -4,6 +4,7 @@
 import 'package:hive/hive.dart';
 import 'package:workout_tracker/hive/adapter/calory_state.dart';
 import 'package:workout_tracker/hive/daily_steps_adapter.dart';
+import 'package:workout_tracker/models/workout/workout.dart';
 
 class UserBoxService {
   final String? userId;
@@ -25,6 +26,21 @@ class UserBoxService {
 
     print('Calorie box is opened: ${calBox.isOpen} With name: ${calBox.name}');
     return calBox;
+  }
+
+  Future<Box> getWorkoutBox() async {
+    print('Opening workouts box... with id: $userId');
+    final workoutBox = await Hive.openBox<Workout>('workouts_$userId');
+
+    print('Workouts box is opened: ${workoutBox.isOpen} With name: ${workoutBox.name}');
+    return workoutBox;
+  }
+  Future<Box> getWorkoutHistoryBox() async {
+    print('Opening workout history box... with id: $userId');
+    final workoutHistoryBox = await Hive.openBox<Workout>('workout_history_$userId');
+
+    print('Workout History box is opened: ${workoutHistoryBox.isOpen} With name: ${workoutHistoryBox.name}');
+    return workoutHistoryBox;
   }
 
   /*

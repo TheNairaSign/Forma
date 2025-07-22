@@ -86,7 +86,6 @@ class AuthService {     // For auth
     final username = prefs.getString(_sessionKey);
     if (username == null) return null;
 
-    // final profileBox = await Hive.openBox<ProfileData>(_profileBoxName);
     print('Getting Profile data from box');
     return profileBox.get(username);  
   }

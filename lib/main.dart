@@ -13,6 +13,11 @@ import 'package:workout_tracker/style/theme/light_theme.dart';
 import 'package:workout_tracker/providers/workout_group_notifier.dart';
 import 'package:provider/provider.dart';
 
+import 'package:workout_tracker/models/workout/custom_color_adapter.dart';
+import 'package:workout_tracker/models/workout/workout.dart';
+import 'package:workout_tracker/models/workout/workout_session.dart';
+import 'package:workout_tracker/models/enums/workout_group.dart';
+
 void main(List<String> args) async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -43,14 +48,19 @@ void main(List<String> args) async {
   );
 }
 
-  Future<void> initHive() async {
-    await Hive.initFlutter();
-    Hive.registerAdapter(DailyStepsAdapter());
-    Hive.registerAdapter(CaloryStateAdapter());
-    Hive.registerAdapter(ProfileDataAdapter());
-    await Hive.deleteBoxFromDisk('dailyStepsBox');
-    await Hive.openBox<ProfileData>('newUser');
-  }
+
+
+Future<void> initHive() async {
+  await Hive.initFlutter();
+  Hive.registerAdapter(DailyStepsAdapter());
+  Hive.registerAdapter(CaloryStateAdapter());
+  Hive.registerAdapter(ProfileDataAdapter());
+  Hive.registerAdapter(WorkoutAdapter());
+  Hive.registerAdapter(WorkoutSessionAdapter());
+  Hive.registerAdapter(WorkoutGroupAdapter());
+  Hive.registerAdapter(CustomColorAdapter());
+  await Hive.openBox<ProfileData>('newUser');
+}
 
 class WorkoutTracker extends ConsumerStatefulWidget {
   const WorkoutTracker({super.key});

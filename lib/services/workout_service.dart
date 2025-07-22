@@ -1,58 +1,50 @@
 // lib/services/workout_service.dart
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:hive/hive.dart';
 import 'package:workout_tracker/models/workout/workout.dart';
 import 'package:workout_tracker/providers/workout_item_notifier.dart';
 
 class WorkoutService {
-  // static const _workoutKey = 'workouts';
-  // static const _allWorkoutsKey = 'all_workouts_history';
-
   final String? userId;
   WorkoutService({this.userId});
 
-  String get _workoutKey => 'workouts_$userId';
-  String get _allWorkoutsKey => 'all_workouts_history_$userId';
-
-  Future<SharedPreferences> _prefs() => SharedPreferences.getInstance();
+  Box<Workout> get _workoutBox => Hive.box<Workout>('workouts_$userId');
+  Box<Workout> get _historyBox => Hive.box<Workout>('workout_history_$userId');
 
   Future<void> saveWorkouts(List<Workout> workouts) async {
-    final jsonString = jsonEncode(workouts.map((w) => w.toMap()).toList());
-    await (await _prefs()).setString(_workoutKey, jsonString);
+    await _workoutBox.clear();
+    for (var workout in workouts) {
+      await _workoutBox.put(workout.id, workout); 
+    }
   }
 
   Future<void> saveToHistory(Workout workout) async {
-    final prefs = await _prefs();
-    final history = await getHistory();
-    history.add(workout.toMap());
-    await prefs.setString(_allWorkoutsKey, jsonEncode(history));
+    await _historyBox.put(workout.id, workout);
   }
 
+
   Future<List<Workout>> getWorkouts() async {
-    final jsonString = (await _prefs()).getString(_workoutKey);
-    if (jsonString == null) return [];
-    return (jsonDecode(jsonString) as List).map((map) => Workout.fromMap(map)).toList();
+    return _workoutBox.values.toList();
   }
 
   Future<List<Workout>> getWorkoutsForDay(DateTime date) async {
-    return (await getWorkouts()).where((w) => w.sessions.any(
-          (s) =>
-              s.timestamp.year == date.year &&
-              s.timestamp.month == date.month &&
-              s.timestamp.day == date.day,
-        )).toList();
+    return _workoutBox.values
+        .where((w) => w.sessions.any(
+              (s) =>
+                  s.timestamp.year == date.year &&
+                  s.timestamp.month == date.month &&
+                  s.timestamp.day == date.day,
+            ))
+        .toList();
   }
 
   Future<void> addWorkout(Workout workout) async {
     try {
-      final workouts = await getWorkouts();
-      workouts.add(workout);
-      await Future.wait([
-        saveWorkouts(workouts),
-        saveToHistory(workout),
-      ]);
+      await _workoutBox.put(workout.id, workout);
+      // Create a copy for the history box to avoid HiveError
+      final historyWorkout = Workout.fromMap(workout.toMap());
+      await saveToHistory(historyWorkout);
     } catch (e) {
       debugPrint('Error adding workout: $e');
       rethrow;
@@ -60,10 +52,12 @@ class WorkoutService {
   }
 
   Future<int> getTotalWorkoutsCount() async {
-    return (await getHistory()).length;
+    debugPrint('Getting overall total workout count...');
+    return _historyBox.length;
   }
 
   Future<Map<String, int>> getWorkoutStatistics() async {
+    debugPrint('Getting workout stats...');
     final workouts = await getWorkouts();
     return {
       'overallWorkouts': await getTotalWorkoutsCount(),
@@ -74,72 +68,49 @@ class WorkoutService {
   }
 
   Future<void> deleteWorkout(String workoutId) async {
-    final workouts = await getWorkouts();
-    workouts.removeWhere((w) => w.id == workoutId);
-    await saveWorkouts(workouts);
+    await _workoutBox.delete(workoutId);
   }
 
   Future<void> clearWorkouts({DateTime? date}) async {
     if (date == null) {
-      // Clear all workouts if no date specified
-      await (await _prefs()).setString(_workoutKey, jsonEncode([]));
+      await _workoutBox.clear();
       return;
     }
 
-    // Get existing workouts
     final workouts = await getWorkouts();
-    
-    // Remove workouts for the specified date
     workouts.removeWhere((workout) => workout.sessions.any(
-      (session) => 
-        session.timestamp.year == date.year &&
-        session.timestamp.month == date.month &&
-        session.timestamp.day == date.day
-    ));
+          (session) =>
+              session.timestamp.year == date.year &&
+              session.timestamp.month == date.month &&
+              session.timestamp.day == date.day,
+        ));
 
-    // Save filtered workouts
     await saveWorkouts(workouts);
   }
 
-  Future<List<dynamic>> getHistory() async {
-    final jsonString = (await _prefs()).getString(_allWorkoutsKey);
-    return jsonString != null ? jsonDecode(jsonString) as List : [];
+  Future<List<Workout>> getHistory() async {
+    debugPrint('Getting history...');
+    return _historyBox.values.toList();
   }
 
   Future<void> pruneWorkoutHistory({required Duration maxAge}) async {
-    final prefs = await SharedPreferences.getInstance();
-    final jsonString = prefs.getString(_allWorkoutsKey);
-    if (jsonString == null) return;
-
     final cutoffDate = DateTime.now().subtract(maxAge);
-    final workoutMaps = jsonDecode(jsonString) as List;
-    final filteredMaps = workoutMaps.where((map) {
-      final workout = Workout.fromMap(map);
-      return workout.sessions.any((session) => session.timestamp.isAfter(cutoffDate));
-    }).toList();
-
-    await prefs.setString(_allWorkoutsKey, jsonEncode(filteredMaps));
+    final history = await getHistory();
+    for (var workout in history) {
+      if (workout.sessions.any((session) => session.timestamp.isBefore(cutoffDate))) {
+        await _historyBox.delete(workout.id);
+      }
+    }
   }
 
   Future<bool> undoDelete(String workoutId, WidgetRef ref) async {
-    final prefs = await SharedPreferences.getInstance();
-    final historyJson = prefs.getString(_allWorkoutsKey);
-    if (historyJson == null) return false;
-    
-    final historyMaps = jsonDecode(historyJson) as List;
-    final workoutMap = historyMaps.cast<Map<String, dynamic>>().firstWhere((w) => w['id'] == workoutId);
-    
-    if (workoutMap['id'] == null) return false;
-    
-    final workout = Workout.fromMap(workoutMap);
-    final workouts = await getWorkouts();
-    
-    if (workouts.any((w) => w.id == workoutId)) return false;
-    
-    workouts.insert(0, workout);
-    await saveWorkouts(workouts);
+    final workout = _historyBox.get(workoutId);
+    if (workout == null) return false;
+
+    if (_workoutBox.containsKey(workoutId)) return false;
+
+    await _workoutBox.put(workoutId, workout);
     ref.watch(workoutItemProvider.notifier).getWorkouts();
     return true;
   }
-
 }

@@ -1,7 +1,16 @@
-class WorkoutSession {
+import 'package:hive/hive.dart';
+
+part 'workout_session.g.dart';
+
+@HiveType(typeId: 5)
+class WorkoutSession extends HiveObject {
+  @HiveField(0)
   final DateTime timestamp;
+  @HiveField(1)
   final int? durationInSeconds;
+  @HiveField(2)
   final int? setsCompleted;
+  @HiveField(3)
   final int? repsCompleted;
 
   WorkoutSession({

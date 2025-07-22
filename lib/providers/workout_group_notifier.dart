@@ -137,6 +137,7 @@ class WorkoutGroupNotifier extends ChangeNotifier {
             reps: values['reps'],
             weight: values['weight'],
             workoutColor: Colors.blue,
+            workoutGroup: WorkoutGroup.repetition,
             sessions: <WorkoutSession>[
               WorkoutSession(
                 timestamp: DateTime.now(),
@@ -162,6 +163,7 @@ class WorkoutGroupNotifier extends ChangeNotifier {
             durationInSeconds: values['seconds'],
             sets: values['sets'],
             workoutColor: Colors.orange,
+            workoutGroup: WorkoutGroup.time,
             sessions: <WorkoutSession>[
               WorkoutSession(
                 timestamp: DateTime.now(), 
@@ -187,6 +189,7 @@ class WorkoutGroupNotifier extends ChangeNotifier {
             intensity: values['intensity'],
             description: values['notes'],
             workoutColor: Colors.purple,
+            workoutGroup: WorkoutGroup.flow,
             sessions: <WorkoutSession>[
               WorkoutSession(
                 timestamp: DateTime.now(),
@@ -211,6 +214,7 @@ class WorkoutGroupNotifier extends ChangeNotifier {
             weight: values['weight'],
             restTime: values['restTime'],
             workoutColor: Colors.red,
+            workoutGroup: WorkoutGroup.strength,
             sessions: <WorkoutSession>[
               WorkoutSession(
                 timestamp: DateTime.now(),
@@ -237,6 +241,7 @@ class WorkoutGroupNotifier extends ChangeNotifier {
             intensity: values['intensity'],
             heartRate: values['heartRate'],
             workoutColor: Colors.green,
+            workoutGroup: WorkoutGroup.cardio,
             sessions: <WorkoutSession>[
               WorkoutSession(
                 timestamp: DateTime.now(),

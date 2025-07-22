@@ -21,6 +21,8 @@ class SignupCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final signup = ref.watch(signUpProvider.notifier);
+    final state = ref.watch(signUpProvider);
+    final isLoading = state is AsyncLoading;
     return Align(
       alignment: Alignment.bottomCenter,
       child: Padding(
@@ -76,7 +78,12 @@ class SignupCard extends ConsumerWidget {
                   width: double.infinity,
                   height: 50,
                   child: ElevatedButton(
-                    onPressed: () => signup.registerUser(context, controller),
+                    onPressed: () {
+                      if (isLoading) {
+                        null;
+                      }
+                      signup.registerUser(context);
+                    },
                     // onPressed: () async {
                     //   final isSignIn = await SupabaseAuth.instance.signUp(
                     //     signup.emailController.text, 
@@ -94,7 +101,7 @@ class SignupCard extends ConsumerWidget {
                       backgroundColor: GlobalColors.primaryColor,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                     ),
-                    child: Text("Register", style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontSize: 18, color: Colors.white)),
+                    child: Text(isLoading ? "Loading..." : " Register", style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontSize: 18, color: Colors.white)),
                   ),
                 ),
                 const SizedBox(height: 10),

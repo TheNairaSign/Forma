@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:workout_tracker/constants.dart';
-import 'package:workout_tracker/providers/auth/login_notifier.dart';
 import 'package:workout_tracker/utils/alerts.dart';
 import 'package:workout_tracker/views/pages/profile/widgets/profile_header.dart';
 import 'package:workout_tracker/views/pages/profile/widgets/settings/settings_section.dart';

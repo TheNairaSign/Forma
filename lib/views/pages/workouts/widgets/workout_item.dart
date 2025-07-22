@@ -21,28 +21,32 @@ class WorkoutItem extends ConsumerWidget {
     return '$hours:$minutes:$secs';
   }
 
-  String subtitle(Workout workout) {
-  switch (workout.workoutGroup) {
-    case WorkoutGroup.repetition:
-      return '${workout.sets} sets • ${workout.reps} reps • ${_formatTime(workout.durationInSeconds)} total';
+  String subtitle() {
+    final sets = workout.sets ?? '--';
+    final reps = workout.reps ?? '--';
+    final duration = _formatTime(workout.durationInSeconds);
+    final distance = workout.distance?.toStringAsFixed(2) ?? '--';
 
-    case WorkoutGroup.time:
-      return 'Duration: ${_formatTime(workout.durationInSeconds)}';
+    switch (workout.workoutGroup) {
+      case WorkoutGroup.repetition:
+        return '$sets sets • $reps reps • $duration total';
 
-    case WorkoutGroup.flow:
-      return 'Flow • Duration: ${_formatTime(workout.durationInSeconds)}';
+      case WorkoutGroup.time:
+        return 'Duration: $duration';
 
-    case WorkoutGroup.strength:
-      return '${workout.sets} sets • ${workout.reps} reps • Strength training';
+      case WorkoutGroup.flow:
+        return 'Flow • Duration: $duration';
 
-    case WorkoutGroup.cardio:
-      final distance = workout.distance?.toStringAsFixed(2) ?? '--';
-      return 'Cardio • $distance km • ${_formatTime(workout.durationInSeconds)}';
+      case WorkoutGroup.strength:
+        return '$sets sets • $reps reps • Strength training';
 
-    default:
-      return 'Workout Summary';
+      case WorkoutGroup.cardio:
+        return 'Cardio • $distance km • $duration';
+
+      default:
+        return 'Workout Summary';
+    }
   }
-}
 
 
   @override
@@ -51,7 +55,7 @@ class WorkoutItem extends ConsumerWidget {
       workout: workout,
       id: workout.id,
       title: workout.name,
-      subtitle: '${workout.sets} sets, ${workout.reps} reps, Duration: ${_formatTime(workout.durationInSeconds)}',
+      subtitle: subtitle(),
       onDismissed: (direction) async {
         await _workoutService.deleteWorkout(workout.id).then((_) {
           ref.watch(workoutItemProvider.notifier).getWorkouts();

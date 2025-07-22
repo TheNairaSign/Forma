@@ -7,7 +7,7 @@ import 'package:workout_tracker/onboarding/screens/page_view_screens/finish_up_s
 import 'package:workout_tracker/providers/profile/profile_data_notifier.dart';
 import 'package:workout_tracker/services/onboarding_service.dart';
 import 'package:workout_tracker/style/global_colors.dart';
-import 'package:workout_tracker/views/pages/navigation/navigation_page.dart';
+import 'package:workout_tracker/views/pages/navigation/navigation_future_page.dart';
 
 class PickAvatarPage extends ConsumerStatefulWidget {
   const PickAvatarPage({super.key, this.isEdit = false});
@@ -106,7 +106,7 @@ class _PickAvatarPageState extends ConsumerState<PickAvatarPage> {
               ref.watch(profileDataProvider.notifier).sendProfileData().then((_) {
                 debugPrint("Profile Data sent successfully");
                 OnboardingService.instance.setUserCompletedOnboarding(ref.watch(profileDataProvider).id!);
-                Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (ctx) => NavigationPage()));
+                Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (ctx) => NavigationFuturePage()));
               });
             }
           },

@@ -43,6 +43,8 @@ class SupabaseAuth {
           final id = userFromCache?.id;
           await UserBoxService(id).getCaloriesBox();
           await UserBoxService(id).getStepsBox();
+          await UserBoxService(id).getWorkoutBox();
+          await UserBoxService(id).getWorkoutHistoryBox();
           return userFromCache;
         } catch (e) {
           print('Error decoding user from cache: $e');
@@ -71,9 +73,13 @@ class SupabaseAuth {
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('loggedIn', response.user?.userMetadata?['displayName']);
         final userId = response.user?.id;
+        print('Logged in user id: $userId');
         ref.watch(profileDataProvider.notifier).updateProfileId(userId!);
         await UserBoxService(userId).getCaloriesBox();
         await UserBoxService(userId).getStepsBox();
+        await UserBoxService(userId).getWorkoutBox();
+        await UserBoxService(userId).getWorkoutHistoryBox();
+        
         return true;
       }
     } on NetworkException catch (e) {

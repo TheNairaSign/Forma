@@ -1,7 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:workout_tracker/auth/supabase/supabase_auth.dart';
 import 'package:workout_tracker/onboarding/screens/onboarding_screen.dart';
@@ -24,14 +23,18 @@ class LoginNotifier extends StateNotifier<AsyncValue> {
   final TextEditingController _passwordController = TextEditingController();
   TextEditingController get passwordController => _passwordController;
 
-  Future<void> loginUser(BuildContext context) async {
-    state = const AsyncValue.loading();
-
+  void _validateFields(BuildContext context) {
     if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
       state = const AsyncValue.error('Fill in all fields to continue', StackTrace.empty);
       Alerts.showErrorDialog(context, 'Input Error', 'Fill in all fields to continue');
       return;
     }
+  }
+
+  Future<void> loginUser(BuildContext context) async {
+    state = const AsyncValue.loading();
+
+    _validateFields(context);
 
     // state = await AsyncValue.guard(() => _supabaseAuth.signIn(_emailController.text, _passwordController.text, ref));
 
@@ -39,6 +42,7 @@ class LoginNotifier extends StateNotifier<AsyncValue> {
       final response = await _supabaseAuth.signIn(_emailController.text, _passwordController.text, ref);
 
       if (response) {
+        print('Response: $response');
         state = const AsyncValue.data(true);
         if (await ref.watch(profileDataProvider.notifier).onBoardingCompleted()) {
           Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (ctx) => NavigationFuturePage()));
@@ -47,26 +51,31 @@ class LoginNotifier extends StateNotifier<AsyncValue> {
         }
         
       } else {
+        if (_supabaseAuth.isEmailConfirmed != true) {
+          Alerts.showErrorDialog(context, 'Email not confirmed', 'Please check your email and confirm your account.');
+          state = const AsyncValue.error('Email not confirmed', StackTrace.empty);
+          return;
+        }
         state = const AsyncValue.error('Invalid Credentials', StackTrace.empty);
         Alerts.showErrorDialog(context, 'Invalid Credentials', 'Please check your email and password.');
         return;
       }
     } catch (error) {
-      throw Exception('Login Error: $error');
+      print('Login Error: $error');
     }
-
-    if (_supabaseAuth.isEmailConfirmed != true) {
-      Alerts.showErrorDialog(context, 'Email not confirmed', 'Please check your email and confirm your account.');
-      state = const AsyncValue.error('Email not confirmed', StackTrace.empty);
-      return;
-    }
-
     if (state.hasError) {
       // Alerts.showErrorDialog(context, 'Login Error', state.error.toString());
       throw Exception('Login Error: ${state.error.toString()}');
       
+    }
+  }
+
+  void navigate(BuildContext context) async {
+    await loginUser(context);
+    if (await ref.watch(profileDataProvider.notifier).onBoardingCompleted()) {
+      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (ctx) => NavigationFuturePage()));
     } else {
-      Navigator.of(context).push(SlidePageRoute(page: OnboardingScreen()));
+      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (ctx) => OnboardingScreen()));
     }
   }
 

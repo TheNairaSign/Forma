@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:workout_tracker/auth/supabase/supabase_auth.dart';
+import 'package:workout_tracker/models/state/profile_data.dart';
 import 'package:workout_tracker/providers/profile/profile_data_notifier.dart';
 import 'package:workout_tracker/views/pages/navigation/navigation_page.dart';
 
@@ -12,28 +12,22 @@ class NavigationFuturePage extends ConsumerStatefulWidget {
 }
 
 class _NavigationFuturePageState extends ConsumerState<NavigationFuturePage> {
-  late Future<void> _getProfile;
+  late Future<ProfileData?> _getProfile;
 
   @override
   void initState() {
     super.initState();
-    _getProfile = ref.read(profileDataProvider.notifier).loadProfileData().then((profile) async {
-      await SupabaseAuth.instance.getUserFromCache(profile?.id);
-    });
+    _getProfile = ref.read(profileDataProvider.notifier).loadProfileData();
   }
 
   @override
   Widget build(BuildContext context) {
 
-    return FutureBuilder(
+    return FutureBuilder<ProfileData?>(
       future: _getProfile,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Scaffold(
-            body: Center(
-              child: CircularProgressIndicator(),
-            ),
-          );
+          return const Scaffold(body: Center(child: CircularProgressIndicator()));
         } else if (snapshot.hasError) {
           debugPrint('Error loading data: ${snapshot.error}');
           return const Scaffold(

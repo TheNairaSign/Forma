@@ -18,7 +18,7 @@ class _AuthPageState extends State<AuthPage> {
   int _currentPage = 0;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) {  
     return Scaffold(
       body: Stack(
         children: [
