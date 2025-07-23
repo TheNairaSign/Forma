@@ -67,7 +67,7 @@ class _WorkoutsPageState extends ConsumerState<WorkoutsPage> {
                   : ListView.separated(
                     separatorBuilder: (context, index) => const SizedBox(height: 10),
                     physics: const AlwaysScrollableScrollPhysics(),
-                    shrinkWrap: true,
+                    shrinkWrap: false,
                     itemCount: workouts.length,
                     itemBuilder: (context, index) {
                       final workout = workouts[index];

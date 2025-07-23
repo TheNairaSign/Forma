@@ -1,33 +1,37 @@
 // ignore_for_file: avoid_print
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:workout_tracker/auth/supabase/supabase_auth.dart';
 import 'package:workout_tracker/hive/adapter/calory_state.dart';
 import 'package:workout_tracker/models/enums/workout_group.dart';
 import 'package:workout_tracker/providers/profile/profile_data_notifier.dart';
 import 'package:workout_tracker/providers/steps_notifier.dart';
 import 'package:workout_tracker/services/calorie_service.dart';
 
-class CaloryNotifier extends StateNotifier<CaloryState?> {
+class CaloryNotifier extends StateNotifier<CaloryState> {
   final Ref ref;
   final CalorieService _calorieService;
 
-  CaloryNotifier(this.ref, this._calorieService) : super(null);
+  CaloryNotifier(this.ref, this._calorieService) : super(CaloryState(calories: 0, timestamp: DateTime.now(), source: 'initial')) {
+    // getDailyCalories(DateTime.now());
+  }
 
   // List<CaloryState> get allEntries => _calorieService.getAllEntries();
 
-  int get todayTotal {
+  Future<int> get todayTotal async {
     final steps = ref.watch(stepsProvider).steps;
-    final total = _calorieService.getCalorieForDay(DateTime.now(), steps: steps);
+    final total = await _calorieService.getCalorieForDay(DateTime.now(), steps: steps);
     print('todayTotal: steps: $steps, total: $total');
     return total;
   }
 
-  List<CaloryState> getDailyCalories(DateTime date) {
-    return _calorieService.getDailyCalories(date);
+  Future<List<CaloryState>> getDailyCalories(DateTime date) async {
+    return await _calorieService.getDailyCalories(date);
   }
 
-  void addCalories(int amount) async {
-    _calorieService.addCalories(amount);
+  Future<void> addCalories(int amount) async {
+    await _calorieService.addCalories(amount);
     // Optionally, update state if needed, though the main total is what matters.
     state = CaloryState(calories: amount, timestamp: DateTime.now(), source: 'manual');
   }
@@ -77,7 +81,7 @@ class CaloryNotifier extends StateNotifier<CaloryState?> {
         break;
     }
 
-    final newState = _calorieService.addWorkoutCalories(
+    final newState = await _calorieService.addWorkoutCalories(
       workoutName: name,
       metValue: metValue,
       durationMinutes: durationMinutes,
@@ -88,27 +92,27 @@ class CaloryNotifier extends StateNotifier<CaloryState?> {
     print('Calculated calorie from state: ${newState.source}: ${newState.calories}');
   }
 
-  void clearCalories() {
-    _calorieService.clearCaloriesByDay(DateTime.now());
-    state = null;
+  Future<void> clearCalories() async {
+    await _calorieService.clearCaloriesByDay(DateTime.now());
+    // state = null;
   }
 
-  void resetToday() {
-    _calorieService.resetToday();
-    state = null;
+  Future<void> resetToday() async {
+    await _calorieService.resetToday();
+    // state = null;
   }
 
-  int getCalorieForDay(DateTime date) {
+  Future<int> getCalorieForDay(DateTime date) async {
     final steps = ref.read(stepsProvider).steps;
-    final total = _calorieService.getCalorieForDay(date, steps: steps);
+    final total = await _calorieService.getCalorieForDay(date, steps: steps);
     return total;
   }
 
-  void getWeeklyTotals() {
-    _calorieService.getWeeklyTotals(ref.read(stepsProvider).steps);
+  Future<List<int>> getWeeklyTotals() async {
+    return await _calorieService.getWeeklyTotals(ref.read(stepsProvider).steps);
   }
 
-  List<int> getWeeklyCalories() {
+  Future<List<int>> getWeeklyCalories() async {
     final now = DateTime.now();
     final List<int> weeklyCalories = [];
     final steps = ref.read(stepsProvider).steps;
@@ -117,16 +121,25 @@ class CaloryNotifier extends StateNotifier<CaloryState?> {
       final date = now.subtract(Duration(days: i));
       // For past days, steps are not counted, so we pass 0.
       final dailySteps = _calorieService.isToday(date) ? steps : 0;
-      weeklyCalories.add(_calorieService.getCalorieForDay(date, steps: dailySteps));
+      weeklyCalories.add(await _calorieService.getCalorieForDay(date, steps: dailySteps));
     }
 
     return weeklyCalories;
   }
 }
 
-final caloryProvider = StateNotifierProvider<CaloryNotifier, CaloryState?>((ref) {
+final caloryProvider = StateNotifierProvider<CaloryNotifier, CaloryState>((ref) {
   final profileId = ref.watch(profileDataProvider).id;
+  CalorieService calorieService;
   print('User id in calory provider: $profileId');
-  final calorieService = CalorieService(userId: profileId!);
+  if (profileId == null) {
+    print('Profile id is null, waiting for user to be fetched from supabase');
+    Future.delayed(Duration(milliseconds: 100), () async {
+      print('Waiting...');
+      final user = await SupabaseAuth.instance.getUser();
+      calorieService = CalorieService(userId: user!.id);
+    });
+  }
+  calorieService = CalorieService(userId: profileId!);
   return CaloryNotifier(ref, calorieService);
 });

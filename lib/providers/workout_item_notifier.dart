@@ -20,8 +20,9 @@ class WorkoutItemNotifier extends StateNotifier<List<Workout>> {
   final Ref ref;
   final WorkoutService ws;
 
-  WorkoutItemNotifier(this.ref, this.ws) : super([]);
-
+  WorkoutItemNotifier(this.ref, this.ws) : super([]){
+    getWorkouts();
+  }
 
   WorkoutGroup? _workoutGroup;
   WorkoutGroup? get workoutGroup => _workoutGroup;
@@ -86,7 +87,7 @@ class WorkoutItemNotifier extends StateNotifier<List<Workout>> {
     debugPrint('Getting workouts for ${date.toString()}...');
     final newWorkouts = await ws.getWorkoutsForDay(date);
     final weekDayIndex = date.weekday - 1;
-    final stepsForDate = ref.read(stepsProvider.notifier).getStepsForDate(date) ?? 0;
+    final stepsForDate = await ref.read(stepsProvider.notifier).getStepsForDate(date) ?? 0;
     debugPrint('Workouts for date: ${workoutForDay.length}');
 
     for (var workout in workoutForDay) {
@@ -159,25 +160,27 @@ class WorkoutItemNotifier extends StateNotifier<List<Workout>> {
 
       // If the API call is successful, calculate calories.
       try {
-        ref.watch(caloryProvider.notifier).calculateCalories(
+        await ref.watch(caloryProvider.notifier).calculateCalories(
           group: group,
           name: newWorkout.name,
           durationSeconds: newWorkout.durationInSeconds,
           weightKg: newWorkout.weight,
           sets: newWorkout.sets,
           reps: newWorkout.reps,
-        ).then((_) {
-          showDialog(context: context, builder: (context) {
-            final calories = ref.watch(caloryProvider.notifier).caloriesAdded;
-            return SizedBox(
-              height: 150,
-              child: AlertDialog(
-                title: Text('Congrats, you just burnt $calories calories!'),
-                content: LottieBuilder.asset('assets/lottie/check-animation.json', repeat: false),
-              ),
-            );
-          });
+        );
+        
+        // Show dialog after calories are calculated
+        showDialog(context: context, builder: (context) {
+          final calories = ref.watch(caloryProvider.notifier).caloriesAdded;
+          return SizedBox(
+            height: 150,
+            child: AlertDialog(
+              title: Text('Congrats, you just burnt $calories calories!'),
+              content: LottieBuilder.asset('assets/lottie/check-animation.json', repeat: false),
+            ),
+          );
         });
+        
         debugPrint('New workout details: $group, ${newWorkout.name}, ${newWorkout.durationInSeconds}, ${newWorkout.sets}, ${newWorkout.reps}, ${newWorkout.weight} ');
       } catch (e) {
         debugPrint('Error calculating calories for workout: ${e.toString()}');
@@ -203,6 +206,28 @@ class WorkoutItemNotifier extends StateNotifier<List<Workout>> {
       // Notify the user of the error.
       if (context.mounted) Alerts.showFlushBar(context, 'Failed to add workout', true);
     }
+  }
+
+  Future<void> deleteWorkout(Workout workout) async {
+    await ws.deleteWorkout(workout.id).then((_) {
+      ref.watch(workoutItemProvider.notifier).getWorkouts();
+    });
+  }
+
+  Future<void> undoDelete(BuildContext context, String id) async {
+    final success = await ws.undoDelete(id);
+    if (mounted) {
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Workout restored successfully')),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Could not restore workout')),
+        );
+      }
+    }
+    ref.watch(workoutItemProvider.notifier).getWorkouts();
   }
 
   
@@ -233,9 +258,11 @@ class WorkoutItemNotifier extends StateNotifier<List<Workout>> {
 
 // Updated provider declaration
 final workoutItemProvider = StateNotifierProvider<WorkoutItemNotifier, List<Workout>>((ref) {
-  final profileId = ref.watch(profileDataProvider).id;
+  final profileData = ref.watch(profileDataProvider);
+  final profileId = profileData.id;
   print('User id in workout provider: $profileId');
-  final ws = WorkoutService(userId: profileId!);
+  // Use a default empty string if profileId is null to prevent null check operator error
+  final ws = WorkoutService(userId: profileId ?? '');
   return WorkoutItemNotifier(ref, ws);
 });
 

@@ -7,8 +7,9 @@ import 'package:workout_tracker/providers/profile/profile_data_notifier.dart';
 import 'package:workout_tracker/style/global_colors.dart';
 
 class WeightSliderScreen extends ConsumerStatefulWidget {
-  const WeightSliderScreen({super.key, this.isEdit = false});
+  const WeightSliderScreen({super.key, this.isEdit = false, this.weight});
   final bool isEdit;
+  final double? weight;
 
   @override
   ConsumerState<WeightSliderScreen> createState() => _WeightSliderScreenState();
@@ -22,13 +23,13 @@ class _WeightSliderScreenState extends ConsumerState<WeightSliderScreen> {
   final double maxWeight = 200;
 
   late WeightSliderController _controller;
-  double _weight = 30.0;
+  // double _weight = 30.0;
 
   @override
   void initState() {
-    weight = ref.read(profileDataProvider).weight ?? 70.0;
+    weight = widget.weight ?? 70.0;
     super.initState();
-    _controller = WeightSliderController(initialWeight: _weight, minWeight: 0, interval: 0.1);
+    _controller = WeightSliderController(initialWeight: weight, minWeight: 0, interval: 0.1);
   }
 
   @override
@@ -74,7 +75,7 @@ class _WeightSliderScreenState extends ConsumerState<WeightSliderScreen> {
                 selected: isKg, 
                 onChanged: (val) => setState(() {
                   isKg = val;
-                  ref.read(profileDataProvider.notifier).setWeight(isKg ? weight : weight * 0.453592);
+                  ref.read(profileDataProvider.notifier).setWeight(context, isKg ? weight : weight * 0.453592);
                 })
               ),
               const SizedBox(height: 30),
@@ -88,7 +89,7 @@ class _WeightSliderScreenState extends ConsumerState<WeightSliderScreen> {
                   children: [
                     RichText(
                       text: TextSpan(
-                        text: _weight.toStringAsFixed(1),
+                        text: weight.toStringAsFixed(1),
                         style: Theme.of(context).textTheme.headlineLarge?.copyWith(fontSize: 40, fontWeight: FontWeight.bold),
                         children: [
                           TextSpan(
@@ -117,8 +118,8 @@ class _WeightSliderScreenState extends ConsumerState<WeightSliderScreen> {
                       ),
                       onChanged: (double value) {
                         setState(() {
-                          ref.read(profileDataProvider.notifier).setWeight(value);
-                          _weight = value;
+                          ref.read(profileDataProvider.notifier).setWeight(context, value);
+                          weight = value;
                         });
                       },
                       indicator: Container(
@@ -140,7 +141,7 @@ class _WeightSliderScreenState extends ConsumerState<WeightSliderScreen> {
         child: ElevatedButton(
           style: ElevatedButton.styleFrom(backgroundColor: GlobalColors.primaryColor),
           onPressed: () {
-            ref.read(profileDataProvider.notifier).setWeight(isKg ? weight : weight * 0.453592);
+            ref.read(profileDataProvider.notifier).setWeight(context, isKg ? weight : weight * 0.453592, isEdit: true);
             Navigator.pop(context);
           }, 
           child: Text('Save', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.white, fontWeight: FontWeight.bold))

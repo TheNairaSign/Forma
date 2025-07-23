@@ -4,15 +4,12 @@ import 'package:workout_tracker/models/enums/workout_group.dart';
 import 'package:workout_tracker/models/enums/workout_type.dart';
 import 'package:workout_tracker/models/workout/workout.dart';
 import 'package:workout_tracker/providers/workout_item_notifier.dart';
-import 'package:workout_tracker/services/workout_service.dart';
 import 'package:workout_tracker/views/pages/workouts/widgets/dismiss_item.dart';
 
 class WorkoutItem extends ConsumerWidget {
-  WorkoutItem({super.key, required this.workout, required this.type});
+  const WorkoutItem({super.key, required this.workout, required this.type});
   final Workout workout;
   final WorkoutType type;
-
-  final _workoutService = WorkoutService();
 
   String _formatTime(int seconds) {
     final hours = (seconds ~/ 3600).toString().padLeft(2, '0');
@@ -56,11 +53,7 @@ class WorkoutItem extends ConsumerWidget {
       id: workout.id,
       title: workout.name,
       subtitle: subtitle(),
-      onDismissed: (direction) async {
-        await _workoutService.deleteWorkout(workout.id).then((_) {
-          ref.watch(workoutItemProvider.notifier).getWorkouts();
-        });
-      },
+      onDismissed: (direction) => ref.watch(workoutItemProvider.notifier).deleteWorkout(workout),
     );
   }
 }

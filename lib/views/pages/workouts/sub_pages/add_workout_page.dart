@@ -5,7 +5,6 @@ import 'package:workout_tracker/constants.dart';
 import 'package:workout_tracker/models/enums/workout_type.dart';
 import 'package:workout_tracker/providers/workout_group_notifier.dart';
 import 'package:workout_tracker/providers/workout_item_notifier.dart';
-import 'package:workout_tracker/services/workout_service.dart';
 import 'package:workout_tracker/style/global_colors.dart';
 import 'package:workout_tracker/views/widgets/custom_drop_down_button.dart';
 import 'package:workout_tracker/views/widgets/forms/workout_form_selector.dart';
@@ -18,7 +17,6 @@ class AddWorkoutPage extends ConsumerStatefulWidget {
 }
 
 class _AddWorkoutPageState extends ConsumerState<AddWorkoutPage> {
-  final workoutService = WorkoutService();
 
   @override
   Widget build(BuildContext context) {

@@ -11,100 +11,99 @@ import 'package:workout_tracker/onboarding/screens/page_view_screens/weight_slid
 import 'package:workout_tracker/providers/profile/profile_data_notifier.dart';
 import 'package:workout_tracker/style/global_colors.dart';
 
-class EditDataPage extends ConsumerWidget {
+class EditDataPage extends ConsumerStatefulWidget {
   const EditDataPage({super.key});
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<EditDataPage> createState() => _EditDataPageState();
+}
+
+class _EditDataPageState extends ConsumerState<EditDataPage> {
+  
+  @override
+  Widget build(BuildContext context) {
+    final profile = ref.watch(profileDataProvider);
+    final age = 23;
     return Scaffold(
       appBar: AppBar(
         title: Text('Edit Data', style: Theme.of(context).textTheme.headlineSmall),
       ),
-      body: const _EditDataBody(),
+      body:  Padding(
+      padding: bodyPadding,
+      child: ListView(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildInfoCard(
+                    context,
+                    title: 'Height',
+                    value: '${profile.height}m',
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (ctx) => HeightSliderScreen(isEdit: true),
+                      ),
+                    ),
+                  ),
+                  _buildInfoCard(
+                    context,
+                    title: 'Weight',
+                    value: '${profile.weight}kg',
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (ctx) => const WeightSliderScreen(isEdit: true),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildInfoCard(
+                    context,
+                    title: 'Age',
+                    value: '${age}yrs',
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (ctx) => const AgeSliderScreen(isEdit: true),
+                      ),
+                    ),
+                  ),
+                  _buildInfoCard(
+                    context,
+                    title: 'Gender',
+                    value: profile.gender != null
+                        ? profile.gender![0].toUpperCase() +
+                            profile.gender!.substring(1)
+                        : '',
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (ctx) => const GenderIdentityScreen(isEdit: true),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              _buildInfoCard(
+                context,
+                title: 'Food Preference',
+                value: '${profile.foodPreference}',
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (ctx) => const FoodPreferenceScreen(isEdit: true),
+                  ),
+                ),
+                isExpanded: true,
+              ),
+            ],
+      ),
+    )
     );
   }
 }
-
-class _EditDataBody extends ConsumerWidget {
-  const _EditDataBody();
-    @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final profile = ref.watch(profileDataProvider);
-    final age = ref.watch(profileDataProvider.notifier).age ?? 25;
-
-    return Padding(
-      padding: bodyPadding,
-      child: ListView(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildInfoCard(
-                context,
-                title: 'Height',
-                value: '${profile.height}m',
-                onTap: () => Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (ctx) => const HeightSliderScreen(isEdit: true),
-                  ),
-                ),
-              ),
-              _buildInfoCard(
-                context,
-                title: 'Weight',
-                value: '${profile.weight}kg',
-                onTap: () => Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (ctx) => const WeightSliderScreen(isEdit: true),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildInfoCard(
-                context,
-                title: 'Age',
-                value: '${age}yrs',
-                onTap: () => Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (ctx) => const AgeSliderScreen(isEdit: true),
-                  ),
-                ),
-              ),
-              _buildInfoCard(
-                context,
-                title: 'Gender',
-                value: profile.gender != null
-                    ? profile.gender![0].toUpperCase() +
-                        profile.gender!.substring(1)
-                    : '',
-                onTap: () => Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (ctx) => const GenderIdentityScreen(isEdit: true),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          _buildInfoCard(
-            context,
-            title: 'Food Preference',
-            value: '${profile.foodPreference}',
-            onTap: () => Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (ctx) => const FoodPreferenceScreen(isEdit: true),
-              ),
-            ),
-            isExpanded: true,
-          ),
-        ],
-      ),
-    );
-  }
 
   Widget _buildInfoCard(
     BuildContext context,
@@ -136,4 +135,3 @@ class _EditDataBody extends ConsumerWidget {
 
     return isExpanded ? card : Expanded(child: card);
   }
-}

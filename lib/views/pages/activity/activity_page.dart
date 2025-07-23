@@ -16,27 +16,47 @@ class CalorieDetailsPage extends ConsumerStatefulWidget {
 }
 
 class _CalorieDetailsPageState extends ConsumerState<CalorieDetailsPage> {
+  late List<Future<int>> _calo;
+
+  
   @override
   void initState() {
     super.initState();
-    ref.read(caloryProvider.notifier).getWeeklyTotals();
+    // getWeeklyTotals is now async, so we'll handle it differently
+    _loadWeeklyTotals();
+  }
+
+  Future<void> _loadWeeklyTotals() async {
+    await ref.read(caloryProvider.notifier).getWeeklyTotals();
+  }
+
+  Future<void> _loadCaloriesForDay() async {
+    final weekDays = getWeekDays();
+    _calo = weekDays.map((date) async => await ref.read(caloryProvider.notifier).getCalorieForDay(date)).toList();
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-
-    final weekDays = getWeekDays();
-    final calorieData = weekDays.map((date) => 
-      ref.read(caloryProvider.notifier).getCalorieForDay(date)
-    ).toList();
+    final backgroundColor = Color(0xff080b10);
     
-    final todayIndex = DateTime.now().weekday - 1;
-    final todayCalories = todayIndex < calorieData.length ? calorieData[todayIndex] : 0;
-    final weeklyAverage = calorieData.isNotEmpty 
-        ? calorieData.reduce((a, b) => a + b) ~/ calorieData.length 
-        : 0;
-    final backgroundColor =  Color(0xff080b10);
+    // Use FutureBuilder to handle the async data loading
+    return FutureBuilder<List<int>>(
+      future: ref.read(caloryProvider.notifier).getWeeklyCalories(),
+      builder: (context, snapshot) {
+        // Show loading indicator while data is being fetched
+        if (!snapshot.hasData) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+        
+        final calorieData = snapshot.data!;
+        final todayIndex = DateTime.now().weekday - 1;
+        final todayCalories = todayIndex < calorieData.length ? calorieData[todayIndex] : 0;
+        final weeklyAverage = calorieData.isNotEmpty 
+            ? calorieData.reduce((a, b) => a + b) ~/ calorieData.length 
+            : 0;
     return Scaffold(
       body: CustomScrollView(
         slivers: [
@@ -103,6 +123,7 @@ class _CalorieDetailsPageState extends ConsumerState<CalorieDetailsPage> {
               ),
             ),
           ),   
+          // DailyBreakdown already uses FutureBuilder internally for each day
           DailyBreakdown(calorieData: calorieData),
           SliverToBoxAdapter(
             child: Padding(
@@ -117,6 +138,8 @@ class _CalorieDetailsPageState extends ConsumerState<CalorieDetailsPage> {
           )
         ],
       ),
+    );
+      }
     );
   }
 }

@@ -45,15 +45,16 @@ class _UserStatsState extends ConsumerState<UserStats> with SingleTickerProvider
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    FutureBuilder<String>(
-                      future: ref.watch(workoutItemProvider.notifier).getWorkoutStats(),
-                      builder: (context, snapshot) {
-                        return UserStatsItem(
-                          value: snapshot.data ?? '0',  
+                    // FutureBuilder<String>(
+                    //   future: ref.watch(workoutItemProvider.notifier).getWorkoutStats(),
+                    //   builder: (context, snapshot) {
+                    //     return 
+                        UserStatsItem(
+                          value: '0',  
                           label: 'Total Workouts',
                           icon: Icons.fitness_center,
-                        );
-                      },
+                      //   );
+                      // },
                     ),
                     UserStatsItem(
                       value: '28',

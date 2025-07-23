@@ -31,6 +31,12 @@ class _PickAvatarPageState extends ConsumerState<PickAvatarPage> {
   int? selectedIndex;
 
   @override
+  void initState() {
+    super.initState();
+    selectedIndex = ref.read(profileDataProvider).profileImagePath == null? null : avatars.indexWhere((element) => element == ref.read(profileDataProvider).profileImagePath);
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
@@ -96,12 +102,13 @@ class _PickAvatarPageState extends ConsumerState<PickAvatarPage> {
       bottomSheet: Padding(
         padding: const EdgeInsets.all(16),
         child: ElevatedButton(
-          onPressed: selectedIndex == null ? null : () {
+          onPressed: selectedIndex == null ? null : () async {
             final selectedAvatar = avatars[selectedIndex!];
             debugPrint("Selected Avatar: $selectedAvatar");
-            ref.watch(profileDataProvider.notifier).updateUserAvatar(selectedAvatar);
             if(widget.isEdit) {
+              ref.watch(profileDataProvider.notifier).updateUserAvatar(selectedAvatar, isEdit: true);
               Navigator.of(context).pop();
+              await ref.watch(profileDataProvider.notifier).loadProfileData();
             } else {
               ref.watch(profileDataProvider.notifier).sendProfileData().then((_) {
                 debugPrint("Profile Data sent successfully");

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:workout_tracker/models/workout/workout.dart';
-import 'package:workout_tracker/services/workout_service.dart';
+import 'package:workout_tracker/providers/workout_item_notifier.dart';
 import 'package:workout_tracker/style/global_colors.dart';
 
 class DismissibleItem extends ConsumerStatefulWidget {
@@ -24,22 +24,6 @@ class DismissibleItem extends ConsumerStatefulWidget {
 }
 
 class _DismissibleItemState extends ConsumerState<DismissibleItem> {
-
-  void undoDelete() async {
-    final workoutService = WorkoutService();
-    final success = await workoutService.undoDelete(widget.id, ref);
-    if (mounted) {
-      if (success) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Workout restored successfully')),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Could not restore workout')),
-        );
-      }
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -85,7 +69,7 @@ class _DismissibleItemState extends ConsumerState<DismissibleItem> {
               action: SnackBarAction(
                 label: 'UNDO',
                 textColor: GlobalColors.primaryBlue,
-                onPressed: undoDelete,
+                onPressed: () => ref.watch(workoutItemProvider.notifier).undoDelete(context, widget.id),
               ),
             ),
           );

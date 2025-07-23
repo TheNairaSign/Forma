@@ -26,8 +26,25 @@ class StepsNotifier extends StateNotifier<StepsState> {
   
   // Box<DailySteps> get _dailyStepsBox => ref.watch(userBoxServiceProvider).dailyStepsBox;
 
-  Box<DailySteps> get _dailyStepsBox => Hive.box<DailySteps>('stepsBox_$userId');
-
+  Box<DailySteps>? _dailyStepsBoxCache;
+  
+  Future<Box<DailySteps>> get _dailyStepsBox async {
+    if (_dailyStepsBoxCache != null && _dailyStepsBoxCache!.isOpen) {
+      return _dailyStepsBoxCache!;
+    }
+    try {
+      if (!Hive.isBoxOpen('dailySteps')) {
+        _dailyStepsBoxCache = await Hive.openBox<DailySteps>('dailySteps');
+      } else {
+        _dailyStepsBoxCache = Hive.box<DailySteps>('dailySteps');
+      }
+      return _dailyStepsBoxCache!;
+    } catch (e) {
+      debugPrint('Error opening dailySteps box: $e');
+      throw Exception('Failed to open dailySteps box: $e');
+    }
+  }
+  
   DateTime _currentDate = DateTime.now();
 
   late Stream<StepCount> _stepCountStream;
@@ -80,79 +97,100 @@ class StepsNotifier extends StateNotifier<StepsState> {
     }
     
     final dateKey = _getDateKey(_currentDate);
-    final dailySteps = _dailyStepsBox.get(dateKey);
+    try {
+      final box = await _dailyStepsBox;
+      final dailySteps = box.get(dateKey);
 
-
-    if (dailySteps != null) {
-      debugPrint('Step Count: ${dailySteps.steps}');
-      await _dailyStepsBox.put(dateKey, DailySteps(
-        date: _currentDate,
-        // steps: dailySteps.steps + stepCount,
-        steps: stepCount,
-        lastUpdated: DateTime.now(),
-      ));  
-    } else {
-      debugPrint('Steps Count: $stepCount');
-      await _dailyStepsBox.put(dateKey, DailySteps(
-        date: _currentDate,
-        steps: stepCount,
-        lastUpdated: DateTime.now(),
-      ));
+      if (dailySteps != null) {
+        debugPrint('Step Count: ${dailySteps.steps}');
+        await box.put(dateKey, DailySteps(
+          date: _currentDate,
+          // steps: dailySteps.steps + stepCount,
+          steps: stepCount,
+          lastUpdated: DateTime.now(),
+        ));  
+      } else {
+        debugPrint('Steps Count: $stepCount');
+        await box.put(dateKey, DailySteps(
+          date: _currentDate,
+          steps: stepCount,
+          lastUpdated: DateTime.now(),
+        ));
+      }
+      state = state.copyWith(steps: stepCount);
+    } catch (e) {
+      debugPrint('Error updating step count: $e');
     }
-    state = state.copyWith(steps: stepCount);
   }
 
   // Update getTodaySteps to use the new key format
-  int getTodaySteps() {
-    final today = _getDateKey(DateTime.now());
-    return _dailyStepsBox.get(today)?.steps ?? 0;
+  Future<int> getTodaySteps() async {
+    try {
+      final today = _getDateKey(DateTime.now());
+      final box = await _dailyStepsBox;
+      return box.get(today)?.steps ?? 0;
+    } catch (e) {
+      debugPrint('Error getting today steps: $e');
+      return 0;
+    }
   }
 
 
-  List<DailySteps> getDailySteps() {
-    final today = _getDateKey(DateTime.now());
-    final dailySteps = _dailyStepsBox.get(today);
+  Future<List<DailySteps>> getDailySteps() async {
+    try {
+      final today = _getDateKey(DateTime.now());
+      final box = await _dailyStepsBox;
+      final dailySteps = box.get(today);
 
-    if (dailySteps != null) {
-      debugPrint('Daily Steps: ${dailySteps.steps}');
-      return [dailySteps];
-    } else {
+      if (dailySteps != null) {
+        debugPrint('Daily Steps: ${dailySteps.steps}');
+        return [dailySteps];
+      } else {
+        return [];
+      }
+    } catch (e) {
+      debugPrint('Error getting daily steps: $e');
       return [];
     }
   }
 
-  Map<int, int> getHourlySteps() {
-    final today = DateTime.now();
-    final dateKey = _getDateKey(today);
-    final dailySteps = _dailyStepsBox.get(dateKey);
-    
+  Future<Map<int, int>> getHourlySteps() async {
     // Initialize map with 24 hours (0-23) set to 0 steps
     final Map<int, int> hourlyBreakdown = { 
       for (var hour in List.generate(24, (index) => index)) hour : 0 
     };
-
-    if (dailySteps != null) {
-      final lastUpdate = dailySteps.lastUpdated;
-      final currentHour = lastUpdate.hour;
+    
+    try {
+      final today = DateTime.now();
+      final dateKey = _getDateKey(today);
+      final box = await _dailyStepsBox;
+      final dailySteps = box.get(dateKey);
       
-      // Distribute steps across hours up to the last update
-      // Simple distribution - divides steps evenly across active hours
-      final activeHours = currentHour + 1;
-      final stepsPerHour = (dailySteps.steps / activeHours).floor();
-      
-      for (int i = 0; i <= currentHour; i++) {
-        hourlyBreakdown[i] = stepsPerHour;
+      if (dailySteps != null) {
+        final lastUpdate = dailySteps.lastUpdated;
+        final currentHour = lastUpdate.hour;
+        
+        // Distribute steps across hours up to the last update
+        // Simple distribution - divides steps evenly across active hours
+        final activeHours = currentHour + 1;
+        final stepsPerHour = (dailySteps.steps / activeHours).floor();
+        
+        for (int i = 0; i <= currentHour; i++) {
+          hourlyBreakdown[i] = stepsPerHour;
+        }
+        
+        // Add remaining steps to the current hour
+        final remainingSteps = dailySteps.steps - (stepsPerHour * activeHours);
+        hourlyBreakdown[currentHour] = (hourlyBreakdown[currentHour] ?? 0) + remainingSteps;
       }
-      
-      // Add remaining steps to the current hour
-      final remainingSteps = dailySteps.steps - (stepsPerHour * activeHours);
-      hourlyBreakdown[currentHour] = (hourlyBreakdown[currentHour] ?? 0) + remainingSteps;
+    } catch (e) {
+      debugPrint('Error getting hourly steps: $e');
     }
 
     return hourlyBreakdown;
   }
 
-  List<DailySteps> getWeeklySteps() {
+  Future<List<DailySteps>> getWeeklySteps() async {
     final weeklySteps = <DailySteps>[];
     final now = DateTime.now();
     final startOfWeek = now.subtract(Duration(days: now.weekday % 7));
@@ -160,45 +198,52 @@ class StepsNotifier extends StateNotifier<StepsState> {
     _highestWeeklyStep = 0;  // Reset before checking
     _lowestWeeklyStep = _dailyTargetSteps;  // Start with target steps as max
 
-    for (int i = 0; i < 7; i++) {
-      final date = startOfWeek.add(Duration(days: i));
-      final dateKey = _getDateKey(date);
-      final dailySteps = _dailyStepsBox.get(dateKey);
+    try {
+      final box = await _dailyStepsBox;
+      
+      for (int i = 0; i < 7; i++) {
+        final date = startOfWeek.add(Duration(days: i));
+        final dateKey = _getDateKey(date);
+        final dailySteps = box.get(dateKey);
 
-      if (dailySteps != null) {
-        // Update highest and lowest steps
-        if (dailySteps.steps > _highestWeeklyStep) {
-          _highestWeeklyStep = dailySteps.steps;
+        if (dailySteps != null) {
+          // Update highest and lowest steps
+          if (dailySteps.steps > _highestWeeklyStep) {
+            _highestWeeklyStep = dailySteps.steps;
+          }
+          if (dailySteps.steps < _lowestWeeklyStep) {
+            _lowestWeeklyStep = dailySteps.steps;
+          }
+          
+          weeklySteps.add(dailySteps);
+          debugPrint('Weekly Steps for ${DateFormat('EEEE').format(date)}: ${dailySteps.steps}');
+        } else {
+          weeklySteps.add(DailySteps(
+            date: date,
+            steps: 0,
+            lastUpdated: date,
+          ));
+          // Update lowest if we have a day with 0 steps
+          _lowestWeeklyStep = 0;
         }
-        if (dailySteps.steps < _lowestWeeklyStep) {
-          _lowestWeeklyStep = dailySteps.steps;
-        }
-        
-        weeklySteps.add(dailySteps);
-        debugPrint('Weekly Steps for ${DateFormat('EEEE').format(date)}: ${dailySteps.steps}');
-      } else {
-        weeklySteps.add(DailySteps(
-          date: date,
-          steps: 0,
-          lastUpdated: date,
-        ));
-        // Update lowest if we have a day with 0 steps
-        _lowestWeeklyStep = 0;
       }
-    }
 
-    weeklySteps.sort((a, b) => a.date.compareTo(b.date));
+      weeklySteps.sort((a, b) => a.date.compareTo(b.date));
+    } catch (e) {
+      debugPrint('Error getting weekly steps: $e');
+    }
+    
     return weeklySteps;
   }
 
-  List<DailySteps> getMonthlySteps() {
+  Future<List<DailySteps>> getMonthlySteps() async {
     final monthlySteps = <DailySteps>[];
     final now = DateTime.now();
 
     // Get data for all 12 months starting from January
     for (int i = 0; i < 12; i++) {
       final date = DateTime(now.year, i + 1, 1);
-      final monthTotal = _getMonthTotal(date);
+      final monthTotal = await _getMonthTotal(date);
       
       monthlySteps.add(DailySteps(
         date: date,
@@ -209,14 +254,15 @@ class StepsNotifier extends StateNotifier<StepsState> {
     return monthlySteps;
   }
 
-  int _getMonthTotal(DateTime date) {
+  Future<int> _getMonthTotal(DateTime date) async {
     int total = 0;
     final daysInMonth = DateTime(date.year, date.month + 1, 0).day;
+    final box = await _dailyStepsBox;
     
     for (int day = 1; day <= daysInMonth; day++) {
       final currentDate = DateTime(date.year, date.month, day);
       final dateKey = _getDateKey(currentDate);
-      final dailySteps = _dailyStepsBox.get(dateKey);
+      final dailySteps = box.get(dateKey);
       if (dailySteps != null) {
         total += dailySteps.steps;
       }
@@ -225,15 +271,41 @@ class StepsNotifier extends StateNotifier<StepsState> {
   }
 
   // Update getStepsForDate to use the new key format
-  int? getStepsForDate(DateTime date) => _dailyStepsBox.get(_getDateKey(date))?.steps;
+  Future<int?> getStepsForDate(DateTime date) async {
+    final box = await _dailyStepsBox;
+    return box.get(_getDateKey(date))?.steps;
+  }
 
   // Get all stored step data
-  List<DailySteps> getAllSteps()  => _dailyStepsBox.values.toList();
+  Future<List<DailySteps>> getAllSteps() async {
+    final box = await _dailyStepsBox;
+    return box.values.toList();
+  }
 
-  void clearSteps() {
-    final todayKey = _getDateKey(DateTime.now());
-    _dailyStepsBox.put(todayKey, DailySteps(date: DateTime.now(), steps: 0, lastUpdated: DateTime.now()));
-    state = state.copyWith(steps: 0);
+  Future<void> clearAllSteps() async {
+    try {
+      final box = await _dailyStepsBox;
+      await box.clear();
+      state = state.copyWith(steps: 0);
+    } catch (e) {
+      debugPrint('Error clearing all steps: $e');
+    }
+  }
+
+  Future<void> resetSteps() async {
+    try {
+      final today = DateTime.now();
+      final dateKey = _getDateKey(today);
+      final box = await _dailyStepsBox;
+      await box.put(dateKey, DailySteps(
+        date: today,
+        steps: 0,
+        lastUpdated: today,
+      ));
+      state = state.copyWith(steps: 0);
+    } catch (e) {
+      debugPrint('Error resetting steps: $e');
+    }
   }
 
   /// Handle status changed

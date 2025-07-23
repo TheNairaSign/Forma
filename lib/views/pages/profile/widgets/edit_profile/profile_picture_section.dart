@@ -30,7 +30,7 @@ class _ProfilePictureSectionState extends ConsumerState<ProfilePictureSection> {
             backgroundColor: GlobalColors.primaryBlue,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))
           ),
-          onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => PickAvatarPage(isEdit: true,))),
+          onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => PickAvatarPage(isEdit: true))),
           child: Text(
             'Change Profile Photo',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.white)

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:workout_tracker/constants.dart';
 import 'package:workout_tracker/models/enums/gender.dart';
+import 'package:workout_tracker/providers/profile/edit_data_provider.dart';
 import 'package:workout_tracker/providers/profile/profile_data_notifier.dart';
 import 'package:workout_tracker/style/global_colors.dart';
 
@@ -16,6 +17,12 @@ class GenderIdentityScreen extends ConsumerStatefulWidget {
 class _GenderIdentityScreenState extends ConsumerState<GenderIdentityScreen> {
   bool selected = false;
   int selectedGenderIndex = -1;
+
+  @override
+  void initState() {
+    super.initState();
+    selectedGenderIndex = ref.read(profileDataProvider).gender == null? -1 : Gender.values.indexWhere((element) => element.name == ref.read(profileDataProvider).gender);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -56,7 +63,7 @@ class _GenderIdentityScreenState extends ConsumerState<GenderIdentityScreen> {
                   return GestureDetector(
                     onTap: () {
                       setState(() {
-                        ref.read(profileDataProvider.notifier).updateGender(Gender.values[index].name);
+                        ref.read(profileDataProvider.notifier).updateGender(context, Gender.values[index].name);
                         selectedGenderIndex = index;
                       });
                     },
@@ -88,7 +95,15 @@ class _GenderIdentityScreenState extends ConsumerState<GenderIdentityScreen> {
         child: ElevatedButton(
           style: ElevatedButton.styleFrom(backgroundColor: GlobalColors.primaryColor),
           onPressed: () {
-            ref.read(profileDataProvider.notifier).updateGender(Gender.values[selectedGenderIndex].name);
+            final genderValue = Gender.values[selectedGenderIndex].name;
+            // If in edit mode, use the edit_data_provider to update the gender
+            if (widget.isEdit) {
+              final profile = ref.read(profileDataProvider);
+              ref.read(editDataProvider(profile).notifier).updateGender(genderValue, context);
+            } else {
+              // Otherwise, use the profile_data_provider directly
+              ref.read(profileDataProvider.notifier).updateGender(context, genderValue, isEdit: true);
+            }
             Navigator.pop(context);
           }, 
           child: Text('Save', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.white, fontWeight: FontWeight.bold))

@@ -30,7 +30,7 @@ class _DailyBreakdownState extends ConsumerState<DailyBreakdown> {
           final isToday = day.day == DateTime.now().day && 
                         day.month == DateTime.now().month && 
                         day.year == DateTime.now().year;
-          final caloryForDay = ref.watch(caloryProvider.notifier).getCalorieForDay(day);
+          // We'll use a FutureBuilder to handle the async call later in the widget
 
           return Container(
             margin: EdgeInsets.symmetric(horizontal: 15),
@@ -67,7 +67,13 @@ class _DailyBreakdownState extends ConsumerState<DailyBreakdown> {
                 ref.watch(workoutItemProvider.notifier).workoutForDay[index].name,
                 style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
               ),
-              trailing: Text('$caloryForDay kcal', style: theme.textTheme.bodyLarge?.copyWith(color: Colors.black, fontWeight: FontWeight.bold)),
+              trailing: FutureBuilder<int>(
+                future: ref.watch(caloryProvider.notifier).getCalorieForDay(day),
+                builder: (context, snapshot) {
+                  final calories = snapshot.data ?? 0;
+                  return Text('$calories kcal', style: theme.textTheme.bodyLarge?.copyWith(color: Colors.black, fontWeight: FontWeight.bold));
+                },
+              ),
             )
           );
         }

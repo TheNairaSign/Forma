@@ -1,18 +1,23 @@
 // lib/services/workout_service.dart
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
 import 'package:workout_tracker/models/workout/workout.dart';
-import 'package:workout_tracker/providers/workout_item_notifier.dart';
+import 'package:workout_tracker/services/hive_service.dart';
 
 class WorkoutService {
   final String? userId;
   WorkoutService({this.userId});
 
-  Box<Workout> get _workoutBox => Hive.box<Workout>('workouts_$userId');
+  Future<void> openBoxes() async {
+    if (userId == null) return;
+    await HiveService.openUserBoxes(userId!);
+  }
+
+  // Box<Workout> get _workoutBox => Hive.box<Workout>('workouts_$userId');
   Box<Workout> get _historyBox => Hive.box<Workout>('workout_history_$userId');
 
   Future<void> saveWorkouts(List<Workout> workouts) async {
+    final _workoutBox = await Hive.openBox<Workout>('workouts_$userId');
     await _workoutBox.clear();
     for (var workout in workouts) {
       await _workoutBox.put(workout.id, workout); 
@@ -25,10 +30,13 @@ class WorkoutService {
 
 
   Future<List<Workout>> getWorkouts() async {
+    final _workoutBox = await Hive.openBox<Workout>('workouts_$userId');
     return _workoutBox.values.toList();
   }
 
   Future<List<Workout>> getWorkoutsForDay(DateTime date) async {
+    final _workoutBox = await Hive.openBox<Workout>('workouts_$userId');
+
     return _workoutBox.values
         .where((w) => w.sessions.any(
               (s) =>
@@ -41,6 +49,8 @@ class WorkoutService {
 
   Future<void> addWorkout(Workout workout) async {
     try {
+    final _workoutBox = await Hive.openBox<Workout>('workouts_$userId');
+
       await _workoutBox.put(workout.id, workout);
       // Create a copy for the history box to avoid HiveError
       final historyWorkout = Workout.fromMap(workout.toMap());
@@ -68,11 +78,15 @@ class WorkoutService {
   }
 
   Future<void> deleteWorkout(String workoutId) async {
+    final _workoutBox = await Hive.openBox<Workout>('workouts_$userId');
+
     await _workoutBox.delete(workoutId);
   }
 
   Future<void> clearWorkouts({DateTime? date}) async {
     if (date == null) {
+    final _workoutBox = await Hive.openBox<Workout>('workouts_$userId');
+
       await _workoutBox.clear();
       return;
     }
@@ -103,14 +117,15 @@ class WorkoutService {
     }
   }
 
-  Future<bool> undoDelete(String workoutId, WidgetRef ref) async {
+  Future<bool> undoDelete(String workoutId) async {
     final workout = _historyBox.get(workoutId);
     if (workout == null) return false;
+    final _workoutBox = await Hive.openBox<Workout>('workouts_$userId');
+
 
     if (_workoutBox.containsKey(workoutId)) return false;
 
     await _workoutBox.put(workoutId, workout);
-    ref.watch(workoutItemProvider.notifier).getWorkouts();
     return true;
   }
 }

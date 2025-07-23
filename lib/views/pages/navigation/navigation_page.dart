@@ -4,7 +4,7 @@ import 'package:workout_tracker/providers/profile/profile_data_notifier.dart';
 import 'package:workout_tracker/providers/workout_item_notifier.dart';
 import 'package:workout_tracker/views/pages/activity/activity_page.dart';
 import 'package:workout_tracker/views/pages/home/home_page.dart';
-import 'package:workout_tracker/views/pages/workouts/workouts_page.dart.dart';
+import 'package:workout_tracker/views/pages/workouts/workouts_page.dart';
 import 'package:workout_tracker/views/pages/navigation/widgets/nav_destination.dart';
 import 'package:workout_tracker/views/pages/profile/profile_page.dart';
 
@@ -31,7 +31,7 @@ class _NavigationPageState extends ConsumerState<NavigationPage> with SingleTick
   void initState() {
     super.initState();
     ref.read(profileDataProvider.notifier).loadProfileData();
-    ref.read(workoutItemProvider.notifier).getWorkoutsForDay(DateTime.now());
+    // ref.read(workoutItemProvider.notifier).getWorkoutsForDay(DateTime.now());
     _pageController = PageController(initialPage: _selectedIndex);
     _animationController = AnimationController(vsync: this, duration: const Duration(milliseconds: 300));
   }
@@ -43,7 +43,7 @@ class _NavigationPageState extends ConsumerState<NavigationPage> with SingleTick
     super.dispose();
   }
 
-  void _onItemTapped(int index) {
+  void _onItemTapped(int index) { 
     if (index == _selectedIndex) return;
     
     _animationController.forward(from: 0.0);

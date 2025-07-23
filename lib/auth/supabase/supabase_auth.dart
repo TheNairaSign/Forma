@@ -8,7 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:workout_tracker/providers/profile/profile_data_notifier.dart';
 import 'package:workout_tracker/services/exceptions/network_exception.dart';
-import 'package:workout_tracker/services/user_box_service.dart';
+import 'package:workout_tracker/services/hive_service.dart';
 
 class SupabaseAuth {
   SupabaseAuth._privateConstructor();
@@ -40,11 +40,7 @@ class SupabaseAuth {
       if (user != null) {
         try {
           final userFromCache = User.fromJson(jsonDecode(user));
-          final id = userFromCache?.id;
-          await UserBoxService(id).getCaloriesBox();
-          await UserBoxService(id).getStepsBox();
-          await UserBoxService(id).getWorkoutBox();
-          await UserBoxService(id).getWorkoutHistoryBox();
+          await HiveService.openUserBoxes(userId);
           return userFromCache;
         } catch (e) {
           print('Error decoding user from cache: $e');
@@ -75,10 +71,7 @@ class SupabaseAuth {
         final userId = response.user?.id;
         print('Logged in user id: $userId');
         ref.watch(profileDataProvider.notifier).updateProfileId(userId!);
-        await UserBoxService(userId).getCaloriesBox();
-        await UserBoxService(userId).getStepsBox();
-        await UserBoxService(userId).getWorkoutBox();
-        await UserBoxService(userId).getWorkoutHistoryBox();
+        await HiveService.openUserBoxes(userId);
         
         return true;
       }

@@ -6,11 +6,17 @@ import 'package:workout_tracker/views/pages/profile/widgets/profile_header.dart'
 import 'package:workout_tracker/views/pages/profile/widgets/settings/settings_section.dart';
 import 'package:workout_tracker/views/pages/profile/widgets/user_stats_card.dart';
 
-class ProfilePage extends ConsumerWidget {
+class ProfilePage extends ConsumerStatefulWidget {
   const ProfilePage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) { 
+  ConsumerState<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends ConsumerState<ProfilePage> {
+
+  @override
+  Widget build(BuildContext context) { 
     final theme = Theme.of(context);
 
     return Scaffold(
@@ -21,7 +27,6 @@ class ProfilePage extends ConsumerWidget {
           onTap: () {
             Alerts.areYouSureDialog(
               context, 
-              // () => ref.read(loginProvider.notifier).logoutUser(context),
               () {},
               'Are you sure you want to logout'
             );

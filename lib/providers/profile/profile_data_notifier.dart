@@ -6,22 +6,26 @@ import 'package:image_picker/image_picker.dart';
 import 'package:workout_tracker/auth/supabase/supabase_auth.dart';
 import 'package:workout_tracker/models/enums/fitness_level.dart';
 import 'package:workout_tracker/models/state/profile_data.dart';
+import 'package:workout_tracker/providers/edit_profile_provider.dart';
+import 'package:workout_tracker/providers/profile/edit_data_provider.dart';
 import 'package:workout_tracker/providers/profile/update_profile_notifier.dart';
 import 'package:workout_tracker/services/auth_service.dart';
 import 'package:workout_tracker/services/onboarding_service.dart';
 
 class ProfileDataNotifier extends StateNotifier<ProfileData> {
-  final AuthService _authService;
+  final AuthService _authService = AuthService();
   final Ref ref;
-  ProfileDataNotifier(this._authService, this.ref) : super(
+  ProfileDataNotifier(this.ref) : super(
     ProfileData(
+      id: '', // Provide a default ID to prevent null issues
       name: '',
       bio: '',
       fitnessLevel: '',
       location: '',
     ),
   ) {
-    loadProfileData();
+      loadProfileData();
+      debugPrint('Profile Data loaded');
   }
 
   Future<ProfileData?> loadProfileData() async {
@@ -32,7 +36,8 @@ class ProfileDataNotifier extends StateNotifier<ProfileData> {
       debugPrint('User with $username Exists');
       debugPrint('Profile from cache: ${profile.toString()}');
       state = profile;
-      await SupabaseAuth.instance.getUserFromCache(profile.id);
+      final user = await SupabaseAuth.instance.getUser();
+      await SupabaseAuth.instance.getUserFromCache(user?.id);
     } else {
       debugPrint('New user');
       state = state;
@@ -73,8 +78,14 @@ class ProfileDataNotifier extends StateNotifier<ProfileData> {
 
   final ImagePicker imagePicker = ImagePicker();
 
-  void updateUserAvatar(String imagePath) {
+  Future<void> updateUserAvatar(String imagePath, {bool isEdit = false}) async {
+    // Always update the state first
     state = state.copyWith(profileImagePath: imagePath);
+    
+    // Only persist if isEdit is true
+    if (isEdit) {
+      await _authService.updateProfileData(state);
+    }
   }
 
   void updateFitnessLevel(String value) {
@@ -117,8 +128,8 @@ class ProfileDataNotifier extends StateNotifier<ProfileData> {
         id: state.id,
         name: username,
         gender: state.gender,
-        height: state.height ?? 0,
-        weight: state.weight ?? 0,
+        height: state.height ?? 170,
+        weight: state.weight ?? 70,
         foodPreference: foodPreference,
         profileImagePath: state.profileImagePath,
         fitnessLevel: _fitnessLevel,
@@ -135,11 +146,17 @@ class ProfileDataNotifier extends StateNotifier<ProfileData> {
   }
 
   void updateProfile(BuildContext context) {
-    ref.read(updateProfleProvider(state).notifier).updateProfile(context);
-    ref.listen(updateProfleProvider(state), (previous, next) {
-      state = next;
-    });
+    ref.watch(updateProfleProvider(state).notifier).updateProfile(context);
+    // ref.listen(updateProfleProvider(state), (previous, next) {
+    //   state = next;
+    // });
   }
+  // void updateDataProfile(BuildContext context) {
+  //   ref.watch(editProfileProvider(state).notifier).(context);
+  //   // ref.listen(updateProfleProvider(state), (previous, next) {
+  //   //   state = next;
+  //   // });
+  // }
 
   void updateInitialValues() {
     ref.read(updateProfleProvider(state).notifier).initialValues();
@@ -148,25 +165,53 @@ class ProfileDataNotifier extends StateNotifier<ProfileData> {
   int? _age;
   int? get age => _age;
 
-  void updateGender(String newGender) {
+  void updateGender(BuildContext context, String newGender, {bool isEdit = false}) async {
+    // Always update the state first
     state = state.copyWith(gender: newGender);
+    
+    // Only persist if isEdit is true
+    if (isEdit) {
+      // await _authService.updateProfileData(state);
+      ref.watch(editDataProvider(state).notifier).updateGender(newGender, context);
+    }
   }
 
   void setAge(int newAge) {
     _age = newAge;
   }
 
-  void setHeight(double newHeight) {
+  void setHeight(BuildContext context, double newHeight, {bool isEdit = false}) async {
+    // Always update the state first
     state = state.copyWith(height: newHeight);
+    
+    // Only persist if isEdit is true
+    if (isEdit) {
+      // await _authService.updateProfileData(state);
+      ref.watch(editDataProvider(state).notifier).updateHeight(newHeight, context);
+    }
   }
 
-  void setWeight(double newWeight) {
+  void setWeight(BuildContext context, double newWeight, {bool isEdit = false}) async {
+    // Always update the state first
     state = state.copyWith(weight: newWeight);
+    
+    // Only persist if isEdit is true
+    if (isEdit) {
+      // await _authService.updateProfileData(state);
+      ref.watch(editDataProvider(state).notifier).updateWeight(newWeight, context);
+    }
   }
 
-  void setFoodPreference(List<String> newFoodPreference) {
+  void setFoodPreference(BuildContext context, List<String> newFoodPreference, {bool isEdit = false}) async {
     debugPrint('Food Preference: $newFoodPreference');
+    // Always update the state first
     state = state.copyWith(foodPreference: newFoodPreference);
+    
+    // Only persist if isEdit is true
+    if (isEdit) {
+      // await _authService.updateProfileData(state);
+      ref.watch(editDataProvider(state).notifier).updateFoodPreference(newFoodPreference, context);
+    }
   }
 
   void setBio(String? bio) {
@@ -190,6 +235,5 @@ class ProfileDataNotifier extends StateNotifier<ProfileData> {
 }
 
 final profileDataProvider = StateNotifierProvider<ProfileDataNotifier, ProfileData>((ref) {
-  final authService = AuthService();
-  return ProfileDataNotifier(authService, ref);
+  return ProfileDataNotifier(ref);
 });

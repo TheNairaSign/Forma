@@ -38,25 +38,24 @@ class _NavDestinationState extends State<NavDestination> {
 
   @override
   Widget build(BuildContext context) {
-    return AnimationLimiter(
-      child: NavigationBar(
+    return  NavigationBar(
         selectedIndex: widget.selectedIndex,
         onDestinationSelected: (index) => widget.onDestinationSelected(index),
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         indicatorColor: Colors.transparent,
         labelTextStyle: WidgetStatePropertyAll(Theme.of(context).textTheme.bodySmall),
-        destinations: List.generate(
-          _destinations.length,
-          (index) => AnimationConfiguration.staggeredList(
-            position: index,
-            duration: const Duration(milliseconds: 600),
-            child: SlideAnimation(
-              horizontalOffset: 50.0,
-              child: FadeInAnimation(child: _buildAnimatedDestination(index)),
-            ),
-          ),
-        ),
-      ),
+        destinations: List.generate(_destinations.length, (index) => _destinations[index]),
+        // destinations: List.generate(
+        //   _destinations.length,
+        //   (index) => AnimationConfiguration.staggeredList(
+        //     position: index,
+        //     duration: const Duration(milliseconds: 600),
+        //     child: SlideAnimation(
+        //       horizontalOffset: 50.0,
+        //       child: FadeInAnimation(child: _buildAnimatedDestination(index)),
+        //     ),
+        //   ),
+        // ),
     );
   }
 

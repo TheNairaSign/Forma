@@ -26,11 +26,11 @@ class _ChartDataContainerState extends ConsumerState<ChartDataContainer> {
     stepsState = ref.read(stepsProvider.notifier);
   }
 
-  List<DailySteps> get currentData {
+  Future<List<DailySteps>> get currentData async {
     switch (selectedRange) {
-      case 'Weekly': return stepsState.getWeeklySteps();
-      case 'Monthly': return stepsState.getMonthlySteps();
-      default: return stepsState.getDailySteps();
+      case 'Weekly': return await stepsState.getWeeklySteps();
+      case 'Monthly': return await stepsState.getMonthlySteps();
+      default: return await stepsState.getDailySteps();
     }
   }
   
@@ -123,117 +123,146 @@ class _ChartDataContainerState extends ConsumerState<ChartDataContainer> {
                 ],
               ),
               const SizedBox(height: 20),
-              SizedBox(
-                height: 100,
-                child: BarChart(
-                  BarChartData(
-                    borderData: FlBorderData(show: false),
-                    alignment: BarChartAlignment.spaceAround,
-                    maxY: dailyTargetSteps,
-                    minY: 0,
-                    gridData: FlGridData(
-                      show: true,
-                      drawVerticalLine: false,
-                      drawHorizontalLine: false,
-                      horizontalInterval: 1000,
-                      getDrawingHorizontalLine: (value) {
-                        return FlLine(
-                          color: Colors.grey.withOpacity(0.15),
-                          strokeWidth: 1,
-                          dashArray: [5, 5],
-                        );
-                      },
-                    ),
-                    titlesData: FlTitlesData(
-                      show: true,
-                      topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                      rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                      leftTitles: AxisTitles(
-                        sideTitles: SideTitles(
-                          showTitles: true,
-                          interval: 2000,
-                          reservedSize: 20,
-                          getTitlesWidget: (value, meta) {
-                            return Text(
-                              '${(value / 1000).toInt()}k',
-                              style: TextStyle(
-                                color: Colors.grey[600],
-                                fontSize: 12,
-                              ),
+              FutureBuilder<dynamic>(
+                future: selectedRange == 'Daily' 
+                  ? stepsState.getHourlySteps() 
+                  : currentData,
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) {
+                    return const SizedBox(
+                      height: 100,
+                      child: Center(child: CircularProgressIndicator()),
+                    );
+                  }
+                  
+                  return SizedBox(
+                    height: 100,
+                    child: BarChart(
+                      BarChartData(
+                        borderData: FlBorderData(show: false),
+                        alignment: BarChartAlignment.spaceAround,
+                        maxY: dailyTargetSteps,
+                        minY: 0,
+                        gridData: FlGridData(
+                          show: true,
+                          drawVerticalLine: false,
+                          drawHorizontalLine: false,
+                          horizontalInterval: 1000,
+                          getDrawingHorizontalLine: (value) {
+                            return FlLine(
+                              color: Colors.grey.withOpacity(0.15),
+                              strokeWidth: 1,
+                              dashArray: [5, 5],
                             );
                           },
                         ),
-                      ),
-                      bottomTitles: AxisTitles(
-                        sideTitles: SideTitles(
-                          showTitles: true,
-                          getTitlesWidget: (value, meta) {
-                            int index = value.toInt();
-                            if (selectedRange == 'Daily') {
-                              if ([3, 6, 9, 12, 15, 18, 21].contains(index)) {
+                        titlesData: FlTitlesData(
+                          show: true,
+                          topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                          rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                          leftTitles: AxisTitles(
+                            sideTitles: SideTitles(
+                              showTitles: true,
+                              interval: 2000,
+                              reservedSize: 20,
+                              getTitlesWidget: (value, meta) {
                                 return Text(
-                                  '${index > 12 ? index - 12 : index}${index >= 12 ? "PM" : "AM"}',
+                                  '${(value / 1000).toInt()}k',
                                   style: TextStyle(
                                     color: Colors.grey[600],
                                     fontSize: 12,
                                   ),
                                 );
-                              }
-                              return const Text('');
-                            }
-                            if (index < currentData.length) {
-                              final date = currentData[index].date;
-                              return Text(
-                                selectedRange == 'Monthly'
-                                  ? DateFormat('MMM').format(date)
-                                  : ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][date.weekday % 7],
-                                style: TextStyle(
-                                  color: Colors.grey[600],
-                                  fontSize: 12,
-                                ),
-                              );
-                            }
-                            return const Text('');
-                          },
+                              },
+                            ),
+                          ),
+                          bottomTitles: AxisTitles(
+                            sideTitles: SideTitles(
+                              showTitles: true,
+                              getTitlesWidget: (value, meta) {
+                                int index = value.toInt();
+                                if (selectedRange == 'Daily') {
+                                  if ([3, 6, 9, 12, 15, 18, 21].contains(index)) {
+                                    return Text(
+                                      '${index > 12 ? index - 12 : index}${index >= 12 ? "PM" : "AM"}',
+                                      style: TextStyle(
+                                        color: Colors.grey[600],
+                                        fontSize: 12,
+                                      ),
+                                    );
+                                  }
+                                  return const Text('');
+                                }
+                                
+                                final data = snapshot.data;
+                                if (data is List<DailySteps> && index < data.length) {
+                                  final date = data[index].date;
+                                  return Text(
+                                    selectedRange == 'Monthly'
+                                      ? DateFormat('MMM').format(date)
+                                      : ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][date.weekday % 7],
+                                    style: TextStyle(
+                                      color: Colors.grey[600],
+                                      fontSize: 12,
+                                    ),
+                                  );
+                                }
+                                return const Text('');
+                              },
+                            ),
+                          ),
                         ),
+                    barGroups: selectedRange == 'Daily'
+                          ? List.generate(
+                              24,
+                              (index) {
+                                final hourlyData = snapshot.data as Map<int, int>;
+                                final steps = hourlyData[index] ?? 0;
+                                return BarChartGroupData(
+                                  x: index,
+                                  barRods: [
+                                    BarChartRodData(
+                                      toY: steps.toDouble(),
+                                      width: 8,
+                                      color: steps > 0
+                                          ? Theme.of(context).primaryColor
+                                          : Colors.grey.withOpacity(0.2),
+                                      borderRadius: const BorderRadius.only(
+                                        topLeft: Radius.circular(3),
+                                        topRight: Radius.circular(3),
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              },
+                            )
+                          : List.generate(
+                              (snapshot.data as List<DailySteps>).length,
+                              (index) {
+                                final data = snapshot.data as List<DailySteps>;
+                                final steps = data[index].steps;
+                                return BarChartGroupData(
+                                  x: index,
+                                  barRods: [
+                                    BarChartRodData(
+                                      toY: steps.toDouble(),
+                                      width: 12,
+                                      color: steps > 0
+                                          ? Theme.of(context).primaryColor
+                                          : Colors.grey.withOpacity(0.2),
+                                      borderRadius: const BorderRadius.only(
+                                        topLeft: Radius.circular(3),
+                                        topRight: Radius.circular(3),
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              },
+                            ),
                       ),
                     ),
-                    barGroups: selectedRange == 'Daily'
-                      ? stepsState.getHourlySteps()
-                          .entries
-                          .map((entry) => BarChartGroupData(
-                            x: entry.key,
-                            barRods: [
-                              BarChartRodData(
-                                toY: entry.value.toDouble(),
-                                color: Colors.green.shade300,
-                                width: 12,
-                                borderRadius: borderRadius,
-                              )
-                            ],
-                          ))
-                          .toList()
-                      : currentData
-                        .asMap()
-                        .entries
-                        .map((entry) => BarChartGroupData(
-                          x: entry.key,
-                          barRods: [
-                            BarChartRodData(
-                              toY: entry.value.steps.toDouble() > dailyTargetSteps ? dailyTargetSteps : entry.value.steps.toDouble(),
-                              color: entry.value.date.weekday % 2 == 0 
-                                ? Colors.blue.shade300 
-                                : Colors.green.shade300,
-                              width: 20,
-                              borderRadius: borderRadius,
-                            )
-                          ],
-                        )
-                      )
-                      .toList(),
-                  ),
-                ),
-              ), 
+                  );
+                }),
             ],
           ),
         ),

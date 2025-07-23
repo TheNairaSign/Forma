@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:workout_tracker/constants.dart';
+import 'package:workout_tracker/providers/profile/edit_data_provider.dart';
 import 'package:workout_tracker/providers/profile/profile_data_notifier.dart';
 import 'package:workout_tracker/style/global_colors.dart';
 
@@ -96,7 +97,14 @@ class _AgeSliderScreenState extends ConsumerState<AgeSliderScreen> {
             backgroundColor: GlobalColors.primaryColor,
           ),
           onPressed: () {
-            ref.read(profileDataProvider.notifier).setAge(selectedAge);
+            // If in edit mode, use the edit_data_provider to update the age
+            if (widget.isEdit) {
+              final profile = ref.read(profileDataProvider);
+              ref.read(editDataProvider(profile).notifier).updateAge(selectedAge, context);
+            } else {
+              // Otherwise, use the profile_data_provider directly
+              ref.read(profileDataProvider.notifier).setAge(selectedAge);
+            }
             Navigator.pop(context);
           }, 
           child: Text('Save', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.white, fontWeight: FontWeight.bold))

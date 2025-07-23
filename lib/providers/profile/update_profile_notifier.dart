@@ -3,15 +3,14 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:workout_tracker/models/state/profile_data.dart';
-import 'package:workout_tracker/providers/profile/profile_data_notifier.dart';
 import 'package:workout_tracker/services/auth_service.dart';
 import 'package:workout_tracker/utils/alerts.dart';
 
 class UpdateProfileNotifier extends StateNotifier<ProfileData> {
-  UpdateProfileNotifier(super.profileData, this.ref, this._authService);
+  UpdateProfileNotifier(super.profileData, this.ref);
 
   final Ref ref;
-  final AuthService _authService;
+  final AuthService _authService = AuthService();
 
   final _nameController = TextEditingController();
   final _bioController = TextEditingController();
@@ -48,19 +47,15 @@ class UpdateProfileNotifier extends StateNotifier<ProfileData> {
 
         await _authService.updateProfileData(state);
 
-        ref.watch(profileDataProvider.notifier).loadProfileData();
+        // ref.watch(profileDataProvider.notifier).loadProfileData();
 
         Alerts.showFlushBar(context, 'Data updated successfully', false);
       }
     }
   }
-
-  Future<void> editUserData() async {
-    
-  }
 }
 
 final updateProfleProvider = StateNotifierProvider.family<UpdateProfileNotifier, ProfileData, ProfileData>((ref, profileData) {
-  final authService = AuthService();
-  return UpdateProfileNotifier(profileData, ref, authService);
+  // final authService = AuthService();
+  return UpdateProfileNotifier(profileData, ref);
 });

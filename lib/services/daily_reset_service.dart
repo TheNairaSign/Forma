@@ -16,8 +16,8 @@ class DailyResetService {
     if (lastReset == null || now.difference(lastReset).inDays >= 1) {
       // Reset daily data
       ref.read(workoutItemProvider.notifier).clearWorkouts(null, DateTime.now(), showAlert: false);
-      ref.read(stepsProvider.notifier).clearSteps();
-      ref.read(caloryProvider.notifier).clearCalories();
+      // await ref.read(stepsProvider.notifier).clearSteps();
+      await ref.read(caloryProvider.notifier).clearCalories();
 
       // Update the last reset timestamp
       ref.read(lastResetProvider.notifier).updateResetTime(now);

@@ -5,7 +5,6 @@ import 'package:pedometer/pedometer.dart';
 import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 import 'package:workout_tracker/hive/daily_steps_adapter.dart';
 import 'package:workout_tracker/providers/steps_notifier.dart';
-import 'package:workout_tracker/services/user_box_service.dart';
 
 @pragma('vm:entry-point')
 void backgroundTaskCallback() async {
@@ -19,7 +18,7 @@ Future<void> _updateStepCountInBackground() async {
   try {
     WidgetsFlutterBinding.ensureInitialized();
     await Hive.initFlutter();
-    // await Hive.openBox<DailySteps>('dailyStepsBox');
+    await Hive.openBox<DailySteps>('dailySteps');
     // await UserBoxService().getStepsBox();
     Hive.registerAdapter(DailyStepsAdapter());
     

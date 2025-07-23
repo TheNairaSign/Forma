@@ -76,7 +76,7 @@ class _HeightSliderScreenState extends ConsumerState<HeightSliderScreen> {
             // Height display
             Text(
               displayHeight,
-              style: const TextStyle(fontSize: 42, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 42, fontWeight: FontWeight.bold),
             ),
         
             const SizedBox(height: 20),
@@ -104,7 +104,7 @@ class _HeightSliderScreenState extends ConsumerState<HeightSliderScreen> {
                     onSelectedItemChanged: (index) {
                       setState(() {
                         cmValue = minCm + index;
-                        ref.read(profileDataProvider.notifier).setHeight(cmValue.toDouble());
+                        ref.read(profileDataProvider.notifier).setHeight(context, cmValue.toDouble());
                       });
                     },
                     childDelegate: ListWheelChildBuilderDelegate(
@@ -143,7 +143,7 @@ class _HeightSliderScreenState extends ConsumerState<HeightSliderScreen> {
             backgroundColor: GlobalColors.primaryColor,
           ),
           onPressed: () {
-            ref.read(profileDataProvider.notifier).setHeight(cmValue.toDouble());
+            ref.read(profileDataProvider.notifier).setHeight(context,  cmValue.toDouble(), isEdit: true);
             Navigator.pop(context);
           }, 
           child: Text('Save', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.white, fontWeight: FontWeight.bold))

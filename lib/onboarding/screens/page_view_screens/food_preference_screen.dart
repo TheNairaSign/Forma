@@ -16,16 +16,27 @@ class FoodPreferenceScreen extends ConsumerStatefulWidget {
 
 class _FoodPreferenceScreenState extends ConsumerState<FoodPreferenceScreen> {
 
-  final Set<String> selectedItems = {};
+  Set<String> selectedItems = {};
+
+  @override
+  void initState() {
+    super.initState();
+    final profile = ref.read(profileDataProvider);
+    final foodPref = profile.foodPreference;
+    if(foodPref != null) {
+      debugPrint('Food Preference not null with values: $foodPref');
+      selectedItems.addAll(foodPref);
+    }
+  }
 
   void toggleSelection(String name) {
     setState(() {
       if (selectedItems.contains(name)) {
         selectedItems.remove(name);
-        ref.watch(profileDataProvider.notifier).setFoodPreference(selectedItems.toList());
+        ref.watch(profileDataProvider.notifier).setFoodPreference(context, selectedItems.toList());
       } else {
         selectedItems.add(name);
-        ref.watch(profileDataProvider.notifier).setFoodPreference(selectedItems.toList());
+        ref.watch(profileDataProvider.notifier).setFoodPreference(context, selectedItems.toList());
       }
     });
   }
@@ -109,7 +120,7 @@ class _FoodPreferenceScreenState extends ConsumerState<FoodPreferenceScreen> {
         child: ElevatedButton(
           style: ElevatedButton.styleFrom(backgroundColor: GlobalColors.primaryColor),
           onPressed: () {
-            ref.watch(profileDataProvider.notifier).setFoodPreference(selectedItems.toList());
+            ref.watch(profileDataProvider.notifier).setFoodPreference(context, selectedItems.toList(), isEdit: true);
             Navigator.pop(context);
           }, 
           child: Text('Save', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.white, fontWeight: FontWeight.bold))

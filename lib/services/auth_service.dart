@@ -6,7 +6,7 @@ class AuthService {     // For auth
   static const _profileBoxName = 'newUser';  // For ProfileData
   static const _sessionKey = 'loggedIn';
 
-  final Box<ProfileData> profileBox = Hive.box<ProfileData>(_profileBoxName);
+  // final Box<ProfileData> profileBox = Hive.box<ProfileData>(_profileBoxName);
 
   /// Hashes the password using SHA-256
   // Box<ProfileData> get userBox => Hive.box<ProfileData>(_userBoxName);
@@ -87,6 +87,8 @@ class AuthService {     // For auth
     if (username == null) return null;
 
     print('Getting Profile data from box');
+    final profileBox = await Hive.openBox<ProfileData>(_profileBoxName);
+
     return profileBox.get(username);  
   }
 
@@ -96,14 +98,20 @@ class AuthService {     // For auth
     final username = prefs.getString(_sessionKey);
     if (username == null) return;
 
-    // final profileBox = await Hive.openBox<ProfileData>(_profileBoxName);
-    await profileBox.put(username, newProfile);
-    print('Updated Profile data for $username');
+    final profileBox = await Hive.openBox<ProfileData>(_profileBoxName);
+    await profileBox.put(username, newProfile).then((_) async {
+      print('Put profile successfully');
+      await getProfileData();
+    });
+    print('Updated Profile data for $username with data: ${newProfile.toString()}');
   }
 
   /// Creates new profile data (after registration/setup)
   Future<void> createProfileData(String username, ProfileData profile) async {
     print('Creating profile data box for $username');
+    
+    final profileBox = await Hive.openBox<ProfileData>(_profileBoxName);
+
     await profileBox.put(username, profile);
     print('Created profile data box for $username');
   }

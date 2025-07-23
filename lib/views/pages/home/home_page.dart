@@ -73,8 +73,6 @@ class _HomePageState extends ConsumerState<HomePage> {
             Text("Overall Status", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             SizedBox(height: 10),
             OverallStatusContainer(),
-
-            
           ],
         ),
       ),
