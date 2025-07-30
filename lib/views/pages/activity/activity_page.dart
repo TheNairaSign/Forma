@@ -8,7 +8,6 @@ import 'package:workout_tracker/views/pages/activity/widgets/stat_card.dart';
 import 'package:workout_tracker/views/pages/activity/widgets/weekly_chart_container.dart';
 
 class CalorieDetailsPage extends ConsumerStatefulWidget {
-
   const CalorieDetailsPage({super.key});
 
   @override
@@ -16,47 +15,25 @@ class CalorieDetailsPage extends ConsumerStatefulWidget {
 }
 
 class _CalorieDetailsPageState extends ConsumerState<CalorieDetailsPage> {
-  late List<Future<int>> _calo;
-
-  
   @override
   void initState() {
     super.initState();
-    // getWeeklyTotals is now async, so we'll handle it differently
-    _loadWeeklyTotals();
-  }
-
-  Future<void> _loadWeeklyTotals() async {
-    await ref.read(caloryProvider.notifier).getWeeklyTotals();
-  }
-
-  Future<void> _loadCaloriesForDay() async {
-    final weekDays = getWeekDays();
-    _calo = weekDays.map((date) async => await ref.read(caloryProvider.notifier).getCalorieForDay(date)).toList();
+    ref.read(caloriesProvider.notifier).getWeeklyTotals();
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final backgroundColor = Color(0xff080b10);
+    final weekDays = getWeekDays();
     
-    // Use FutureBuilder to handle the async data loading
-    return FutureBuilder<List<int>>(
-      future: ref.read(caloryProvider.notifier).getWeeklyCalories(),
-      builder: (context, snapshot) {
-        // Show loading indicator while data is being fetched
-        if (!snapshot.hasData) {
-          return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
-          );
-        }
-        
-        final calorieData = snapshot.data!;
-        final todayIndex = DateTime.now().weekday - 1;
-        final todayCalories = todayIndex < calorieData.length ? calorieData[todayIndex] : 0;
-        final weeklyAverage = calorieData.isNotEmpty 
-            ? calorieData.reduce((a, b) => a + b) ~/ calorieData.length 
-            : 0;
+    final calorieData = weekDays.map((day) => ref.watch(caloriesProvider.notifier).getCalorieForDay(day)).toList();
+    final todayIndex = DateTime.now().weekday - 1;
+    final todayCalories = todayIndex < calorieData.length ? calorieData[todayIndex] : 0;
+    final weeklyAverage = calorieData.isNotEmpty 
+        ? calorieData.reduce((a, b) => a + b) ~/ calorieData.length 
+        : 0;
+
     return Scaffold(
       body: CustomScrollView(
         slivers: [
@@ -76,13 +53,12 @@ class _CalorieDetailsPageState extends ConsumerState<CalorieDetailsPage> {
                   collapseMode: isCollapsed ? CollapseMode.parallax : CollapseMode.pin,
                   title: isCollapsed ? Text('Daily Breakdown', style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold, color: Colors.white)) : null,
                   centerTitle: true,
-                titlePadding: const EdgeInsets.only(bottom: 16.0, left: 16.0),
+                  titlePadding: const EdgeInsets.only(bottom: 16.0, left: 16.0),
                   background: Container(
                     margin: const EdgeInsets.fromLTRB(0, kToolbarHeight + 15 , 0, 16),
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(color: backgroundColor),
                     child: Column(
-                      // physics: const AlwaysScrollableScrollPhysics(),
                       children: [
                         Text('Weekly Overview', style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold, color: Colors.white)),
                         const SizedBox(height: 8),
@@ -123,7 +99,6 @@ class _CalorieDetailsPageState extends ConsumerState<CalorieDetailsPage> {
               ),
             ),
           ),   
-          // DailyBreakdown already uses FutureBuilder internally for each day
           DailyBreakdown(calorieData: calorieData),
           SliverToBoxAdapter(
             child: Padding(
@@ -138,8 +113,6 @@ class _CalorieDetailsPageState extends ConsumerState<CalorieDetailsPage> {
           )
         ],
       ),
-    );
-      }
     );
   }
 }

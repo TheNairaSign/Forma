@@ -8,14 +8,15 @@ import 'package:intl/intl.dart';
 import 'package:pedometer/pedometer.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:workout_tracker/hive/daily_steps_adapter.dart';
+import 'package:workout_tracker/hive/step_entry.dart';
 import 'package:workout_tracker/models/state/steps_state.dart';
-import 'package:workout_tracker/providers/profile/profile_data_notifier.dart';
+import 'package:workout_tracker/providers/box_providers.dart';
 import 'package:workout_tracker/utils/alerts.dart';
+import 'package:workout_tracker/utils/flush/flushbar_service.dart';
 
 class StepsNotifier extends StateNotifier<StepsState> {
   final Ref ref;
-  String userId;
-  StepsNotifier(this.ref, this.userId) : super(StepsState(
+  StepsNotifier(this.ref) : super(StepsState(
     stepCountStream: const Stream.empty(),
     pedestrianStatusStream: const Stream.empty(),
     status: '0',
@@ -23,28 +24,12 @@ class StepsNotifier extends StateNotifier<StepsState> {
     date: DateTime.now(),
   ));
 
-  
-  // Box<DailySteps> get _dailyStepsBox => ref.watch(userBoxServiceProvider).dailyStepsBox;
+  Box<DailySteps> get _dailyStepsBox => ref.watch(stepsBoxProvider);
 
-  Box<DailySteps>? _dailyStepsBoxCache;
-  
-  Future<Box<DailySteps>> get _dailyStepsBox async {
-    if (_dailyStepsBoxCache != null && _dailyStepsBoxCache!.isOpen) {
-      return _dailyStepsBoxCache!;
-    }
-    try {
-      if (!Hive.isBoxOpen('dailySteps')) {
-        _dailyStepsBoxCache = await Hive.openBox<DailySteps>('dailySteps');
-      } else {
-        _dailyStepsBoxCache = Hive.box<DailySteps>('dailySteps');
-      }
-      return _dailyStepsBoxCache!;
-    } catch (e) {
-      debugPrint('Error opening dailySteps box: $e');
-      throw Exception('Failed to open dailySteps box: $e');
-    }
+  DateTime getStartOfWeek(DateTime date) {
+    return date.subtract(Duration(days: date.weekday - 1));
   }
-  
+
   DateTime _currentDate = DateTime.now();
 
   late Stream<StepCount> _stepCountStream;
@@ -67,8 +52,38 @@ class StepsNotifier extends StateNotifier<StepsState> {
   }
 
 
-  final int _dailyTargetSteps = 10000;
+  int _dailyTargetSteps = 10000;
   int get dailyTargetSteps => _dailyTargetSteps;
+
+  bool _isEdit = false;
+  bool get isEdit => _isEdit;
+
+  void updateIsEdit(String value) async {
+
+    if (value != _dailyTargetSteps.toString()) {
+      debugPrint('Value changed: $value, current target: $_dailyTargetSteps');
+      _isEdit = true;
+      // _targetCalorieController.text = value;
+      state = state;
+
+    } else {
+      _isEdit = false;
+      debugPrint('Value is the same as target calories, setting isEdit to false');
+      state = state;
+    }
+    print('Update isEdit to: $_isEdit');
+  }
+
+  final _targetStepsController = TextEditingController(text: '10000');
+  TextEditingController get targetStepsController => _targetStepsController;
+
+  void updateTargetSteps(BuildContext context) {
+    if (_targetStepsController.text.isEmpty || _targetStepsController.text == '') return;
+    _dailyTargetSteps = int.parse(_targetStepsController.text);
+    debugPrint('Updated target steps to $_dailyTargetSteps');
+    FlushbarService.show(context, message: 'Target steps updated to $_dailyTargetSteps');
+    state = state;
+  }
 
   int stepsCalory = 0;
 
@@ -79,31 +94,32 @@ class StepsNotifier extends StateNotifier<StepsState> {
   // }
 
   double stepsProgress(int? animationValue) {
-    if (animationValue != null || animationValue != 0) {
-      return animationValue!  / _dailyTargetSteps;
-    } else {
-      return state.steps / _dailyTargetSteps;
-    }
+    final value = (animationValue ?? state.steps).toDouble();
+    return (value / _dailyTargetSteps).clamp(0.0, 1.0);
   }
 
   String _getDateKey(DateTime date) {
     return DateFormat('yyyy-MM-dd').format(date);
   }
 
-  Future<void> onStepCount(int stepCount) async {
+  void onStepCount(int stepCount) {
     final currentDate = DateTime.now();
+
+    final deltaBox = Hive.box<StepEntry>('step_deltas');
+
+    deltaBox.add(StepEntry(timestamp: currentDate, steps: stepCount));
     if (currentDate != _currentDate) {
       _currentDate = currentDate;
     }
     
     final dateKey = _getDateKey(_currentDate);
     try {
-      final box = await _dailyStepsBox;
+      final box = _dailyStepsBox;
       final dailySteps = box.get(dateKey);
 
       if (dailySteps != null) {
         debugPrint('Step Count: ${dailySteps.steps}');
-        await box.put(dateKey, DailySteps(
+        box.put(dateKey, DailySteps(
           date: _currentDate,
           // steps: dailySteps.steps + stepCount,
           steps: stepCount,
@@ -111,7 +127,7 @@ class StepsNotifier extends StateNotifier<StepsState> {
         ));  
       } else {
         debugPrint('Steps Count: $stepCount');
-        await box.put(dateKey, DailySteps(
+        box.put(dateKey, DailySteps(
           date: _currentDate,
           steps: stepCount,
           lastUpdated: DateTime.now(),
@@ -124,10 +140,10 @@ class StepsNotifier extends StateNotifier<StepsState> {
   }
 
   // Update getTodaySteps to use the new key format
-  Future<int> getTodaySteps() async {
+  int getTodaySteps() {
     try {
       final today = _getDateKey(DateTime.now());
-      final box = await _dailyStepsBox;
+      final box = _dailyStepsBox;
       return box.get(today)?.steps ?? 0;
     } catch (e) {
       debugPrint('Error getting today steps: $e');
@@ -136,10 +152,10 @@ class StepsNotifier extends StateNotifier<StepsState> {
   }
 
 
-  Future<List<DailySteps>> getDailySteps() async {
+  List<DailySteps> getDailySteps() {
     try {
       final today = _getDateKey(DateTime.now());
-      final box = await _dailyStepsBox;
+      final box = _dailyStepsBox;
       final dailySteps = box.get(today);
 
       if (dailySteps != null) {
@@ -154,7 +170,8 @@ class StepsNotifier extends StateNotifier<StepsState> {
     }
   }
 
-  Future<Map<int, int>> getHourlySteps() async {
+  /*
+  Map<int, int> getHourlySteps() {
     // Initialize map with 24 hours (0-23) set to 0 steps
     final Map<int, int> hourlyBreakdown = { 
       for (var hour in List.generate(24, (index) => index)) hour : 0 
@@ -163,7 +180,7 @@ class StepsNotifier extends StateNotifier<StepsState> {
     try {
       final today = DateTime.now();
       final dateKey = _getDateKey(today);
-      final box = await _dailyStepsBox;
+      final box = _dailyStepsBox;
       final dailySteps = box.get(dateKey);
       
       if (dailySteps != null) {
@@ -189,8 +206,32 @@ class StepsNotifier extends StateNotifier<StepsState> {
 
     return hourlyBreakdown;
   }
+   */
 
-  Future<List<DailySteps>> getWeeklySteps() async {
+  Map<int, int> getHourlySteps() {
+    final box = Hive.box<StepEntry>('step_deltas');
+    final entries = box.values.where((entry) {
+      final now = DateTime.now();
+      return entry.timestamp.year == now.year &&
+          entry.timestamp.month == now.month &&
+          entry.timestamp.day == now.day;
+    });
+
+    final Map<int, int> hourlySteps = Map.fromIterables(
+      List.generate(24, (i) => i),
+      List.generate(24, (_) => 0),
+    );
+
+    for (var entry in entries) {
+      var hourly = hourlySteps[entry.timestamp.hour] ?? 0;
+      hourly += entry.steps;
+    }
+
+    return hourlySteps;
+  }
+
+
+  List<DailySteps> getWeeklySteps() {
     final weeklySteps = <DailySteps>[];
     final now = DateTime.now();
     final startOfWeek = now.subtract(Duration(days: now.weekday % 7));
@@ -199,7 +240,7 @@ class StepsNotifier extends StateNotifier<StepsState> {
     _lowestWeeklyStep = _dailyTargetSteps;  // Start with target steps as max
 
     try {
-      final box = await _dailyStepsBox;
+      final box = _dailyStepsBox;
       
       for (int i = 0; i < 7; i++) {
         final date = startOfWeek.add(Duration(days: i));
@@ -236,14 +277,14 @@ class StepsNotifier extends StateNotifier<StepsState> {
     return weeklySteps;
   }
 
-  Future<List<DailySteps>> getMonthlySteps() async {
+  List<DailySteps> getMonthlySteps() {
     final monthlySteps = <DailySteps>[];
     final now = DateTime.now();
 
     // Get data for all 12 months starting from January
     for (int i = 0; i < 12; i++) {
       final date = DateTime(now.year, i + 1, 1);
-      final monthTotal = await _getMonthTotal(date);
+      final monthTotal = _getMonthTotal(date);
       
       monthlySteps.add(DailySteps(
         date: date,
@@ -254,10 +295,10 @@ class StepsNotifier extends StateNotifier<StepsState> {
     return monthlySteps;
   }
 
-  Future<int> _getMonthTotal(DateTime date) async {
+  int _getMonthTotal(DateTime date) {
     int total = 0;
     final daysInMonth = DateTime(date.year, date.month + 1, 0).day;
-    final box = await _dailyStepsBox;
+    final box = _dailyStepsBox;
     
     for (int day = 1; day <= daysInMonth; day++) {
       final currentDate = DateTime(date.year, date.month, day);
@@ -271,33 +312,33 @@ class StepsNotifier extends StateNotifier<StepsState> {
   }
 
   // Update getStepsForDate to use the new key format
-  Future<int?> getStepsForDate(DateTime date) async {
-    final box = await _dailyStepsBox;
+  int? getStepsForDate(DateTime date) {
+    final box = _dailyStepsBox;
     return box.get(_getDateKey(date))?.steps;
   }
 
   // Get all stored step data
-  Future<List<DailySteps>> getAllSteps() async {
-    final box = await _dailyStepsBox;
+  List<DailySteps> getAllSteps() {
+    final box = _dailyStepsBox;
     return box.values.toList();
   }
 
-  Future<void> clearAllSteps() async {
+  void clearAllSteps() {
     try {
-      final box = await _dailyStepsBox;
-      await box.clear();
+      final box = _dailyStepsBox;
+      box.clear();
       state = state.copyWith(steps: 0);
     } catch (e) {
       debugPrint('Error clearing all steps: $e');
     }
   }
 
-  Future<void> resetSteps() async {
+  void resetSteps() {
     try {
       final today = DateTime.now();
       final dateKey = _getDateKey(today);
-      final box = await _dailyStepsBox;
-      await box.put(dateKey, DailySteps(
+      final box = _dailyStepsBox;
+      box.put(dateKey, DailySteps(
         date: today,
         steps: 0,
         lastUpdated: today,
@@ -370,7 +411,11 @@ class StepsNotifier extends StateNotifier<StepsState> {
 }
 
 final stepsProvider = StateNotifierProvider<StepsNotifier, StepsState>((ref) {
-  final userId = ref.watch(profileDataProvider).id;
-  print('User id in steps provider: $userId');
-  return StepsNotifier(ref, userId!);
+  // final userId = ref.watch(profileDataProvider).value;
+  // if (userId == null) {
+  //   debugPrint('User ID is null, cannot initialize StepsNotifier');
+  //   return StepsNotifier(ref);
+  // }
+  // print('User id in steps provider: $userId');
+  return StepsNotifier(ref);
 });

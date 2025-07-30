@@ -1,34 +1,15 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
 import 'package:workout_tracker/hive/adapter/calory_state.dart';
-import 'package:workout_tracker/services/hive_service.dart';
+import 'package:workout_tracker/providers/box_providers.dart';
 
 class CalorieService {
-  final String? userId;
+  final Box<CaloryState> _calorieBox;
 
-  CalorieService({required this.userId});
+  CalorieService(this._calorieBox);
 
-  // <Box<CaloryState>> get _calorieBox =>
-  //   HiveBoxManager.openUserBox<CaloryState>(
-  //     boxType: 'calories',
-  //     userId: userId,
-  //   );
-
-  Future<Box<CaloryState>> get _calorieBox async {
-    final boxName = 'calorieBox_$userId';
-    if (Hive.isBoxOpen(boxName)) {
-      return Hive.box<CaloryState>(boxName);
-    }
-    return await Hive.openBox<CaloryState>(boxName);
-  }
-
-  Future<void> openBoxes() async {
-    if (userId == null || userId!.isEmpty) return;
-    await HiveService.openUserBoxes(userId!);
-  }
-
-  Future<List<CaloryState>> getDailyCalories(DateTime date) async {
-    final box = await _calorieBox;
-    return box
+  List<CaloryState> getDailyCalories(DateTime date) {
+    return _calorieBox
        .values
        .where((entry) {
       final d = entry.timestamp;
@@ -36,19 +17,18 @@ class CalorieService {
     }).toList();
   }
 
-  Future<int> getDailyTotal(DateTime date) async {
-    final entries = await getDailyCalories(date);
-    final newEntries = entries.fold(0, (sum, e) => sum + e.calories);
-    return newEntries;
+  int getDailyTotal(DateTime date) {
+    final entries = getDailyCalories(date);
+    return entries.fold(0, (sum, e) => sum + e.calories);
   }
 
-  Future<List<List<CaloryState>>> getWeeklyCalories() async {
+  List<List<CaloryState>> getWeeklyCalories() {
     final now = DateTime.now();
     final start = now.subtract(Duration(days: now.weekday - 1));
     List<List<CaloryState>> weekly = [];
     for (int i = 0; i < 7; i++) {
       final day = start.add(Duration(days: i));
-      final entries = await getDailyCalories(day);
+      final entries = getDailyCalories(day);
       weekly.add(entries);
     }
     return weekly;
@@ -61,10 +41,10 @@ class CalorieService {
         date.day == now.day;
   }
 
-  Future<List<int>> getWeeklyTotals(int steps) async {
+  List<int> getWeeklyTotals(int steps) {
     final now = DateTime.now();
     final start = now.subtract(Duration(days: now.weekday - 1));
-    final weekly = await getWeeklyCalories();
+    final weekly = getWeeklyCalories();
 
     return List.generate(7, (i) {
       final date = start.add(Duration(days: i));
@@ -73,22 +53,21 @@ class CalorieService {
     });
   }
 
-  Future<void> addCalories(int amount, {String? source}) async {
+  void addCalories(int amount, {String? source}) {
     final entry = CaloryState(
       calories: amount,
       timestamp: DateTime.now(),
       source: source,
     );
-    final box = await _calorieBox;
-    await box.add(entry);
+    _calorieBox.add(entry);
   }
 
-  Future<CaloryState> addWorkoutCalories({
+  CaloryState addWorkoutCalories({
     required String workoutName,
     required double metValue,
     required double durationMinutes,
     required double weightKg,
-  }) async {
+  }) {
     final cal = calculateWorkoutCalories(
       metValue: metValue,
       durationMinutes: durationMinutes,
@@ -99,18 +78,16 @@ class CalorieService {
       timestamp: DateTime.now(),
       source: 'workout:$workoutName',
     );
-    final box = await _calorieBox;
-    await box.add(state);
+    _calorieBox.add(state);
     return state;
   }
 
-  Future<void> resetToday() async {
-    final box = await _calorieBox;
+  void resetToday() {
     final now = DateTime.now();
-    final today = await getDailyCalories(now);
+    final today = getDailyCalories(now);
     for (var e in today) {
-      final idx = box.values.toList().indexOf(e);
-      if (idx != -1) await box.deleteAt(idx);
+      final idx = _calorieBox.values.toList().indexOf(e);
+      if (idx != -1) _calorieBox.deleteAt(idx);
     }
   }
 
@@ -128,40 +105,43 @@ class CalorieService {
     return ((metValue * 3.5 * weightKg / 200) * durationMinutes).truncate();
   }
 
-  Future<int> getDailyCaloriesFromSource(DateTime date, String source) async {
-    final entries = await getDailyCalories(date);
-    final newEntry = entries
+  int getDailyCaloriesFromSource(DateTime date, String source) {
+    final entries = getDailyCalories(date);
+    return entries
         .where((e) => e.source?.startsWith(source) ?? false)
         .fold(0, (sum, e) => sum + e.calories);
-    return newEntry;
   }
 
-  Future<int> getDailyStepsCalories(DateTime date) async {
-    return await getDailyCaloriesFromSource(date, 'steps');
+  int getDailyStepsCalories(DateTime date) {
+    return getDailyCaloriesFromSource(date, 'steps');
   }
 
-  Future<int> getDailyWorkoutCalories(DateTime date) async {
-    return await getDailyCaloriesFromSource(date, 'workout');
+  int getDailyWorkoutCalories(DateTime date) {
+    return getDailyCaloriesFromSource(date, 'workout');
   }
 
-  Future<int> getCalorieForDay(DateTime date, {required int steps}) async {
-    final base = await getDailyTotal(date);
-    final workout = await getDailyWorkoutCalories(date);
+  int getCalorieForDay(DateTime date, {required int steps}) {
+    final base = getDailyTotal(date);
+    final workout = getDailyWorkoutCalories(date);
     final stepCal = isToday(date) ? calculateStepsCalories(steps) : 0;
     return base + workout + stepCal;
   }
 
-  Future<void> clearCaloriesByDay(DateTime date) async {
-    final box = await _calorieBox;
-    final entries = await getDailyCalories(date);
+  void clearCaloriesByDay(DateTime date) {
+    final entries = getDailyCalories(date);
     for (var entry in entries) {
-      final idx = box.values.toList().indexOf(entry);
-      if (idx != -1) await box.deleteAt(idx);
+      final idx = _calorieBox.values.toList().indexOf(entry);
+      if (idx != -1) _calorieBox.deleteAt(idx);
     }
   }
-
-  Future<List<CaloryState>> getAllEntries() async {
-    final box = await _calorieBox;
-    return box.values.toList();
-  }
 }
+
+final caloryServiceProvider = Provider<CalorieService>((ref) {
+  var calorieBox = ref.watch(caloriesBoxProvider);
+  if (!calorieBox.isOpen) {
+    Future.delayed(Duration(seconds: 3), () async {
+      calorieBox = await Hive.openBox<CaloryState>('calorieBox_');
+    });
+  }
+  return CalorieService(calorieBox);
+});

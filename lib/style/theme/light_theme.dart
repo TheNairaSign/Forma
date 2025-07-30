@@ -16,5 +16,6 @@ final lightTheme = ThemeData.light(useMaterial3: true).copyWith(
     bodyLarge: GoogleFonts.dmSans(color: Colors.black),
     bodySmall: GoogleFonts.dmSans(color: Colors.black),
     bodyMedium: GoogleFonts.dmSans(color: Colors.black),
+      titleMedium: GoogleFonts.dmSans(color: Colors.black, fontWeight: FontWeight.w500)
   )
 );

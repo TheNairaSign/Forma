@@ -2,7 +2,6 @@ import 'package:hive/hive.dart';
 import 'package:workout_tracker/hive/daily_steps_adapter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:workout_tracker/providers/profile/profile_data_notifier.dart';
 
 class StepsProgressNotifier extends StateNotifier<DailySteps> {
   final Ref ref;
@@ -12,7 +11,7 @@ class StepsProgressNotifier extends StateNotifier<DailySteps> {
 
   // final Box<DailySteps> _dailyStepsBox = Hive.box<DailySteps>('dailyStepsBox');
 
-  Box<DailySteps> get _dailyStepsBox => Hive.box<DailySteps>('stepsBox_${ref.watch(profileDataProvider).id}');
+  Box<DailySteps> get _dailyStepsBox => Hive.box<DailySteps>('dailySteps');
   
   String _getDateKey(DateTime date) {
     return DateFormat('yyyy-MM-dd').format(date);

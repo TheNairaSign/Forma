@@ -26,7 +26,7 @@ class _WorkoutsPageState extends ConsumerState<WorkoutsPage> {
   @override
   Widget build(BuildContext context) {
 
-    final workouts = ref.watch(workoutItemProvider);
+    final workoutsAsync = ref.watch(workoutItemProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -60,11 +60,13 @@ class _WorkoutsPageState extends ConsumerState<WorkoutsPage> {
             //   ],
             // ),
             const SizedBox(height: 10),
-            Expanded(
-              child:
-                workouts.isEmpty
-                  ? Center(child: Text('No workouts yet!', style: Theme.of(context).textTheme.bodyMedium,))
-                  : ListView.separated(
+            workoutsAsync.when(
+              data: (workouts) {
+                return Expanded(
+                  child:
+                  workouts.isEmpty
+                      ? Center(child: Text('No workouts yet!', style: Theme.of(context).textTheme.bodyMedium,))
+                      : ListView.separated(
                     separatorBuilder: (context, index) => const SizedBox(height: 10),
                     physics: const AlwaysScrollableScrollPhysics(),
                     shrinkWrap: false,
@@ -84,7 +86,11 @@ class _WorkoutsPageState extends ConsumerState<WorkoutsPage> {
                       );
                     },
                   ),
-            ),
+                );
+              },
+              loading: () => const CircularProgressIndicator(),
+              error: (e, st) => Text("Error loading progress"),
+            )
           ],
         ),
       ),

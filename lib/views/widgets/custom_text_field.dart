@@ -9,6 +9,8 @@ class CustomTextField extends StatelessWidget {
     this.keyboardType = TextInputType.text, this.validator, 
     this.fillColor = Colors.white,
     this.onChanged,
+    this.suffix,
+    this.enableBorder = true,
   });
   final TextEditingController controller;
   final String? labelText;
@@ -17,6 +19,8 @@ class CustomTextField extends StatelessWidget {
   final String? Function(String?)? validator;
   final Color fillColor;
   final void Function(String? value)? onChanged;
+  final Widget? suffix;
+  final bool enableBorder;
 
   @override
   Widget build(BuildContext context) {
@@ -33,6 +37,7 @@ class CustomTextField extends StatelessWidget {
           floatingLabelStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.black),
           enabled: true,
           labelText: labelText,
+          suffix: suffix,
           labelStyle: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey),
           alignLabelWithHint: true,
           hintText: hintText,
@@ -44,8 +49,11 @@ class CustomTextField extends StatelessWidget {
             borderSide: BorderSide.none
           ),
           focusColor: Colors.white,
-          focusedBorder: UnderlineInputBorder(
+          focusedBorder: enableBorder ? UnderlineInputBorder(
             borderSide: BorderSide(color: Colors.black, width: 1)
+          ) : OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide.none
           ),
         ),
         keyboardType: keyboardType,

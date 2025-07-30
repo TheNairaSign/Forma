@@ -26,17 +26,17 @@ class _ChartDataContainerState extends ConsumerState<ChartDataContainer> {
     stepsState = ref.read(stepsProvider.notifier);
   }
 
-  Future<List<DailySteps>> get currentData async {
+  List<DailySteps> get currentData {
     switch (selectedRange) {
-      case 'Weekly': return await stepsState.getWeeklySteps();
-      case 'Monthly': return await stepsState.getMonthlySteps();
-      default: return await stepsState.getDailySteps();
+      case 'Weekly': return stepsState.getWeeklySteps();
+      case 'Monthly': return stepsState.getMonthlySteps();
+      default: return stepsState.getDailySteps();
     }
   }
   
   @override
   Widget build(BuildContext context) {
-    final borderRadius = BorderRadius.only(topLeft: Radius.circular(8), topRight: Radius.circular(8));
+    // final borderRadius = BorderRadius.only(topLeft: Radius.circular(8), topRight: Radius.circular(8));
     final dailyTargetSteps = ref.watch(stepsProvider.notifier).dailyTargetSteps.toDouble();
     final backgroundColor = Color(0xff080b10); 
 
@@ -123,19 +123,7 @@ class _ChartDataContainerState extends ConsumerState<ChartDataContainer> {
                 ],
               ),
               const SizedBox(height: 20),
-              FutureBuilder<dynamic>(
-                future: selectedRange == 'Daily' 
-                  ? stepsState.getHourlySteps() 
-                  : currentData,
-                builder: (context, snapshot) {
-                  if (!snapshot.hasData) {
-                    return const SizedBox(
-                      height: 100,
-                      child: Center(child: CircularProgressIndicator()),
-                    );
-                  }
-                  
-                  return SizedBox(
+              SizedBox(
                     height: 100,
                     child: BarChart(
                       BarChartData(
@@ -194,7 +182,9 @@ class _ChartDataContainerState extends ConsumerState<ChartDataContainer> {
                                   return const Text('');
                                 }
                                 
-                                final data = snapshot.data;
+                                final data = selectedRange == 'Daily' 
+                                  ? stepsState.getHourlySteps() 
+                                  : currentData;
                                 if (data is List<DailySteps> && index < data.length) {
                                   final date = data[index].date;
                                   return Text(
@@ -216,7 +206,7 @@ class _ChartDataContainerState extends ConsumerState<ChartDataContainer> {
                           ? List.generate(
                               24,
                               (index) {
-                                final hourlyData = snapshot.data as Map<int, int>;
+                                final hourlyData = stepsState.getHourlySteps();
                                 final steps = hourlyData[index] ?? 0;
                                 return BarChartGroupData(
                                   x: index,
@@ -237,10 +227,9 @@ class _ChartDataContainerState extends ConsumerState<ChartDataContainer> {
                               },
                             )
                           : List.generate(
-                              (snapshot.data as List<DailySteps>).length,
+                              currentData.length,
                               (index) {
-                                final data = snapshot.data as List<DailySteps>;
-                                final steps = data[index].steps;
+                                final steps = currentData[index].steps;
                                 return BarChartGroupData(
                                   x: index,
                                   barRods: [
@@ -260,9 +249,8 @@ class _ChartDataContainerState extends ConsumerState<ChartDataContainer> {
                               },
                             ),
                       ),
-                    ),
-                  );
-                }),
+                    )
+              ),
             ],
           ),
         ),

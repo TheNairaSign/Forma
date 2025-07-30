@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:workout_tracker/models/enums/fitness_level.dart';
 import 'package:workout_tracker/providers/profile/profile_data_notifier.dart';
+import 'package:workout_tracker/utils/extensions/capitalize.dart';
 import 'package:workout_tracker/views/widgets/custom_drop_down_button.dart';
 import 'package:workout_tracker/views/widgets/custom_text_field.dart';
 
@@ -37,7 +38,7 @@ class _FinishUpScreen extends ConsumerState<FinishUpScreen> {
             SizedBox(
               width: width,
               child: CustomDropdownButton(
-                items: Level.values.map((value) => value.name).toList(), 
+                items: Level.values.map((value) => value.name.capitalize()).toList(),
                 hint: profile.level[0].toUpperCase() + profile.level.substring(1),
                 textColor: Colors.black,
                 onChanged: (p0) {
@@ -50,7 +51,7 @@ class _FinishUpScreen extends ConsumerState<FinishUpScreen> {
             SizedBox(
               width: width,
               child: CustomDropdownButton(
-                items: profile.level == Level.personal.name 
+                items: profile.level == Level.personal.name.capitalize()
                     ? FitnessLevel.values.map((value) => value.label).toList()
                     : FitnessRole.values.map((value) => value.label).toList(),
                 hint: profile.level == Level.personal.name  

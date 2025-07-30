@@ -37,7 +37,13 @@ class EditProfileNotifier extends StateNotifier<EditProfileState> {
   ImagePicker get picker => _picker;
 
   void init() {
-    final profile = ref.watch(profileDataProvider);
+    final profile = ref.watch(profileDataProvider).value;
+
+    if (profile == null) {
+      debugPrint('Profile data is null, cannot initialize EditProfileNotifier');
+      return;
+    }
+
     _nameController = TextEditingController(text: profile.name);
     _bioController = TextEditingController(text: profile.bio);
     _locationController = TextEditingController(text: profile.location);

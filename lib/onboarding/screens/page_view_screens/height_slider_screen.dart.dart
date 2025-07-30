@@ -4,6 +4,7 @@ import 'package:workout_tracker/constants.dart';
 import 'package:workout_tracker/onboarding/widgets/segmented_control_widget.dart';
 import 'package:workout_tracker/providers/profile/profile_data_notifier.dart';
 import 'package:workout_tracker/style/global_colors.dart';
+import 'package:workout_tracker/utils/flush/flushbar_service.dart';
 
 class HeightSliderScreen extends ConsumerStatefulWidget {
   const HeightSliderScreen({super.key, this.isEdit = false});
@@ -24,7 +25,7 @@ class _HeightSliderScreenState extends ConsumerState<HeightSliderScreen> {
 
   @override
   void initState() {
-    cmValue = ref.read(profileDataProvider).height?.truncate() ?? 170;
+    cmValue = ref.read(profileDataProvider).value?.height?.truncate() ?? 170;
     super.initState();
     cmController = FixedExtentScrollController(initialItem: cmValue - minCm);
   }
@@ -145,6 +146,7 @@ class _HeightSliderScreenState extends ConsumerState<HeightSliderScreen> {
           onPressed: () {
             ref.read(profileDataProvider.notifier).setHeight(context,  cmValue.toDouble(), isEdit: true);
             Navigator.pop(context);
+            FlushbarService.show(context, message: 'Height updated successfully');
           }, 
           child: Text('Save', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.white, fontWeight: FontWeight.bold))
         ),

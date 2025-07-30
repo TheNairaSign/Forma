@@ -6,27 +6,24 @@ import 'package:image_picker/image_picker.dart';
 import 'package:workout_tracker/auth/supabase/supabase_auth.dart';
 import 'package:workout_tracker/models/enums/fitness_level.dart';
 import 'package:workout_tracker/models/state/profile_data.dart';
-import 'package:workout_tracker/providers/edit_profile_provider.dart';
 import 'package:workout_tracker/providers/profile/edit_data_provider.dart';
 import 'package:workout_tracker/providers/profile/update_profile_notifier.dart';
 import 'package:workout_tracker/services/auth_service.dart';
 import 'package:workout_tracker/services/onboarding_service.dart';
 
-class ProfileDataNotifier extends StateNotifier<ProfileData> {
-  final AuthService _authService = AuthService();
-  final Ref ref;
-  ProfileDataNotifier(this.ref) : super(
-    ProfileData(
-      id: '', // Provide a default ID to prevent null issues
-      name: '',
-      bio: '',
-      fitnessLevel: '',
-      location: '',
-    ),
-  ) {
-      loadProfileData();
-      debugPrint('Profile Data loaded');
+class ProfileDataNotifier extends AsyncNotifier<ProfileData> {
+
+  @override
+  Future<ProfileData> build() async {
+    // Initialize the state with an empty ProfileData object
+    final profile = await loadProfileData() ?? ProfileData();
+    debugPrint('ProfileDataNotifier initialized with profile: ${profile.toString()}');
+    state =  AsyncValue.data(profile);
+    return profile;
   }
+
+
+  AuthService get _authService => ref.watch(authServiceProvider);
 
   Future<ProfileData?> loadProfileData() async {
     final username = await _authService.getLoggedInUser();
@@ -35,15 +32,16 @@ class ProfileDataNotifier extends StateNotifier<ProfileData> {
     if (profile != null) {
       debugPrint('User with $username Exists');
       debugPrint('Profile from cache: ${profile.toString()}');
-      state = profile;
+      state = AsyncValue.data(profile);
       final user = await SupabaseAuth.instance.getUser();
       await SupabaseAuth.instance.getUserFromCache(user?.id);
     } else {
       debugPrint('New user');
       state = state;
     }
-    return state;
+    return profile;
   }
+
 
   Future<bool> onBoardingCompleted() async {
     final user = await SupabaseAuth.instance.getUser();
@@ -52,13 +50,20 @@ class ProfileDataNotifier extends StateNotifier<ProfileData> {
     return await OnboardingService.instance.hasUserCompletedOnboarding(userId!);
   }
 
-  void updateProfileId(String userId) {
-    debugPrint('Upadating user id: $userId');
-    state = state.copyWith(id: userId);
+  void updateProfileId(String userId) async {
+    debugPrint('Updating user id: $userId');
+    final current = state.value;
+    if (current == null) {
+      debugPrint('Current profile data is null, initializing with new user ID');
+      return;
+    }
+    final updated = current.copyWith(id: userId);
+    debugPrint('Updated profile data: ${updated.toString()}');
+    state = AsyncValue.data(updated);
   }
 
-  final TextEditingController _nameController = TextEditingController();
-  TextEditingController get nameController => _nameController;
+  // final TextEditingController _nameController = TextEditingController();
+  // TextEditingController get nameController => _nameController;
 
   final TextEditingController _locationController = TextEditingController();
   TextEditingController get  locationController => _locationController;
@@ -78,101 +83,109 @@ class ProfileDataNotifier extends StateNotifier<ProfileData> {
 
   final ImagePicker imagePicker = ImagePicker();
 
-  Future<void> updateUserAvatar(String imagePath, {bool isEdit = false}) async {
+  void updateUserAvatar(String imagePath, {bool isEdit = false}) {
+    final currentProfile = state.value;
+    if (currentProfile == null) {
+      debugPrint('Current profile data is null, cannot update avatar');
+      return;
+    }
     // Always update the state first
-    state = state.copyWith(profileImagePath: imagePath);
-    
+    final newAvatar = currentProfile.copyWith(profileImagePath: imagePath);
+
+    state = AsyncValue.data(newAvatar);
     // Only persist if isEdit is true
     if (isEdit) {
-      await _authService.updateProfileData(state);
+      _authService.updateProfileData(newAvatar);
     }
   }
 
   void updateFitnessLevel(String value) {
     _fitnessLevel = value;
-    state = state.copyWith(fitnessLevel: value);
+    debugPrint('Updated fitness level: $_fitnessLevel');
+    // Always update the state first
+    final currentProfile = state.value;
+    if (currentProfile == null) {
+      debugPrint('Current profile data is null, cannot update fitness level');
+      return;
+    }
+    final updatedProfile = currentProfile.copyWith(fitnessLevel: value);
+    debugPrint('Updated profile data: ${updatedProfile.toString()}');
+    state = AsyncValue.data(updatedProfile);
+    // Persist the updated profile data
+    _authService.updateProfileData(updatedProfile);
   }
-
-  // Future<void> selectProfileImage() async {
-  //   try {
-  //     final XFile? pickedFile = await imagePicker.pickImage(source: ImageSource.gallery);
-
-  //     if (pickedFile != null) {
-  //       _profileImagePath = pickedFile.path;
-  //       _profileImage = File(pickedFile.path);
-  //     }
-  //   } catch (e) {
-  //     debugPrint("Error selecting Image $e");
-  //   }
-  // }
-
-  // Future<void> selectCoverImage() async {
-  //   try {
-  //     final XFile? pickedFile = await imagePicker.pickImage(source: ImageSource.gallery);
-
-  //     if (pickedFile != null) {
-  //       _coverImagePath = pickedFile.path;
-  //       _coverImage = File(pickedFile.path);
-  //     }
-  //   } catch (e) {
-  //     debugPrint("Error selecting Image $e");
-  //   }
-  // }
 
   Future<void> sendProfileData() async {
     final username = await _authService.getLoggedInUser();
     debugPrint('Username here: $username');
 
-    if (username != null) {
-      final profile = ProfileData(
-        id: state.id,
-        name: username,
-        gender: state.gender,
-        height: state.height ?? 170,
-        weight: state.weight ?? 70,
-        foodPreference: foodPreference,
-        profileImagePath: state.profileImagePath,
-        fitnessLevel: _fitnessLevel,
-        location: _locationController.text,
-        currentStreak: 0,
-        longestStreak: 0,
-        lastWorkoutDate: null,
-      );
-      state = profile;
-
-      await _authService.createProfileData(username, profile);
-      debugPrint('$username profile data stored ✅ with details \n ${state.toString()}');
+    if (username == null) {
+      debugPrint('Username is null, cannot send profile data');
+      return;
     }
-  }
+
+    final currentProfile = state.value;
+
+    if (currentProfile == null) {
+      debugPrint('Current profile data is null, initializing with new user data');
+      return;
+    }
+
+    final profile = ProfileData(
+      id: currentProfile.id ?? 'newUser',
+      name: username,
+      gender: currentProfile.gender,
+      height: currentProfile.height ?? 170,
+      weight: currentProfile.weight ?? 70,
+      foodPreference: foodPreference,
+      profileImagePath: currentProfile.profileImagePath,
+      fitnessLevel: _fitnessLevel,
+      location: _locationController.text,
+      currentStreak: 0,
+      longestStreak: 0,
+      lastWorkoutDate: null,
+    );
+    state = AsyncValue.data(profile);
+
+    _authService.createProfileData(username, profile);
+    debugPrint('$username profile data stored ✅ with details \n ${state.toString()}');
+    }
 
   void updateProfile(BuildContext context) {
-    ref.watch(updateProfleProvider(state).notifier).updateProfile(context);
-    // ref.listen(updateProfleProvider(state), (previous, next) {
-    //   state = next;
-    // });
+    final currentState = state.value;
+    if (currentState == null) {
+      debugPrint('Current profile data is null, cannot update profile');
+      return;
+    }
+    ref.read(updateProfleProvider(currentState).notifier).updateProfile(context);
   }
-  // void updateDataProfile(BuildContext context) {
-  //   ref.watch(editProfileProvider(state).notifier).(context);
-  //   // ref.listen(updateProfleProvider(state), (previous, next) {
-  //   //   state = next;
-  //   // });
-  // }
 
   void updateInitialValues() {
-    ref.read(updateProfleProvider(state).notifier).initialValues();
+    final currentState = state.value;
+    if (currentState == null) {
+      debugPrint('Current profile data is null, cannot update profile');
+      return;
+    }
+    ref.read(updateProfleProvider(currentState).notifier).initialValues();
   }
 
   int? _age;
   int? get age => _age;
 
   void updateGender(BuildContext context, String newGender, {bool isEdit = false}) async {
+    final currentState = state.value;
+
+    if (currentState == null) {
+      debugPrint('Current profile data is null');
+      return;
+    }
     // Always update the state first
-    state = state.copyWith(gender: newGender);
+    final gender = currentState.copyWith(gender: newGender);
+    state = AsyncValue.data(gender);
     
     // Only persist if isEdit is true
     if (isEdit) {
-      // await _authService.updateProfileData(state);
-      ref.watch(editDataProvider(state).notifier).updateGender(newGender, context);
+      ref.read(editDataProvider(currentState).notifier).updateGender(newGender, context);
     }
   }
 
@@ -181,48 +194,75 @@ class ProfileDataNotifier extends StateNotifier<ProfileData> {
   }
 
   void setHeight(BuildContext context, double newHeight, {bool isEdit = false}) async {
+    final currentState = state.value;
+
+    if (currentState == null) {
+      debugPrint('Current profile data is null, cannot update height');
+      return;
+    }
     // Always update the state first
-    state = state.copyWith(height: newHeight);
+    final height = currentState.copyWith(height: newHeight);
+    state = AsyncValue.data(height);
     
     // Only persist if isEdit is true
     if (isEdit) {
-      // await _authService.updateProfileData(state);
-      ref.watch(editDataProvider(state).notifier).updateHeight(newHeight, context);
+      ref.read(editDataProvider(currentState).notifier).updateHeight(newHeight, context);
     }
   }
 
   void setWeight(BuildContext context, double newWeight, {bool isEdit = false}) async {
+    final currentState = state.value;
+
+    if (currentState == null) {
+      debugPrint('Current profile data is null, cannot update weight');
+      return;
+    }
     // Always update the state first
-    state = state.copyWith(weight: newWeight);
-    
+    final updatedWeight = currentState.copyWith(weight: newWeight);
+    state = AsyncValue.data(updatedWeight);
+
     // Only persist if isEdit is true
     if (isEdit) {
-      // await _authService.updateProfileData(state);
-      ref.watch(editDataProvider(state).notifier).updateWeight(newWeight, context);
+      ref.read(editDataProvider(currentState).notifier).updateWeight(newWeight, context);
     }
   }
 
   void setFoodPreference(BuildContext context, List<String> newFoodPreference, {bool isEdit = false}) async {
     debugPrint('Food Preference: $newFoodPreference');
-    // Always update the state first
-    state = state.copyWith(foodPreference: newFoodPreference);
-    
-    // Only persist if isEdit is true
+    final currentProfile = state.value;
+    if (currentProfile == null) {
+      debugPrint('Current profile data is null, cannot update food preference');
+      return;
+    }
+    final updatedProfile = currentProfile.copyWith(foodPreference: newFoodPreference);
+    state = AsyncValue.data(updatedProfile);
+
     if (isEdit) {
-      // await _authService.updateProfileData(state);
-      ref.watch(editDataProvider(state).notifier).updateFoodPreference(newFoodPreference, context);
+      ref.read(editDataProvider(currentProfile).notifier).updateFoodPreference(newFoodPreference, context);
     }
   }
 
   void setBio(String? bio) {
-    state = state.copyWith(bio: bio);
+    final currentProfile = state.value;
+    if (currentProfile == null) {
+      debugPrint('Current profile data is null, cannot update bio');
+      return;
+    }
+    final updatedProfile = currentProfile.copyWith(bio: bio);
+    state = AsyncValue.data(updatedProfile);
   }
 
   void setLocation(String? location) {
-    state = state.copyWith(location: location);
+    final currentProfile = state.value;
+    if (currentProfile == null) {
+      debugPrint('Current profile data is null, cannot update location');
+      return;
+    }
+    final updatedProfile = currentProfile.copyWith(location: location);
+    state = AsyncValue.data(updatedProfile);
   }
 
-  List<String>? get foodPreference => state.foodPreference;
+  List<String>? get foodPreference => state.value?.foodPreference;
 
   String _level = Level.personal.name;
   String get level => _level; 
@@ -232,8 +272,8 @@ class ProfileDataNotifier extends StateNotifier<ProfileData> {
     debugPrint('New level: $newLevel');
   }
 
+
+
 }
 
-final profileDataProvider = StateNotifierProvider<ProfileDataNotifier, ProfileData>((ref) {
-  return ProfileDataNotifier(ref);
-});
+final profileDataProvider = AsyncNotifierProvider<ProfileDataNotifier, ProfileData>(() => ProfileDataNotifier());

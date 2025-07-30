@@ -22,7 +22,7 @@ class ProgressNotifier extends StateNotifier<int> {
 
   double get workoutProgress {
     final workouts = ref.read(workoutItemProvider);
-    final progress = calculateProgress(workouts.length, 10);
+    final progress = calculateProgress(workouts.value?.length ?? 0, 10);
     // state = progress;
     print('Progress: $progress');
     return progress / 100;

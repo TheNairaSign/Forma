@@ -52,7 +52,7 @@ extension FitnessLevelExtension on FitnessLevel {
       case FitnessLevel.strengthTrainer: return 'Strength Trainer';
       case FitnessLevel.powerlifter: return 'Powerlifter';
       case FitnessLevel.weightlifter: return 'Weightlifter';
-      case FitnessLevel.crossFitter: return 'CrossFitter';
+      case FitnessLevel.crossFitter: return 'Cross Fitter';
       case FitnessLevel.yogi: return 'Yogi';
       case FitnessLevel.calisthenicsAthlete: return 'Calisthenics Athlete';
       case FitnessLevel.mobilityTrainer: return 'Mobility Trainer';

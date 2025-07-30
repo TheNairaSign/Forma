@@ -10,7 +10,7 @@ class UserLoggedIn extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return FutureBuilder<bool>(
-      future: AuthService().isLoggedIn(),
+      future: ref.watch(authServiceProvider).isLoggedIn(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(body: Center(child: CircularProgressIndicator()));

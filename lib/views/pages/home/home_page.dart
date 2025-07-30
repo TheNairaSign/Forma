@@ -27,30 +27,46 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final profile = ref.watch(profileDataProvider);
+    final profileAsync = ref.watch(profileDataProvider);
     final steps = ref.watch(stepsProvider).steps;
     debugPrint('Steps $steps');
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: Container(
-          // padding: EdgeInsets.all(10),
-          margin: EdgeInsets.only(left: 15),
-          child: CircleAvatar(
-            radius: 25,
-            backgroundImage: AssetImage(profile.profileImagePath?? ''),
-          )),
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text("Welcome Back", style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.black54)),
-            Text(profile.name ?? "Nicolas Doflamingo",style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.black, fontWeight: FontWeight.bold)),
-          ],
+      appBar: profileAsync.when(data: (profile) {
+        return AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          leading: Container(
+            // padding: EdgeInsets.all(10),
+              margin: EdgeInsets.only(left: 15),
+              child: CircleAvatar(
+                radius: 25,
+                backgroundImage: AssetImage(profile.profileImagePath?? ''),
+              )),
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text("Welcome Back", style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.black54)),
+              Text(profile.name ?? "Nicolas Doflamingo",style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.black, fontWeight: FontWeight.bold)),
+            ],
+          ),
+          actionsPadding: EdgeInsets.only(right: 20),
+          actions: [ IconButton(icon: Icon(Icons.notifications, color: Colors.black), onPressed: () {}) ],
+        );
+      },
+      error: (error, stackTrace) {
+        debugPrint('Error fetching profile: $error');
+        return AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          title: Text("Welcome Back", style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.black54)),
+        );
+      },
+      loading: () => AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          title: Text("Loading...", style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.black54)),
         ),
-        actionsPadding: EdgeInsets.only(right: 20),
-        actions: [ IconButton(icon: Icon(Icons.notifications, color: Colors.black), onPressed: () {}) ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),

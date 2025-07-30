@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:workout_tracker/views/pages/profile/sub_pages/edit_profile_page.dart';
+import 'package:workout_tracker/views/pages/profile/help_support_page.dart';
+import 'package:workout_tracker/views/pages/profile/privacy_page.dart';
+import 'package:workout_tracker/views/pages/profile/widgets/settings/edit_profile_page.dart';
 import 'package:workout_tracker/views/pages/profile/widgets/settings/edit_data_page.dart';
 
 class SettingsModel {
@@ -40,13 +42,13 @@ class SettingsModel {
         leadingIcon: Icons.privacy_tip_outlined,
         title: 'Privacy',
         trailingIcon: Icons.chevron_right,
-        onTap: () {},
+        onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => PrivacyPolicyPage())),
       ));
       settingsList.add(SettingsModel(
         leadingIcon: Icons.help_outline,
         title: 'Help & Support',
         trailingIcon: Icons.chevron_right,
-        onTap: () {},
+        onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => HelpSupportPage())),
       ));
     return settingsList;
   } 

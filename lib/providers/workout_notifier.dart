@@ -21,7 +21,7 @@ class WorkoutNotifier extends StateNotifier<Workout> {
   List<int> _setsCompleted = [];
   List<int> get setsCompleted => _setsCompleted;
   void initState(int index) {
-    final goalDuration = ref.watch(workoutItemProvider)[index].goalDuration;
+    final goalDuration = ref.watch(workoutItemProvider).value?[index].goalDuration;
     _setsCompleted = List.filled(state.sets!, 0);
     _elapsedSeconds = goalDuration;
   }

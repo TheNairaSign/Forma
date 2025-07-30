@@ -5,6 +5,7 @@ import 'package:workout_tracker/constants.dart';
 import 'package:workout_tracker/models/enums/food_preference.dart';
 import 'package:workout_tracker/providers/profile/profile_data_notifier.dart';
 import 'package:workout_tracker/style/global_colors.dart';
+import 'package:workout_tracker/utils/flush/flushbar_service.dart';
 
 class FoodPreferenceScreen extends ConsumerStatefulWidget {
   const FoodPreferenceScreen({super.key, this.isEdit = false});
@@ -21,8 +22,8 @@ class _FoodPreferenceScreenState extends ConsumerState<FoodPreferenceScreen> {
   @override
   void initState() {
     super.initState();
-    final profile = ref.read(profileDataProvider);
-    final foodPref = profile.foodPreference;
+    final profile = ref.read(profileDataProvider).value;
+    final foodPref = profile?.foodPreference;
     if(foodPref != null) {
       debugPrint('Food Preference not null with values: $foodPref');
       selectedItems.addAll(foodPref);
@@ -122,6 +123,7 @@ class _FoodPreferenceScreenState extends ConsumerState<FoodPreferenceScreen> {
           onPressed: () {
             ref.watch(profileDataProvider.notifier).setFoodPreference(context, selectedItems.toList(), isEdit: true);
             Navigator.pop(context);
+            FlushbarService.show(context, message: 'Height updated successfully');
           }, 
           child: Text('Save', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.white, fontWeight: FontWeight.bold))
         ),

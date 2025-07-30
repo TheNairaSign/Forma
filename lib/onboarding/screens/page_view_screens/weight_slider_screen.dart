@@ -5,6 +5,7 @@ import 'package:workout_tracker/constants.dart';
 import 'package:workout_tracker/onboarding/widgets/segmented_control_widget.dart';
 import 'package:workout_tracker/providers/profile/profile_data_notifier.dart';
 import 'package:workout_tracker/style/global_colors.dart';
+import 'package:workout_tracker/utils/flush/flushbar_service.dart';
 
 class WeightSliderScreen extends ConsumerStatefulWidget {
   const WeightSliderScreen({super.key, this.isEdit = false, this.weight});
@@ -143,6 +144,8 @@ class _WeightSliderScreenState extends ConsumerState<WeightSliderScreen> {
           onPressed: () {
             ref.read(profileDataProvider.notifier).setWeight(context, isKg ? weight : weight * 0.453592, isEdit: true);
             Navigator.pop(context);
+            FlushbarService.show(context, message: 'Weight updated successfully');
+
           }, 
           child: Text('Save', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.white, fontWeight: FontWeight.bold))
         ),

@@ -108,7 +108,10 @@ class TextFieldModel {
 
   static List<TextFieldModel> editProfileTextFields(BuildContext context, WidgetRef ref) {
     List<TextFieldModel> updateProfileFields = [];
-    final state = ref.read(profileDataProvider);
+    final state = ref.read(profileDataProvider).value;
+    if (state == null) {
+      return updateProfileFields;
+    }
     final updateProfile = ref.read(updateProfleProvider(state).notifier);
 
     updateProfileFields.add(

@@ -5,8 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:workout_tracker/constants.dart';
 import 'package:workout_tracker/onboarding/screens/page_view_screens/finish_up_screen.dart';
 import 'package:workout_tracker/providers/profile/profile_data_notifier.dart';
-import 'package:workout_tracker/services/onboarding_service.dart';
 import 'package:workout_tracker/style/global_colors.dart';
+import 'package:workout_tracker/utils/flush/flushbar_service.dart';
 import 'package:workout_tracker/views/pages/navigation/navigation_future_page.dart';
 
 class PickAvatarPage extends ConsumerStatefulWidget {
@@ -33,7 +33,24 @@ class _PickAvatarPageState extends ConsumerState<PickAvatarPage> {
   @override
   void initState() {
     super.initState();
-    selectedIndex = ref.read(profileDataProvider).profileImagePath == null? null : avatars.indexWhere((element) => element == ref.read(profileDataProvider).profileImagePath);
+    initializeSelectedIndex();
+  }
+
+  void initializeSelectedIndex() {
+    final profileData = ref.read(profileDataProvider).value;
+    if (profileData == null) {
+      selectedIndex = null;
+      return;
+    }
+    final profileImagePath = profileData.profileImagePath;
+    if (profileImagePath == null) {
+      selectedIndex = null;
+      return;
+    }
+    selectedIndex = avatars.indexWhere((element) => element == profileImagePath);
+    if (selectedIndex == -1) {
+      selectedIndex = null;
+    }
   }
 
   @override
@@ -94,8 +111,8 @@ class _PickAvatarPageState extends ConsumerState<PickAvatarPage> {
                   },
                 ),
               ),
-        
-            FinishUpScreen(),
+            if (widget.isEdit)
+              FinishUpScreen()
           ],
         ),
       ),
@@ -108,13 +125,15 @@ class _PickAvatarPageState extends ConsumerState<PickAvatarPage> {
             if(widget.isEdit) {
               ref.watch(profileDataProvider.notifier).updateUserAvatar(selectedAvatar, isEdit: true);
               Navigator.of(context).pop();
-              await ref.watch(profileDataProvider.notifier).loadProfileData();
+              FlushbarService.show(context, message: 'Avatar updated successfully');
+
             } else {
               ref.watch(profileDataProvider.notifier).sendProfileData().then((_) {
                 debugPrint("Profile Data sent successfully");
-                OnboardingService.instance.setUserCompletedOnboarding(ref.watch(profileDataProvider).id!);
+                // OnboardingService.instance.setUserCompletedOnboarding(ref.watch(profileDataProvider).id!);
                 Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (ctx) => NavigationFuturePage()));
               });
+
             }
           },
           style: ElevatedButton.styleFrom(

@@ -12,7 +12,7 @@ class EditDataProvider extends StateNotifier<ProfileData> {
   EditDataProvider(super.profileData, this.ref);
 
   final Ref ref;
-  final AuthService _authService = AuthService();
+  AuthService get _authService => ref.watch(authServiceProvider);
 
   /// Loads the profile data from the profile data provider
   Future<ProfileData?> loadProfileData() async {
@@ -21,19 +21,19 @@ class EditDataProvider extends StateNotifier<ProfileData> {
   }
 
   /// Updates the height of the profile
-  Future<void> updateHeight(double height, BuildContext context) async {
+  void updateHeight(double height, BuildContext context) {
     if (height != state.height) {
       state = state.copyWith(height: height);
-      await _authService.updateProfileData(state);
+      _authService.updateProfileData(state);
       Alerts.showFlushBar(context, 'Height updated successfully', false);
     }
   }
 
   /// Updates the weight of the profile
-  Future<void> updateWeight(double weight, BuildContext context) async {
+  void updateWeight(double weight, BuildContext context) {
     if (weight != state.weight) {
       state = state.copyWith(weight: weight);
-      await _authService.updateProfileData(state);
+      _authService.updateProfileData(state);
       Alerts.showFlushBar(context, 'Weight updated successfully', false);
     }
   }
@@ -46,28 +46,29 @@ class EditDataProvider extends StateNotifier<ProfileData> {
   }
 
   /// Updates the gender of the profile
-  Future<void> updateGender(String gender, BuildContext context) async {
+  void updateGender(String gender, BuildContext context) {
     if (gender != state.gender) {
-      state = state.copyWith(gender: gender);
-      await _authService.updateProfileData(state);
+      final newData = state.copyWith(gender: gender);
+      _authService.updateProfileData(newData);
+      state = newData;
       Alerts.showFlushBar(context, 'Gender updated successfully', false);
     }
   }
 
   /// Updates the food preference of the profile
-  Future<void> updateFoodPreference(List<String> foodPreference, BuildContext context) async {
+  void updateFoodPreference(List<String> foodPreference, BuildContext context) {
     if (foodPreference != state.foodPreference) {
       state = state.copyWith(foodPreference: foodPreference);
-      await _authService.updateProfileData(state);
-      Alerts.showFlushBar(context, 'Food preference updated successfully', false);
+      _authService.updateProfileData(state);
+      // Alerts.showFlushBar(context, 'Food preference updated successfully', false);
     }
   }
 
   /// Syncs the state with the profile data provider
-  void syncWithProfileDataProvider() {
-    final profileData = ref.read(profileDataProvider);
-    state = profileData;
-  }
+  // void syncWithProfileDataProvider() {
+  //   final profileData = ref.read(profileDataProvider);
+  //   state = profileData;
+  // }
 }
 
 /// A provider that creates an instance of EditDataProvider

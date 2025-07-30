@@ -61,20 +61,15 @@ class _CaloriesContainerState extends ConsumerState<CaloryContainer> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                FutureBuilder<int>(
-                  future: ref.watch(caloryProvider.notifier).todayTotal,
-                  builder: (context, snapshot) {
-                    return StepsProgressIndicator(
-                      currentCalory: snapshot.data ?? 0,
-                      targetValue: 10,
-                      strokeColor: Color(0xff1b3a4b),
-                      measurementUnit: 'Kcal',
-                      textColor: Colors.white,
-                      circularDirection: CircularDirection.counterclockwise,
-                    );
-                  },
+                StepsProgressIndicator(
+                  currentValue: ref.watch(caloriesProvider.notifier).todayTotal,
+                  targetValue: 10,
+                  strokeColor: Color(0xff1b3a4b),
+                  measurementUnit: 'Kcal',
+                  textColor: Colors.white,
+                  circularDirection: CircularDirection.counterclockwise,
                 ),
-                // SizedBox(width: 15),
+                SizedBox(width: 15),
                 ],
               ),
             ),

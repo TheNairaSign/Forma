@@ -18,10 +18,10 @@ class _WalkContainerState extends ConsumerState<WalkContainer> {
 
   @override
   Widget build(BuildContext context) {
-    final targetSteps = ref.watch(stepsProvider.notifier).dailyTargetSteps;
-    final steps = ref.watch(stepsProvider).steps;
+    final targetSteps = ref.read(stepsProvider.notifier).dailyTargetSteps;
+    final steps = ref.read(stepsProvider).steps;
     return GestureDetector(
-      onTap: () => Navigator.of(context).push(SlidePageRoute(page: StepsDetailsPage(currentSteps: steps,))),
+      onTap: () => Navigator.of(context).push(SlidePageRoute(page: StepsDetailsPage(currentSteps: steps))),
       child: Container(
         padding: EdgeInsets.all(15),
         height: 110,
@@ -47,7 +47,7 @@ class _WalkContainerState extends ConsumerState<WalkContainer> {
             ),
             Lottie.asset('assets/lottie/walking-animation.json', height: 100, width: 100),
             StepsProgressIndicator(
-              currentSteps: steps, 
+              currentValue: steps,
               strokeColor: Color(0xff1b3a4b),
               measurementUnit: 'Steps',
               textColor: Colors.white,

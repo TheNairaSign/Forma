@@ -1,65 +1,17 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:workout_tracker/models/state/profile_data.dart';
+import 'package:workout_tracker/providers/box_providers.dart';
+import 'package:workout_tracker/services/hive_service.dart';
 
 class AuthService {     // For auth
   static const _profileBoxName = 'newUser';  // For ProfileData
   static const _sessionKey = 'loggedIn';
 
-  // final Box<ProfileData> profileBox = Hive.box<ProfileData>(_profileBoxName);
+  Box<ProfileData> _profileBox;
 
-  /// Hashes the password using SHA-256
-  // Box<ProfileData> get userBox => Hive.box<ProfileData>(_userBoxName);
-
-  /// Hashes the password using SHA-256
-  // String _hashPassword(String password) {
-  //   final bytes = utf8.encode(password);
-  //   return sha256.convert(bytes).toString();
-  // }
-
-  /// Registers a new user (username + password)
-  // Future<void> register(String username, String email, String password) async {
-  //   final box = await Hive.openBox(_userBoxName);
-
-  //   if (box.containsKey(username)) {
-  //     throw AuthException('User already exists');
-  //   }
-
-  //   final hashedPassword = _hashPassword(password);
-
-  //   await box.put(username, {
-  //     'email': email,
-  //     'password': hashedPassword,
-  //     'createdAt': DateTime.now().toIso8601String(),
-  //   });
-  // }
-
-  /// Logs in the user
-  // Future<void> login(String email, String password) async {
-  //   final box = await Hive.openBox(_userBoxName);
-
-  //   // Find user by email
-  //   String? username;
-  //   dynamic userValue;
-  //   for (final key in box.keys) {
-  //     final value = box.get(key);
-  //     if (value is Map && value['email'] == email) {
-  //       username = key as String;
-  //       userValue = value;
-  //       break;
-  //     }
-  //   }
-
-  //   if (userValue == null) throw AuthException('User not found');
-
-  //   final hashedInput = _hashPassword(password);
-  //   if (userValue['password'] != hashedInput) {
-  //     throw AuthException('Invalid credentials');
-  //   }
-
-  //   final prefs = await SharedPreferences.getInstance();
-  //   await prefs.setString(_sessionKey, username!);
-  // }
+  AuthService(this._profileBox);
 
   /// Checks if user is logged in
   Future<bool> isLoggedIn() async {
@@ -87,35 +39,52 @@ class AuthService {     // For auth
     if (username == null) return null;
 
     print('Getting Profile data from box');
-    final profileBox = await Hive.openBox<ProfileData>(_profileBoxName);
 
-    return profileBox.get(username);  
+    if (!_profileBox.isOpen) {
+      _profileBox = await Hive.openBox(_profileBoxName);
+      await HiveService.openUserBoxes();
+    }
+
+    return _profileBox.get(username);  
   }
 
   /// Updates ProfileData for current user
-  Future<void> updateProfileData(ProfileData newProfile) async {
+  void updateProfileData(ProfileData newProfile) async {
     final prefs = await SharedPreferences.getInstance();
     final username = prefs.getString(_sessionKey);
     if (username == null) return;
 
-    final profileBox = await Hive.openBox<ProfileData>(_profileBoxName);
-    await profileBox.put(username, newProfile).then((_) async {
+    if(!_profileBox.isOpen) {
+      _profileBox = await Hive.openBox(_profileBoxName);
+      await getProfileData();
+      await HiveService.openUserBoxes();
+    }
+
+    await _profileBox.put(username, newProfile).then((_) async {
       print('Put profile successfully');
       await getProfileData();
+      await HiveService.openUserBoxes();
     });
     print('Updated Profile data for $username with data: ${newProfile.toString()}');
   }
 
   /// Creates new profile data (after registration/setup)
-  Future<void> createProfileData(String username, ProfileData profile) async {
+  void createProfileData(String username, ProfileData profile) async {
     print('Creating profile data box for $username');
-    
-    final profileBox = await Hive.openBox<ProfileData>(_profileBoxName);
 
-    await profileBox.put(username, profile);
+    if(!_profileBox.isOpen) {
+      _profileBox = await Hive.openBox(_profileBoxName);
+    }
+
+    await _profileBox.put(username, profile);
     print('Created profile data box for $username');
   }
 }
+
+final authServiceProvider = Provider<AuthService>((ref) {
+  final profileBox = ref.watch(userProfileBoxProvider);
+  return AuthService(profileBox);
+});
 
 class AuthException implements Exception {
   final String message;

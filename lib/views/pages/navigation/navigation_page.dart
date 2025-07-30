@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:workout_tracker/models/state/profile_data.dart';
 import 'package:workout_tracker/providers/profile/profile_data_notifier.dart';
-import 'package:workout_tracker/providers/workout_item_notifier.dart';
 import 'package:workout_tracker/views/pages/activity/activity_page.dart';
 import 'package:workout_tracker/views/pages/home/home_page.dart';
 import 'package:workout_tracker/views/pages/workouts/workouts_page.dart';
@@ -19,6 +19,7 @@ class _NavigationPageState extends ConsumerState<NavigationPage> with SingleTick
   int _selectedIndex = 0;
   late PageController _pageController;
   late AnimationController _animationController;
+  late Future<ProfileData?> _profileData;
   
   final List<Widget> _pages = [
     const HomePage(),
@@ -30,7 +31,7 @@ class _NavigationPageState extends ConsumerState<NavigationPage> with SingleTick
   @override
   void initState() {
     super.initState();
-    ref.read(profileDataProvider.notifier).loadProfileData();
+    _profileData = ref.read(profileDataProvider.notifier).loadProfileData();
     // ref.read(workoutItemProvider.notifier).getWorkoutsForDay(DateTime.now());
     _pageController = PageController(initialPage: _selectedIndex);
     _animationController = AnimationController(vsync: this, duration: const Duration(milliseconds: 300));
@@ -63,15 +64,20 @@ class _NavigationPageState extends ConsumerState<NavigationPage> with SingleTick
   Widget build(BuildContext context) {
     
     return Scaffold(
-      body: PageView(
-        controller: _pageController,
-        physics: const NeverScrollableScrollPhysics(),
-        children: _pages,
-        onPageChanged: (index) {
-          setState(() {
-            _selectedIndex = index;
-          });
-        },
+      body: FutureBuilder<ProfileData?>(
+        future: _profileData,
+        builder: (context, snapshot) {
+          return PageView(
+            controller: _pageController,
+            physics: const NeverScrollableScrollPhysics(),
+            children: _pages,
+            onPageChanged: (index) {
+              setState(() {
+                _selectedIndex = index;
+              });
+            },
+          );
+        }
       ),
       bottomNavigationBar: SafeArea(
         child: NavDestination(

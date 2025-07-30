@@ -1,97 +1,81 @@
 // lib/services/workout_service.dart
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
 import 'package:workout_tracker/models/workout/workout.dart';
-import 'package:workout_tracker/services/hive_service.dart';
+import 'package:workout_tracker/providers/box_providers.dart';
 
 class WorkoutService {
-  final String? userId;
-  WorkoutService({this.userId});
+  final Box<Workout> _workoutBox;
+  final Box<Workout> _historyBox;
 
-  Future<void> openBoxes() async {
-    if (userId == null) return;
-    await HiveService.openUserBoxes(userId!);
-  }
+  WorkoutService(this._workoutBox, this._historyBox);
 
-  // Box<Workout> get _workoutBox => Hive.box<Workout>('workouts_$userId');
-  Box<Workout> get _historyBox => Hive.box<Workout>('workout_history_$userId');
-
-  Future<void> saveWorkouts(List<Workout> workouts) async {
-    final _workoutBox = await Hive.openBox<Workout>('workouts_$userId');
-    await _workoutBox.clear();
+  void saveWorkouts(List<Workout> workouts) async {
+    _workoutBox.clear();
     for (var workout in workouts) {
       await _workoutBox.put(workout.id, workout); 
     }
   }
 
-  Future<void> saveToHistory(Workout workout) async {
+  void saveToHistory(Workout workout) async {
     await _historyBox.put(workout.id, workout);
   }
 
-
-  Future<List<Workout>> getWorkouts() async {
-    final _workoutBox = await Hive.openBox<Workout>('workouts_$userId');
+  List<Workout> getWorkouts() {
     return _workoutBox.values.toList();
   }
 
-  Future<List<Workout>> getWorkoutsForDay(DateTime date) async {
-    final _workoutBox = await Hive.openBox<Workout>('workouts_$userId');
-
+  List<Workout> getWorkoutsForDay(DateTime date) {
     return _workoutBox.values
-        .where((w) => w.sessions.any(
-              (s) =>
-                  s.timestamp.year == date.year &&
-                  s.timestamp.month == date.month &&
-                  s.timestamp.day == date.day,
-            ))
-        .toList();
+      .where((w) => w.sessions.any(
+          (s) =>
+              s.timestamp.year == date.year &&
+              s.timestamp.month == date.month &&
+              s.timestamp.day == date.day,
+        ))
+      .toList();
   }
 
   Future<void> addWorkout(Workout workout) async {
     try {
-    final _workoutBox = await Hive.openBox<Workout>('workouts_$userId');
-
       await _workoutBox.put(workout.id, workout);
       // Create a copy for the history box to avoid HiveError
       final historyWorkout = Workout.fromMap(workout.toMap());
-      await saveToHistory(historyWorkout);
+      saveToHistory(historyWorkout);
     } catch (e) {
       debugPrint('Error adding workout: $e');
       rethrow;
     }
   }
 
-  Future<int> getTotalWorkoutsCount() async {
+  int getTotalWorkoutsCount() {
     debugPrint('Getting overall total workout count...');
     return _historyBox.length;
   }
 
-  Future<Map<String, int>> getWorkoutStatistics() async {
+  Map<String, int> getWorkoutStatistics() {
     debugPrint('Getting workout stats...');
-    final workouts = await getWorkouts();
+    final workouts = getWorkouts();
     return {
-      'overallWorkouts': await getTotalWorkoutsCount(),
+      'overallWorkouts': getTotalWorkoutsCount(),
       'totalWorkouts': workouts.length,
       'totalSessions': workouts.fold(0, (sum, w) => sum + w.sessions.length),
       'activeWorkouts': workouts.where((w) => w.isActive).length,
     };
   }
 
-  Future<void> deleteWorkout(String workoutId) async {
-    final _workoutBox = await Hive.openBox<Workout>('workouts_$userId');
-
-    await _workoutBox.delete(workoutId);
+  void deleteWorkout(String workoutId) {
+    _workoutBox.delete(workoutId);
   }
 
-  Future<void> clearWorkouts({DateTime? date}) async {
+  void clearWorkouts({DateTime? date}) {
     if (date == null) {
-    final _workoutBox = await Hive.openBox<Workout>('workouts_$userId');
-
-      await _workoutBox.clear();
+      _workoutBox.clear();
       return;
     }
 
-    final workouts = await getWorkouts();
+    final workouts = getWorkouts();
     workouts.removeWhere((workout) => workout.sessions.any(
           (session) =>
               session.timestamp.year == date.year &&
@@ -99,20 +83,20 @@ class WorkoutService {
               session.timestamp.day == date.day,
         ));
 
-    await saveWorkouts(workouts);
+    saveWorkouts(workouts);
   }
 
-  Future<List<Workout>> getHistory() async {
+  List<Workout> getHistory() {
     debugPrint('Getting history...');
     return _historyBox.values.toList();
   }
 
-  Future<void> pruneWorkoutHistory({required Duration maxAge}) async {
+  void pruneWorkoutHistory({required Duration maxAge}) {
     final cutoffDate = DateTime.now().subtract(maxAge);
-    final history = await getHistory();
+    final history = getHistory();
     for (var workout in history) {
       if (workout.sessions.any((session) => session.timestamp.isBefore(cutoffDate))) {
-        await _historyBox.delete(workout.id);
+        _historyBox.delete(workout.id);
       }
     }
   }
@@ -120,8 +104,6 @@ class WorkoutService {
   Future<bool> undoDelete(String workoutId) async {
     final workout = _historyBox.get(workoutId);
     if (workout == null) return false;
-    final _workoutBox = await Hive.openBox<Workout>('workouts_$userId');
-
 
     if (_workoutBox.containsKey(workoutId)) return false;
 
@@ -129,3 +111,10 @@ class WorkoutService {
     return true;
   }
 }
+
+
+final workoutServiceProvider = Provider<WorkoutService>((ref) {
+  final workoutBox = ref.watch(workoutBoxProvider);
+  final historyBox = ref.watch(workoutHistoryBoxProvider);
+  return WorkoutService(workoutBox, historyBox);
+});

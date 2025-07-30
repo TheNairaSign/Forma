@@ -18,12 +18,6 @@ class EditProfilePage extends ConsumerStatefulWidget {
 
 class _EditProfilePageState extends ConsumerState<EditProfilePage> {
 
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   ref.read(profileDataProvider.notifier).updateInitialValues();
-  // }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(

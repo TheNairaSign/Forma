@@ -14,13 +14,14 @@ class ProfilePictureSection extends ConsumerStatefulWidget {
 class _ProfilePictureSectionState extends ConsumerState<ProfilePictureSection> {
   @override
   Widget build(BuildContext context) {
+    final profileData = ref.watch(profileDataProvider).value;
     return Column(
       children: [
         Stack(
           children: [
             CircleAvatar(
             radius: 100,
-            backgroundImage: AssetImage(ref.watch(profileDataProvider).profileImagePath!),
+            backgroundImage: AssetImage(profileData?.profileImagePath ?? ''),
           )
           ],
         ),

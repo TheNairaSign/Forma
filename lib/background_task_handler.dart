@@ -26,7 +26,7 @@ Future<void> _updateStepCountInBackground() async {
     final repository = container.read(stepsProvider.notifier);
     final steps = await Pedometer.stepCountStream.first.then((s) => s.steps);
     
-    await repository.onStepCount(steps);
+    repository.onStepCount(steps);
     
     debugPrint('Background step update completed: $steps steps');
   } catch (e) {

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:workout_tracker/providers/calories_provider.dart';
 import 'package:workout_tracker/providers/workout_item_notifier.dart';
 import 'package:workout_tracker/style/global_colors.dart';
 import 'package:workout_tracker/utils/formatters/format_date.dart';
@@ -31,6 +30,8 @@ class _DailyBreakdownState extends ConsumerState<DailyBreakdown> {
                         day.month == DateTime.now().month && 
                         day.year == DateTime.now().year;
           // We'll use a FutureBuilder to handle the async call later in the widget
+
+          final calories = widget.calorieData[index];
 
           return Container(
             margin: EdgeInsets.symmetric(horizontal: 15),
@@ -67,13 +68,7 @@ class _DailyBreakdownState extends ConsumerState<DailyBreakdown> {
                 ref.watch(workoutItemProvider.notifier).workoutForDay[index].name,
                 style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
               ),
-              trailing: FutureBuilder<int>(
-                future: ref.watch(caloryProvider.notifier).getCalorieForDay(day),
-                builder: (context, snapshot) {
-                  final calories = snapshot.data ?? 0;
-                  return Text('$calories kcal', style: theme.textTheme.bodyLarge?.copyWith(color: Colors.black, fontWeight: FontWeight.bold));
-                },
-              ),
+              trailing:Text('$calories kcal', style: theme.textTheme.bodyLarge?.copyWith(color: Colors.black, fontWeight: FontWeight.bold))
             )
           );
         }

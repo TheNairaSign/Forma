@@ -3,8 +3,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:step_progress_indicator/step_progress_indicator.dart';
 
 class StepsProgressIndicator extends ConsumerStatefulWidget {
-  const StepsProgressIndicator({super.key, this.currentSteps, this.currentCalory, required this.strokeColor, required this.measurementUnit, this.textColor, this.circularDirection = CircularDirection.clockwise, required this.targetValue});
-  final int? targetValue, currentSteps, currentCalory;
+  const StepsProgressIndicator({
+    super.key, 
+    this.currentValue, 
+    required this.strokeColor, 
+    required this.measurementUnit, 
+    this.textColor, 
+    this.circularDirection = CircularDirection.clockwise, 
+    required this.targetValue
+  });
+  final int? targetValue, currentValue;
   final Color strokeColor;
   final Color? textColor;
   final String measurementUnit;
@@ -22,8 +30,9 @@ class _StepsProgressIndicatorState extends ConsumerState<StepsProgressIndicator>
   @override
   void initState() {
     super.initState();
+    debugPrint('StepsProgressIndicator initState calory: ${widget.currentValue}');
     _controller = AnimationController(vsync: this, duration: const Duration(seconds: 2));
-    _animation = IntTween(begin: 0, end: (widget.currentSteps ??  widget.currentCalory)).animate(_controller);
+    _animation = IntTween(begin: 0, end: (widget.currentValue)).animate(_controller);
     _controller.forward();
   }
   
@@ -66,7 +75,7 @@ class _StepsProgressIndicatorState extends ConsumerState<StepsProgressIndicator>
                   children: [
                     FittedBox(
                       child: Text(
-                        (widget.currentCalory?.toString()?? widget.currentSteps.toString()),
+                        widget.currentValue.toString(),
                         style: Theme.of(context).textTheme.headlineMedium!.copyWith(
                           fontSize: 22,
                           color: widget.strokeColor,

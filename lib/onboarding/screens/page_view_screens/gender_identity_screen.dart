@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:workout_tracker/constants.dart';
 import 'package:workout_tracker/models/enums/gender.dart';
-import 'package:workout_tracker/providers/profile/edit_data_provider.dart';
 import 'package:workout_tracker/providers/profile/profile_data_notifier.dart';
 import 'package:workout_tracker/style/global_colors.dart';
+import 'package:workout_tracker/utils/flush/flushbar_service.dart';
 
 class GenderIdentityScreen extends ConsumerStatefulWidget {
   const GenderIdentityScreen({super.key, this.isEdit = false});
@@ -21,7 +21,13 @@ class _GenderIdentityScreenState extends ConsumerState<GenderIdentityScreen> {
   @override
   void initState() {
     super.initState();
-    selectedGenderIndex = ref.read(profileDataProvider).gender == null? -1 : Gender.values.indexWhere((element) => element.name == ref.read(profileDataProvider).gender);
+    final profile = ref.read(profileDataProvider).value;
+    // If the profile is null, set selectedGenderIndex to -1
+    if (profile == null) {
+      selectedGenderIndex = -1;
+      return;
+    }
+    selectedGenderIndex = Gender.values.indexWhere((element) => element.name == profile.gender);
   }
 
   @override
@@ -96,15 +102,9 @@ class _GenderIdentityScreenState extends ConsumerState<GenderIdentityScreen> {
           style: ElevatedButton.styleFrom(backgroundColor: GlobalColors.primaryColor),
           onPressed: () {
             final genderValue = Gender.values[selectedGenderIndex].name;
-            // If in edit mode, use the edit_data_provider to update the gender
-            if (widget.isEdit) {
-              final profile = ref.read(profileDataProvider);
-              ref.read(editDataProvider(profile).notifier).updateGender(genderValue, context);
-            } else {
-              // Otherwise, use the profile_data_provider directly
-              ref.read(profileDataProvider.notifier).updateGender(context, genderValue, isEdit: true);
-            }
+            ref.read(profileDataProvider.notifier).updateGender(context, genderValue, isEdit: true);
             Navigator.pop(context);
+            FlushbarService.show(context, message: 'Gender updated successfully');
           }, 
           child: Text('Save', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.white, fontWeight: FontWeight.bold))
         ),

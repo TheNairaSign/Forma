@@ -40,7 +40,7 @@ class SupabaseAuth {
       if (user != null) {
         try {
           final userFromCache = User.fromJson(jsonDecode(user));
-          await HiveService.openUserBoxes(userId);
+          await HiveService.openUserBoxes();
           return userFromCache;
         } catch (e) {
           print('Error decoding user from cache: $e');
@@ -71,7 +71,7 @@ class SupabaseAuth {
         final userId = response.user?.id;
         print('Logged in user id: $userId');
         ref.watch(profileDataProvider.notifier).updateProfileId(userId!);
-        await HiveService.openUserBoxes(userId);
+        await HiveService.openUserBoxes();
         
         return true;
       }
