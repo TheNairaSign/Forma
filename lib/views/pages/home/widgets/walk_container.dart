@@ -18,8 +18,8 @@ class _WalkContainerState extends ConsumerState<WalkContainer> {
 
   @override
   Widget build(BuildContext context) {
-    final targetSteps = ref.read(stepsProvider.notifier).dailyTargetSteps;
-    final steps = ref.read(stepsProvider).steps;
+    final targetSteps = ref.watch(stepsProvider.notifier).dailyTargetSteps;
+    final steps = ref.watch(stepsProvider).steps;
     return GestureDetector(
       onTap: () => Navigator.of(context).push(SlidePageRoute(page: StepsDetailsPage(currentSteps: steps))),
       child: Container(

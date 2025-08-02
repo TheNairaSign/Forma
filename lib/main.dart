@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart' hide ChangeNotifierProvider;
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:workout_tracker/auth/supabase/auth_checker.dart';
 import 'package:workout_tracker/background_task_handler.dart';
 import 'package:workout_tracker/constants.dart';
 import 'package:workout_tracker/services/hive_service.dart';

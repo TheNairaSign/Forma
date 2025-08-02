@@ -9,24 +9,19 @@ import 'package:workout_tracker/utils/custom_route.dart';
 import 'package:workout_tracker/views/pages/activity/activity_page.dart';
 import 'package:workout_tracker/views/pages/home/widgets/steps_progress_indicator.dart';
 
-class CaloryContainer extends ConsumerStatefulWidget  {
-  const CaloryContainer({super.key});
+class CalorieContainer extends ConsumerStatefulWidget  {
+  const CalorieContainer({super.key});
 
   @override
-  ConsumerState<CaloryContainer> createState() => _CaloriesContainerState();
+  ConsumerState<CalorieContainer> createState() => _CaloriesContainerState();
 }
 
-class _CaloriesContainerState extends ConsumerState<CaloryContainer> {
+class _CaloriesContainerState extends ConsumerState<CalorieContainer> {
 
-  @override
-  void initState() {
-    super.initState();
-    // ref.read(stepsProvider.notifier).initPlatformState();
-  }
   @override
   Widget build(BuildContext context) {
     final steps = ref.watch(stepsProvider.notifier);
-    debugPrint('Calory $steps');
+    debugPrint('Calorie $steps');
     return GestureDetector(
       onTap: () => Navigator.of(context).push(SlidePageRoute(page: CalorieDetailsPage())),
       child: Container(
@@ -63,7 +58,7 @@ class _CaloriesContainerState extends ConsumerState<CaloryContainer> {
                 children: [
                 StepsProgressIndicator(
                   currentValue: ref.watch(caloriesProvider.notifier).todayTotal,
-                  targetValue: 10,
+                  targetValue: ref.watch(caloriesProvider.notifier).targetCalories,
                   strokeColor: Color(0xff1b3a4b),
                   measurementUnit: 'Kcal',
                   textColor: Colors.white,

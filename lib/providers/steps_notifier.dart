@@ -8,9 +8,11 @@ import 'package:intl/intl.dart';
 import 'package:pedometer/pedometer.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:workout_tracker/hive/daily_steps_adapter.dart';
+import 'package:workout_tracker/hive/hourly_steps.dart';
 import 'package:workout_tracker/hive/step_entry.dart';
 import 'package:workout_tracker/models/state/steps_state.dart';
 import 'package:workout_tracker/providers/box_providers.dart';
+import 'package:workout_tracker/services/steps_service.dart';
 import 'package:workout_tracker/utils/alerts.dart';
 import 'package:workout_tracker/utils/flush/flushbar_service.dart';
 
@@ -25,6 +27,7 @@ class StepsNotifier extends StateNotifier<StepsState> {
   ));
 
   Box<DailySteps> get _dailyStepsBox => ref.watch(stepsBoxProvider);
+  Box<HourlySteps> get _hourlyStepsBox => ref.watch(hourlyStepsBoxProvider);
 
   DateTime getStartOfWeek(DateTime date) {
     return date.subtract(Duration(days: date.weekday - 1));
@@ -55,25 +58,6 @@ class StepsNotifier extends StateNotifier<StepsState> {
   int _dailyTargetSteps = 10000;
   int get dailyTargetSteps => _dailyTargetSteps;
 
-  bool _isEdit = false;
-  bool get isEdit => _isEdit;
-
-  void updateIsEdit(String value) async {
-
-    if (value != _dailyTargetSteps.toString()) {
-      debugPrint('Value changed: $value, current target: $_dailyTargetSteps');
-      _isEdit = true;
-      // _targetCalorieController.text = value;
-      state = state;
-
-    } else {
-      _isEdit = false;
-      debugPrint('Value is the same as target calories, setting isEdit to false');
-      state = state;
-    }
-    print('Update isEdit to: $_isEdit');
-  }
-
   final _targetStepsController = TextEditingController(text: '10000');
   TextEditingController get targetStepsController => _targetStepsController;
 
@@ -92,6 +76,7 @@ class StepsNotifier extends StateNotifier<StepsState> {
   //   debugPrint('Steps Calory: $calories');
   //   return calories;
   // }
+
 
   double stepsProgress(int? animationValue) {
     final value = (animationValue ?? state.steps).toDouble();
@@ -114,6 +99,7 @@ class StepsNotifier extends StateNotifier<StepsState> {
     
     final dateKey = _getDateKey(_currentDate);
     try {
+      // Update daily steps
       final box = _dailyStepsBox;
       final dailySteps = box.get(dateKey);
 
@@ -121,7 +107,6 @@ class StepsNotifier extends StateNotifier<StepsState> {
         debugPrint('Step Count: ${dailySteps.steps}');
         box.put(dateKey, DailySteps(
           date: _currentDate,
-          // steps: dailySteps.steps + stepCount,
           steps: stepCount,
           lastUpdated: DateTime.now(),
         ));  
@@ -133,12 +118,30 @@ class StepsNotifier extends StateNotifier<StepsState> {
           lastUpdated: DateTime.now(),
         ));
       }
-      state = state.copyWith(steps: stepCount);
+      
+      // Update hourly steps
+      _updateHourlySteps(stepCount, currentDate);
+      
+      // Update state with new step count and hourly steps
+      final hourlySteps = getHourlyStepsForToday();
+      state = state.copyWith(
+        steps: stepCount,
+        hourlySteps: hourlySteps,
+      );
     } catch (e) {
       debugPrint('Error updating step count: $e');
     }
   }
-
+  
+  void _updateHourlySteps(int stepCount, DateTime timestamp) {
+    try {
+      final stepsService = StepsService();
+      stepsService.updateHourlySteps(_hourlyStepsBox, stepCount, timestamp);
+      debugPrint('Updated hourly steps for hour ${timestamp.hour}: $stepCount');
+    } catch (e) {
+      debugPrint('Error updating hourly steps: $e');
+    }
+  }
   // Update getTodaySteps to use the new key format
   int getTodaySteps() {
     try {
@@ -148,6 +151,51 @@ class StepsNotifier extends StateNotifier<StepsState> {
     } catch (e) {
       debugPrint('Error getting today steps: $e');
       return 0;
+    }
+  }
+  
+  // Get steps for the current hour
+  int getCurrentHourSteps() {
+    try {
+      final now = DateTime.now();
+      final stepsService = StepsService();
+      return stepsService.getStepsForHour(_hourlyStepsBox, now, now.hour);
+    } catch (e) {
+      debugPrint('Error getting current hour steps: $e');
+      return 0;
+    }
+  }
+  
+  // Get steps for a specific hour on a specific date
+  int getStepsForHourOnDate(DateTime date, int hour) {
+    try {
+      final stepsService = StepsService();
+      return stepsService.getStepsForHour(_hourlyStepsBox, date, hour);
+    } catch (e) {
+      debugPrint('Error getting steps for hour $hour on date ${DateFormat('yyyy-MM-dd').format(date)}: $e');
+      return 0;
+    }
+  }
+  
+  // Get hourly steps for today
+  Map<int, int> getHourlyStepsForToday() {
+    try {
+      final stepsService = StepsService();
+      return stepsService.getHourlySteps(_hourlyStepsBox);
+    } catch (e) {
+      debugPrint('Error getting hourly steps for today: $e');
+      return {for (var h = 0; h < 24; h++) h: 0};
+    }
+  }
+  
+  // Get hourly steps for a specific date
+  Map<int, int> getHourlyStepsForDate(DateTime date) {
+    try {
+      final stepsService = StepsService();
+      return stepsService.getHourlyStepsForDate(_hourlyStepsBox, date);
+    } catch (e) {
+      debugPrint('Error getting hourly steps for date ${DateFormat('yyyy-MM-dd').format(date)}: $e');
+      return {for (var h = 0; h < 24; h++) h: 0};
     }
   }
 
@@ -170,110 +218,68 @@ class StepsNotifier extends StateNotifier<StepsState> {
     }
   }
 
-  /*
-  Map<int, int> getHourlySteps() {
-    // Initialize map with 24 hours (0-23) set to 0 steps
-    final Map<int, int> hourlyBreakdown = { 
-      for (var hour in List.generate(24, (index) => index)) hour : 0 
-    };
-    
-    try {
-      final today = DateTime.now();
-      final dateKey = _getDateKey(today);
-      final box = _dailyStepsBox;
-      final dailySteps = box.get(dateKey);
-      
-      if (dailySteps != null) {
-        final lastUpdate = dailySteps.lastUpdated;
-        final currentHour = lastUpdate.hour;
-        
-        // Distribute steps across hours up to the last update
-        // Simple distribution - divides steps evenly across active hours
-        final activeHours = currentHour + 1;
-        final stepsPerHour = (dailySteps.steps / activeHours).floor();
-        
-        for (int i = 0; i <= currentHour; i++) {
-          hourlyBreakdown[i] = stepsPerHour;
-        }
-        
-        // Add remaining steps to the current hour
-        final remainingSteps = dailySteps.steps - (stepsPerHour * activeHours);
-        hourlyBreakdown[currentHour] = (hourlyBreakdown[currentHour] ?? 0) + remainingSteps;
-      }
-    } catch (e) {
-      debugPrint('Error getting hourly steps: $e');
-    }
 
-    return hourlyBreakdown;
-  }
-   */
+  DailySteps? _bestPerformingDayData;
+  DailySteps? _worstPerformingDayData;
 
-  Map<int, int> getHourlySteps() {
-    final box = Hive.box<StepEntry>('step_deltas');
-    final entries = box.values.where((entry) {
-      final now = DateTime.now();
-      return entry.timestamp.year == now.year &&
-          entry.timestamp.month == now.month &&
-          entry.timestamp.day == now.day;
-    });
-
-    final Map<int, int> hourlySteps = Map.fromIterables(
-      List.generate(24, (i) => i),
-      List.generate(24, (_) => 0),
-    );
-
-    for (var entry in entries) {
-      var hourly = hourlySteps[entry.timestamp.hour] ?? 0;
-      hourly += entry.steps;
-    }
-
-    return hourlySteps;
-  }
-
+  DailySteps? get bestPerformingDayData => _bestPerformingDayData;
+  DailySteps? get worstPerformingDayData => _worstPerformingDayData;
 
   List<DailySteps> getWeeklySteps() {
     final weeklySteps = <DailySteps>[];
     final now = DateTime.now();
-    final startOfWeek = now.subtract(Duration(days: now.weekday % 7));
 
-    _highestWeeklyStep = 0;  // Reset before checking
-    _lowestWeeklyStep = _dailyTargetSteps;  // Start with target steps as max
+    final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
 
-    try {
-      final box = _dailyStepsBox;
-      
-      for (int i = 0; i < 7; i++) {
-        final date = startOfWeek.add(Duration(days: i));
-        final dateKey = _getDateKey(date);
-        final dailySteps = box.get(dateKey);
+    // Reset/Initialize before processing the week
+    _bestPerformingDayData = null;
+    _worstPerformingDayData = null;
 
-        if (dailySteps != null) {
-          // Update highest and lowest steps
-          if (dailySteps.steps > _highestWeeklyStep) {
-            _highestWeeklyStep = dailySteps.steps;
-          }
-          if (dailySteps.steps < _lowestWeeklyStep) {
-            _lowestWeeklyStep = dailySteps.steps;
-          }
-          
-          weeklySteps.add(dailySteps);
-          debugPrint('Weekly Steps for ${DateFormat('EEEE').format(date)}: ${dailySteps.steps}');
-        } else {
-          weeklySteps.add(DailySteps(
-            date: date,
-            steps: 0,
-            lastUpdated: date,
-          ));
-          // Update lowest if we have a day with 0 steps
-          _lowestWeeklyStep = 0;
-        }
+    _highestWeeklyStep = 0;
+    _lowestWeeklyStep = dailyTargetSteps; // Initialize lowest to target or a very high number
+
+    final box = _dailyStepsBox;
+
+    for (int i = 0; i < 7; i++) {
+      final date = DateTime(startOfWeek.year, startOfWeek.month, startOfWeek.day + i);
+      final dateKey = _getDateKey(date);
+      DailySteps? dailyData = box.get(dateKey);
+
+      dailyData ??= DailySteps(
+        date: date,
+        steps: 0,
+        lastUpdated: date, // Or use a default like DateTime.now()
+      );
+
+      weeklySteps.add(dailyData);
+
+      // --- Logic for Best Performing Day ---
+      if (_bestPerformingDayData == null || dailyData.steps > _bestPerformingDayData!.steps) {
+        _bestPerformingDayData = dailyData;
+      }
+      // If you keep _highestWeeklyStep:
+      if (dailyData.steps > _highestWeeklyStep) {
+        _highestWeeklyStep = dailyData.steps;
       }
 
-      weeklySteps.sort((a, b) => a.date.compareTo(b.date));
-    } catch (e) {
-      debugPrint('Error getting weekly steps: $e');
+      // --- Logic for Worst Performing Day (includes 0 steps) ---
+      if (_worstPerformingDayData == null || dailyData.steps < _worstPerformingDayData!.steps) {
+        _worstPerformingDayData = dailyData;
+      }
+      // If you keep _lowestWeeklyStep:
+      if (dailyData.steps < _lowestWeeklyStep) {
+        _lowestWeeklyStep = dailyData.steps;
+      }
     }
-    
+
+    // The list is already built in day order (Mon-Sun), so sorting might be redundant
+    // if startOfWeek logic and loop are correct. But explicit sort doesn't hurt.
+    weeklySteps.sort((a, b) => a.date.compareTo(b.date));
+
+    // Debug print to verify
+    debugPrint('Best Day: ${_bestPerformingDayData?.date} - ${_bestPerformingDayData?.steps} steps');
+    debugPrint('Worst Day: ${_worstPerformingDayData?.date} - ${_worstPerformingDayData?.steps} steps');
+
     return weeklySteps;
   }
 
@@ -285,7 +291,7 @@ class StepsNotifier extends StateNotifier<StepsState> {
     for (int i = 0; i < 12; i++) {
       final date = DateTime(now.year, i + 1, 1);
       final monthTotal = _getMonthTotal(date);
-      
+
       monthlySteps.add(DailySteps(
         date: date,
         steps: monthTotal,
@@ -299,7 +305,7 @@ class StepsNotifier extends StateNotifier<StepsState> {
     int total = 0;
     final daysInMonth = DateTime(date.year, date.month + 1, 0).day;
     final box = _dailyStepsBox;
-    
+
     for (int day = 1; day <= daysInMonth; day++) {
       final currentDate = DateTime(date.year, date.month, day);
       final dateKey = _getDateKey(currentDate);
@@ -351,9 +357,9 @@ class StepsNotifier extends StateNotifier<StepsState> {
 
   /// Handle status changed
   void onPedestrianStatusChanged(PedestrianStatus event) => state =  state.copyWith(status: event.status);
-  
 
-    /// Handle the error
+
+  /// Handle the error
   void onPedestrianStatusError(error) {
     debugPrint('onPedestrianStatusError: $error');
     state = state.copyWith(status: 'Pedestrian Status not available');
@@ -391,15 +397,16 @@ class StepsNotifier extends StateNotifier<StepsState> {
     _stepCountStream = Pedometer.stepCountStream;
     _stepCountStream.listen((StepCount event) => onStepCount(event.steps)).onError(onStepCountError);
 
-    // final today = _getDateKey(DateTime.now());
+    // Get hourly steps for today
+    final hourlySteps = getHourlyStepsForToday();
 
     state = state.copyWith(
       stepCountStream: _stepCountStream,
       pedestrianStatusStream: _pedestrianStatusStream,
-      // steps: _dailyStepsBox.get(today)?.steps.toString() ?? '0'
+      hourlySteps: hourlySteps,
     );
 
-    if (!mounted) return;
+    debugPrint('🚀 Steps Notifier initialized - Status: ${state.status}, Daily steps: ${state.steps}, Date: ${state.date}');
   }
 
 
@@ -410,12 +417,4 @@ class StepsNotifier extends StateNotifier<StepsState> {
   }
 }
 
-final stepsProvider = StateNotifierProvider<StepsNotifier, StepsState>((ref) {
-  // final userId = ref.watch(profileDataProvider).value;
-  // if (userId == null) {
-  //   debugPrint('User ID is null, cannot initialize StepsNotifier');
-  //   return StepsNotifier(ref);
-  // }
-  // print('User id in steps provider: $userId');
-  return StepsNotifier(ref);
-});
+final stepsProvider = StateNotifierProvider<StepsNotifier, StepsState>((ref) => StepsNotifier(ref));

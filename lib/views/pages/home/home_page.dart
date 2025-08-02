@@ -82,7 +82,7 @@ class _HomePageState extends ConsumerState<HomePage> {
             const SizedBox(height: 10),
             WalkContainer(),
             const SizedBox(height: 20),
-            CaloryContainer(),
+            CalorieContainer(),
             const SizedBox(height: 20),
 
             // Overall Status

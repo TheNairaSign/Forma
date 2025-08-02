@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:workout_tracker/models/state/profile_data.dart';
+import 'package:workout_tracker/providers/calories_provider.dart';
 import 'package:workout_tracker/providers/profile/profile_data_notifier.dart';
+import 'package:workout_tracker/providers/steps_notifier.dart';
+import 'package:workout_tracker/providers/workout_item_notifier.dart';
 import 'package:workout_tracker/views/pages/navigation/navigation_page.dart';
 
 class NavigationFuturePage extends ConsumerStatefulWidget {
@@ -27,8 +30,9 @@ class _NavigationFuturePageState extends ConsumerState<NavigationFuturePage> {
     //   debugPrint('Profile data loaded');
     //   // final user = await SupabaseAuth.instance.getUser();
     //   await HiveService.openUserBoxes();
-    //   ref.read(workoutItemProvider.notifier).getWorkoutsForDay(DateTime.now());
-    //   ref.read(caloryProvider.notifier).getCalorieForDay(DateTime.now());
+      ref.read(workoutItemProvider.notifier).getWorkoutsForDay(DateTime.now());
+      ref.read(caloriesProvider.notifier).getCalorieForDay(DateTime.now());
+      ref.read(stepsProvider.notifier).getTodaySteps();
     // }
     return profile;
   }
