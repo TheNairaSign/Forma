@@ -8,6 +8,8 @@ import 'package:workout_tracker/views/pages/home/widgets/progress_container.dart
 import 'package:workout_tracker/views/pages/home/widgets/walk_container.dart';
 import 'package:workout_tracker/views/widgets/animated_page_entry.dart';
 
+import '../../widgets/steps_estimate_container.dart';
+
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
 
@@ -89,6 +91,7 @@ class _HomePageState extends ConsumerState<HomePage> {
             Text("Overall Status", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             SizedBox(height: 10),
             OverallStatusContainer(),
+            // StepsEstimateContainer()
           ],
         ),
       ),

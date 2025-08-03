@@ -57,7 +57,7 @@ class _WorkoutTrackerState extends ConsumerState<WorkoutTracker> {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: const NavigationFuturePage(),
+      home: const AuthChecker(),
       theme: lightTheme,
     );
   }

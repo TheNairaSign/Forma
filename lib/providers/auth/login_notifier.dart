@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:workout_tracker/auth/supabase/supabase_auth.dart';
 import 'package:workout_tracker/onboarding/screens/onboarding_screen.dart';
 import 'package:workout_tracker/providers/profile/profile_data_notifier.dart';
+import 'package:workout_tracker/services/onboarding_service.dart';
 import 'package:workout_tracker/utils/alerts.dart';
 import 'package:workout_tracker/utils/custom_route.dart';
 import 'package:workout_tracker/views/pages/auth/auth_page.dart';
@@ -79,7 +80,7 @@ class LoginNotifier extends StateNotifier<AsyncValue> {
     }
   }
 
-  Future<void> logoutUser(BuildContext context) async {
+  Future<void> logoutUser(BuildContext context, String userId) async {
     state = const AsyncValue.loading();
 
     state = await AsyncValue.guard(() => _supabaseAuth.signOut());
@@ -87,10 +88,13 @@ class LoginNotifier extends StateNotifier<AsyncValue> {
     if (state.hasError) {
       Alerts.showErrorDialog(context, 'Logout Error', state.error.toString());
     } else {
-      Navigator.of(context).pushAndRemoveUntil(
-        SlidePageRoute(page: AuthPage()),
-        (route) => false,
-      );
+      OnboardingService.instance.clearOnboardingStatus(userId).then((_) {
+        // ref.watch(profileDataProvider.notifier).clearProfileData();
+        Navigator.of(context).pushAndRemoveUntil(
+          SlidePageRoute(page: AuthPage()),
+              (route) => false,
+        );
+      });
     }
   }
 }

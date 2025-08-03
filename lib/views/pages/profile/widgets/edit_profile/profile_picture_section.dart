@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:workout_tracker/onboarding/screens/avatar_page.dart';
 import 'package:workout_tracker/providers/profile/profile_data_notifier.dart';
+import 'package:workout_tracker/providers/profile/update_avatar_container.dart';
 import 'package:workout_tracker/style/global_colors.dart';
 
 class ProfilePictureSection extends ConsumerStatefulWidget {
@@ -12,6 +13,16 @@ class ProfilePictureSection extends ConsumerStatefulWidget {
 }
 
 class _ProfilePictureSectionState extends ConsumerState<ProfilePictureSection> {
+  void _showImageSourceActionSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext bc) {
+        return SafeArea(
+          child: UpdateAvatarContainer()
+        );
+      });
+  }
+
   @override
   Widget build(BuildContext context) {
     final profileData = ref.watch(profileDataProvider).value;
@@ -31,7 +42,7 @@ class _ProfilePictureSectionState extends ConsumerState<ProfilePictureSection> {
             backgroundColor: GlobalColors.primaryBlue,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))
           ),
-          onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => PickAvatarPage(isEdit: true))),
+          onPressed: () => _showImageSourceActionSheet(context),
           child: Text(
             'Change Profile Photo',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.white)

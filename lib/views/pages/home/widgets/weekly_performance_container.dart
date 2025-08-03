@@ -15,17 +15,16 @@ class WeeklyPerformanceContainer extends StatelessWidget {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(title, style: const TextStyle(fontWeight: FontWeight.w500)),
-            Text(day, style: TextStyle(color: Colors.grey[600], fontSize: 12)),
+            Text(title, style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500)),
+            Text(day, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey[600])),
           ],
         ),
         const Spacer(),
         Text(
           steps,
-          style: TextStyle(
+          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
             color: color,
             fontWeight: FontWeight.bold,
-            fontSize: 16,
           ),
         ),
       ],

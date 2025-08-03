@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:workout_tracker/hive/daily_steps_adapter.dart';
-import 'package:workout_tracker/hive/hourly_steps.dart';
 import 'package:workout_tracker/providers/steps_notifier.dart';
 import 'package:workout_tracker/style/global_colors.dart';
 import 'package:workout_tracker/views/widgets/custom_drop_down_button.dart';
@@ -55,9 +54,7 @@ class _ChartDataContainerState extends ConsumerState<ChartDataContainer> {
         background: Container(
           margin: const EdgeInsets.fromLTRB(0, kToolbarHeight + 25 , 0, 16),
           padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-            color: backgroundColor,
-          ),
+          decoration: BoxDecoration(color: backgroundColor),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,

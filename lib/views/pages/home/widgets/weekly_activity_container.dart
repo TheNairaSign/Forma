@@ -55,8 +55,8 @@ class _WeeklyActivityContainerState extends ConsumerState<WeeklyActivityContaine
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Weekly Summary', 
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+          Text('Weekly Summary', 
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
           Row(
@@ -77,9 +77,9 @@ class _WeeklyActivityContainerState extends ConsumerState<WeeklyActivityContaine
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text('Weekly Goal', style: TextStyle(fontSize: 12, color: Colors.grey[600])),
+                        Text('Weekly Goal', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey[600])),
                         Text('${(weeklyProgress * 100).toStringAsFixed(0)}%', 
-                          style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: _getProgressColor(weeklyProgress)),
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold, color: _getProgressColor(weeklyProgress)),
                         ),
                       ],
                     ),
@@ -125,9 +125,9 @@ class _WeeklyActivityContainerState extends ConsumerState<WeeklyActivityContaine
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: TextStyle(fontSize: 12, color: Colors.grey[600])),
+        Text(label, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey[600])),
         const SizedBox(height: 4),
-        Text(value, style: const TextStyle(fontWeight: FontWeight.bold)),
+        Text(value, style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold)),
       ],
     );
   }
@@ -202,11 +202,11 @@ class _WeeklyActivityContainerState extends ConsumerState<WeeklyActivityContaine
                     ],
                   ),
                   const SizedBox(height: 8),
-                  Text(entry.value, style: TextStyle(color: Colors.grey[600])),
+                  Text(entry.value, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey[600])),
                   const SizedBox(height: 4),
                   Text(
                     daySteps.toString(),
-                    style: TextStyle(
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       fontSize: 10,
                       color: Colors.grey[600],
                       fontWeight: isHighest || isLowest ? FontWeight.bold : FontWeight.normal,

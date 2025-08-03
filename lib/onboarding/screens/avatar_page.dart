@@ -9,9 +9,10 @@ import 'package:workout_tracker/style/global_colors.dart';
 import 'package:workout_tracker/utils/flush/flushbar_service.dart';
 import 'package:workout_tracker/views/pages/navigation/navigation_future_page.dart';
 
+import '../../services/onboarding_service.dart';
+
 class PickAvatarPage extends ConsumerStatefulWidget {
-  const PickAvatarPage({super.key, this.isEdit = false});
-  final bool isEdit;
+  const PickAvatarPage({super.key});
 
   @override
   ConsumerState<PickAvatarPage> createState() => _PickAvatarPageState();
@@ -21,12 +22,6 @@ class _PickAvatarPageState extends ConsumerState<PickAvatarPage> {
   // Sample avatar URLs or local asset paths
   final asset = 'assets/avatars';
 
-  final List<String> avatars = [
-    'assets/avatars/boy-avatar.png',
-    'assets/avatars/girl-avatar.png',
-    'assets/avatars/man-avatar.png',
-    'assets/avatars/woman-avatar.png',
-  ];
 
   int? selectedIndex;
 
@@ -68,6 +63,12 @@ class _PickAvatarPageState extends ConsumerState<PickAvatarPage> {
         child: Column(
           children: [
             // Avatars Grid
+            const Text(
+              "Select an avatar that represents you. You can change it later in your profile settings.",
+              style: TextStyle(fontSize: 16, color: Colors.grey),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
             SizedBox(
               height: 250,
               child: GridView.builder(
@@ -111,8 +112,7 @@ class _PickAvatarPageState extends ConsumerState<PickAvatarPage> {
                   },
                 ),
               ),
-            if (widget.isEdit)
-              FinishUpScreen()
+            FinishUpScreen()
           ],
         ),
       ),
@@ -122,19 +122,17 @@ class _PickAvatarPageState extends ConsumerState<PickAvatarPage> {
           onPressed: selectedIndex == null ? null : () async {
             final selectedAvatar = avatars[selectedIndex!];
             debugPrint("Selected Avatar: $selectedAvatar");
-            if(widget.isEdit) {
-              ref.watch(profileDataProvider.notifier).updateUserAvatar(selectedAvatar, isEdit: true);
-              Navigator.of(context).pop();
-              FlushbarService.show(context, message: 'Avatar updated successfully');
-
-            } else {
-              ref.watch(profileDataProvider.notifier).sendProfileData().then((_) {
-                debugPrint("Profile Data sent successfully");
-                // OnboardingService.instance.setUserCompletedOnboarding(ref.watch(profileDataProvider).id!);
-                Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (ctx) => NavigationFuturePage()));
-              });
-
-            }
+            debugPrint('Avatar is not Edit');
+            ref.watch(profileDataProvider.notifier).sendProfileData().then((_) {
+              debugPrint("Profile Data sent successfully");
+              final profileData = ref.read(profileDataProvider).value;
+              if (profileData == null) {
+                debugPrint('Profile data is null after sending');
+                return;
+              }
+              OnboardingService.instance.setUserCompletedOnboarding(profileData.id!);
+              Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (ctx) => NavigationFuturePage()));
+            });
           },
           style: ElevatedButton.styleFrom(
             backgroundColor: GlobalColors.primaryColor,
@@ -149,3 +147,10 @@ class _PickAvatarPageState extends ConsumerState<PickAvatarPage> {
     );
   }
 }
+
+final List<String> avatars = [
+  'assets/avatars/boy-avatar.png',
+  'assets/avatars/girl-avatar.png',
+  'assets/avatars/man-avatar.png',
+  'assets/avatars/woman-avatar.png',
+];

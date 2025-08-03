@@ -3,7 +3,6 @@ import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
 import 'package:workout_tracker/hive/daily_steps_adapter.dart';
 import 'package:workout_tracker/hive/hourly_steps.dart';
-import 'package:workout_tracker/hive/step_entry.dart';
 
 class StepsService {
   String _getDateKey(DateTime date) {
@@ -58,10 +57,39 @@ class StepsService {
     return hourlySteps;
   }
   
-  void updateHourlySteps(Box<HourlySteps> box, int stepCount, DateTime timestamp) {
+  void updateHourlySteps(Box<HourlySteps> box, int totalStepCount, DateTime timestamp) {
     final hour = timestamp.hour;
     final today = DateTime(timestamp.year, timestamp.month, timestamp.day);
     final dateHourKey = '${_getDateKey(today)}_$hour';
+    
+    // Find the previous hour's step count (either from the same day or from the previous day)
+    int previousHourSteps = 0;
+    
+    // If it's not the first hour of the day (hour 0), check the previous hour from the same day
+    if (hour > 0) {
+      final previousHour = hour - 1;
+      final previousHourEntries = box.values.where((entry) =>
+        entry.timestamp.year == today.year &&
+        entry.timestamp.month == today.month &&
+        entry.timestamp.day == today.day &&
+        entry.hour == previousHour
+      ).toList();
+      
+      if (previousHourEntries.isNotEmpty) {
+        previousHourSteps = previousHourEntries.first.steps;
+      }
+    } else {
+      // If it's the first hour of the day (hour 0), we start fresh with 0 as previous steps
+      // This is because hour 0 (midnight) starts a new day's count
+      previousHourSteps = 0;
+    }
+    
+    // Calculate the steps for this hour by subtracting the previous hour's steps
+    // If it's hour 0 (midnight), we use the total step count directly
+    int hourlySteps = hour == 0 ? totalStepCount : totalStepCount - previousHourSteps;
+    
+    // Ensure we don't have negative steps (which could happen if the step counter was reset)
+    hourlySteps = hourlySteps < 0 ? totalStepCount : hourlySteps;
     
     // Check if we already have an entry for this hour
     final existingEntries = box.values.where((entry) =>
@@ -72,23 +100,24 @@ class StepsService {
     ).toList();
     
     if (existingEntries.isNotEmpty) {
-      // Update existing entry
-      final existingEntry = existingEntries.first;
+      // Update existing entry with the calculated hourly steps
       box.put(dateHourKey, HourlySteps(
         timestamp: today,
         hour: hour,
-        steps: stepCount,
+        steps: hourlySteps,
         lastUpdated: DateTime.now(),
       ));
     } else {
-      // Create new entry
+      // Create new entry with the calculated hourly steps
       box.put(dateHourKey, HourlySteps(
         timestamp: today,
         hour: hour,
-        steps: stepCount,
+        steps: hourlySteps,
         lastUpdated: DateTime.now(),
       ));
     }
+    
+    print('Updated hourly steps for hour $hour: Total steps = $totalStepCount, Hourly steps = $hourlySteps');
   }
   
   int getStepsForHour(Box<HourlySteps> box, DateTime date, int hour) {
@@ -161,5 +190,16 @@ class StepsService {
       steps: 0,
       lastUpdated: today,
     ));
+  }
+
+}
+
+class StepsServiceException implements Exception {
+  final String message;
+  StepsServiceException(this.message);
+
+  @override
+  String toString() {
+    return 'StepsServiceException: $message';
   }
 }
