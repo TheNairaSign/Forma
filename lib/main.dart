@@ -10,7 +10,6 @@ import 'package:workout_tracker/services/hive_service.dart';
 import 'package:workout_tracker/style/theme/light_theme.dart';
 import 'package:workout_tracker/providers/workout_group_notifier.dart';
 import 'package:provider/provider.dart';
-import 'package:workout_tracker/views/pages/navigation/navigation_future_page.dart';
 
 
 void main(List<String> args) async {

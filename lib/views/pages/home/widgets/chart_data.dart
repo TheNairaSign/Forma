@@ -26,6 +26,7 @@ class _ChartDataContainerState extends ConsumerState<ChartDataContainer> {
   void initState() {
     super.initState();
     stepsState = ref.read(stepsProvider.notifier);
+    stepsState.calculateHourlyStepsForToday();
   }
 
   List<DailySteps> get currentData {
@@ -250,12 +251,15 @@ class _ChartDataContainerState extends ConsumerState<ChartDataContainer> {
                   barGroups: selectedRange == 'Daily'
                     ? List.generate(
                       12, // Always 12 bars for AM or PM
-                          (index) {
-                        // Use hourlySteps from the state directly
-                        final hourlyData = ref.watch(stepsProvider).hourlySteps;
+                      (index) {
+                        // Use the backward compatibility method
+                        final stepsState = ref.watch(stepsProvider);
+                        
                         // Calculate the actual 24-hour key based on isAm
                         final int hourKey = isAm ? index : index + 12;
-                        final steps = hourlyData[hourKey] ?? 0;
+                        
+                        // Use the operator overload or stepsForHour method
+                        final steps = stepsState[hourKey]; // or stepsState.stepsForHour(hourKey)
 
                         return BarChartGroupData(
                           x: index, // Represents 0-11 for the current period (AM/PM)

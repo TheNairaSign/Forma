@@ -12,6 +12,7 @@ import 'package:workout_tracker/hive/hourly_steps.dart';
 import 'package:workout_tracker/hive/step_entry.dart';
 import 'package:workout_tracker/models/state/steps_state.dart';
 import 'package:workout_tracker/providers/box_providers.dart';
+import 'package:workout_tracker/providers/calories_provider.dart';
 import 'package:workout_tracker/services/steps_service.dart';
 import 'package:workout_tracker/utils/alerts.dart';
 import 'package:workout_tracker/utils/flush/flushbar_service.dart';
@@ -69,13 +70,16 @@ class StepsNotifier extends StateNotifier<StepsState> {
     state = state;
   }
 
-  int stepsCalory = 0;
+  int get stepsCalory {
+    final calories = (state.steps * 0.04).truncate();
+    debugPrint('Steps Calory: $calories');
+    return calories;
+  }
 
-  // int get stepsCalory {
-  //   final calories = (state.steps * 0.04).truncate();
-  //   debugPrint('Steps Calory: $calories');
-  //   return calories;
-  // }
+  void addStepCalories() {
+    final calorieProvider = ref.read(caloriesProvider.notifier);
+    calorieProvider.addCalories(stepsCalory);
+  }
 
 
   double stepsProgress(int? animationValue) {
@@ -87,43 +91,35 @@ class StepsNotifier extends StateNotifier<StepsState> {
     return DateFormat('yyyy-MM-dd').format(date);
   }
 
+  int? _lastUpdatedHour;
+  DateTime? _lastUpdateDate;
+  
   void onStepCount(int stepCount) {
     final currentDate = DateTime.now();
 
+    // Store the raw step deltas (keep this for data tracking)
     final deltaBox = Hive.box<StepEntry>('step_deltas');
-
     deltaBox.add(StepEntry(timestamp: currentDate, steps: stepCount));
+    
     if (currentDate != _currentDate) {
       _currentDate = currentDate;
     }
     
     final dateKey = _getDateKey(_currentDate);
+    
     try {
-      // Update daily steps
+      // Update daily steps only
       final box = _dailyStepsBox;
-      final dailySteps = box.get(dateKey);
-
-      if (dailySteps != null) {
-        debugPrint('Step Count: ${dailySteps.steps}');
-        box.put(dateKey, DailySteps(
-          date: _currentDate,
-          steps: stepCount,
-          lastUpdated: DateTime.now(),
-        ));  
-      } else {
-        debugPrint('Steps Count: $stepCount');
-        box.put(dateKey, DailySteps(
-          date: _currentDate,
-          steps: stepCount,
-          lastUpdated: DateTime.now(),
-        ));
-      }
+      box.put(dateKey, DailySteps(
+        date: _currentDate,
+        steps: stepCount,
+        lastUpdated: DateTime.now(),
+      ));
       
-      // Update hourly steps
-      _updateHourlySteps(stepCount, currentDate);
+      // Calculate hourly data on-demand (no persistence)
+      final hourlySteps = calculateHourlyStepsForToday();
       
-      // Update state with new step count and hourly steps
-      final hourlySteps = getHourlyStepsForToday();
+      // Update state
       state = state.copyWith(
         steps: stepCount,
         hourlySteps: hourlySteps,
@@ -131,6 +127,22 @@ class StepsNotifier extends StateNotifier<StepsState> {
     } catch (e) {
       debugPrint('Error updating step count: $e');
     }
+  }
+
+  List<HourlySteps> calculateHourlyStepsForToday() {
+    final stepsService = StepsService();
+    final hourlyStepsForDay = stepsService.calculateHourlyStepsForToday();
+    for (var hourlyStep in hourlyStepsForDay) {
+      debugPrint('Hourly Steps for Today: ${hourlyStep.hour} : With Steps: ${hourlyStep.steps}');
+
+    }
+    return hourlyStepsForDay;
+  }
+
+  bool _isSameDay(DateTime date1, DateTime date2) {
+    return date1.year == date2.year &&
+           date1.month == date2.month &&
+           date1.day == date2.day;
   }
   
   void _updateHourlySteps(int stepCount, DateTime timestamp) {
@@ -398,12 +410,12 @@ class StepsNotifier extends StateNotifier<StepsState> {
     _stepCountStream.listen((StepCount event) => onStepCount(event.steps)).onError(onStepCountError);
 
     // Get hourly steps for today
-    final hourlySteps = getHourlyStepsForToday();
+    // final hourlySteps = calculateHourlyStepsForToday();
 
     state = state.copyWith(
       stepCountStream: _stepCountStream,
       pedestrianStatusStream: _pedestrianStatusStream,
-      hourlySteps: hourlySteps,
+      // hourlySteps: hourlySteps,
     );
 
     debugPrint('🚀 Steps Notifier initialized - Status: ${state.status}, Daily steps: ${state.steps}, Date: ${state.date}');

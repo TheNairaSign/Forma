@@ -3,6 +3,7 @@ import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
 import 'package:workout_tracker/hive/daily_steps_adapter.dart';
 import 'package:workout_tracker/hive/hourly_steps.dart';
+import 'package:workout_tracker/hive/step_entry.dart';
 
 class StepsService {
   String _getDateKey(DateTime date) {
@@ -25,6 +26,91 @@ class StepsService {
         lastUpdated: DateTime.now(),
       ),
     );
+  }
+
+  List<HourlySteps> calculateHourlyStepsForToday() {
+    final today = DateTime.now();
+    final todayStart = DateTime(today.year, today.month, today.day);
+    final todayEnd = todayStart.add(const Duration(days: 1));
+
+    // Get all step entries for today
+    final deltaBox = Hive.box<StepEntry>('step_deltas');
+    final todayEntries = deltaBox.values
+        .where((entry) => 
+            entry.timestamp.isAfter(todayStart) && 
+            entry.timestamp.isBefore(todayEnd))
+        .toList()
+      ..sort((a, b) => a.timestamp.compareTo(b.timestamp));
+
+    if (todayEntries.isEmpty) {
+      return [];
+    }
+
+    // Group entries by hour and calculate hourly steps
+    final Map<int, List<StepEntry>> hourlyGroups = {};
+    
+    for (final entry in todayEntries) {
+      final hour = entry.timestamp.hour;
+      hourlyGroups[hour] ??= [];
+      hourlyGroups[hour]!.add(entry);
+    }
+
+    final List<HourlySteps> hourlySteps = [];
+    
+    // Calculate steps for each hour
+    for (int hour = 0; hour <= 23; hour++) {
+      final entriesForHour = hourlyGroups[hour];
+      
+      if (entriesForHour == null || entriesForHour.isEmpty) {
+        // No activity this hour - but only add if we're past this hour or it's current hour
+        if (hour <= today.hour) {
+          hourlySteps.add(HourlySteps(
+            timestamp: todayStart,
+            hour: hour,
+            steps: 0,
+            lastUpdated: today,
+          ));
+        }
+        continue;
+      }
+
+      // Get the step count difference for this hour
+      final firstEntry = entriesForHour.first;
+      final lastEntry = entriesForHour.last;
+      
+      // Calculate steps taken during this hour
+      int hourlyStepCount;
+      
+      if (hour == 0) {
+        // First hour of the day - use the last entry's value
+        hourlyStepCount = lastEntry.steps;
+      } else {
+        // Find the last entry from the previous hour
+        int previousHourTotal = 0;
+        
+        for (int prevHour = hour - 1; prevHour >= 0; prevHour--) {
+          final prevHourEntries = hourlyGroups[prevHour];
+          if (prevHourEntries != null && prevHourEntries.isNotEmpty) {
+            previousHourTotal = prevHourEntries.last.steps;
+            break;
+          }
+        }
+        
+        hourlyStepCount = lastEntry.steps - previousHourTotal;
+      }
+
+      // Ensure no negative steps
+      hourlyStepCount = hourlyStepCount < 0 ? 0 : hourlyStepCount;
+
+      hourlySteps.add(HourlySteps(
+        timestamp: todayStart,
+        hour: hour,
+        steps: hourlyStepCount,
+        lastUpdated: lastEntry.timestamp,
+      ));
+    }
+
+    return hourlySteps;
   }
 
   List<DailySteps> getDailySteps(Box<DailySteps> box) {
@@ -61,36 +147,24 @@ class StepsService {
     final hour = timestamp.hour;
     final today = DateTime(timestamp.year, timestamp.month, timestamp.day);
     final dateHourKey = '${_getDateKey(today)}_$hour';
-    
-    // Find the previous hour's step count (either from the same day or from the previous day)
-    int previousHourSteps = 0;
-    
-    // If it's not the first hour of the day (hour 0), check the previous hour from the same day
-    if (hour > 0) {
-      final previousHour = hour - 1;
-      final previousHourEntries = box.values.where((entry) =>
-        entry.timestamp.year == today.year &&
-        entry.timestamp.month == today.month &&
-        entry.timestamp.day == today.day &&
-        entry.hour == previousHour
-      ).toList();
-      
-      if (previousHourEntries.isNotEmpty) {
-        previousHourSteps = previousHourEntries.first.steps;
-      }
-    } else {
-      // If it's the first hour of the day (hour 0), we start fresh with 0 as previous steps
-      // This is because hour 0 (midnight) starts a new day's count
-      previousHourSteps = 0;
-    }
-    
-    // Calculate the steps for this hour by subtracting the previous hour's steps
-    // If it's hour 0 (midnight), we use the total step count directly
-    int hourlySteps = hour == 0 ? totalStepCount : totalStepCount - previousHourSteps;
-    
+
+    // Get all entries for the current day up to the previous hour
+    final previousHoursEntries = box.values.where((entry) =>
+      entry.timestamp.year == today.year &&
+      entry.timestamp.month == today.month &&
+      entry.timestamp.day == today.day &&
+      entry.hour < hour
+    ).toList();
+
+    // Sum the steps from all previous hours
+    int previousTotalSteps = previousHoursEntries.fold(0, (sum, entry) => sum + entry.steps);
+
+    // Calculate the steps for the current hour
+    int hourlySteps = totalStepCount - previousTotalSteps;
+
     // Ensure we don't have negative steps (which could happen if the step counter was reset)
     hourlySteps = hourlySteps < 0 ? totalStepCount : hourlySteps;
-    
+
     // Check if we already have an entry for this hour
     final existingEntries = box.values.where((entry) =>
       entry.timestamp.year == today.year &&
@@ -98,7 +172,7 @@ class StepsService {
       entry.timestamp.day == today.day &&
       entry.hour == hour
     ).toList();
-    
+
     if (existingEntries.isNotEmpty) {
       // Update existing entry with the calculated hourly steps
       box.put(dateHourKey, HourlySteps(
@@ -116,7 +190,7 @@ class StepsService {
         lastUpdated: DateTime.now(),
       ));
     }
-    
+
     print('Updated hourly steps for hour $hour: Total steps = $totalStepCount, Hourly steps = $hourlySteps');
   }
   

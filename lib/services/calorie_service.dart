@@ -59,6 +59,7 @@ class CalorieService {
       timestamp: DateTime.now(),
       source: source,
     );
+    print('Adding calories: $entry');
     _calorieBox.add(entry);
   }
 
